@@ -1,0 +1,308 @@
+# CLAUDE.md — App de Lumiar / São Pedro da Serra
+
+Este arquivo é a referência oficial do projeto. Leia por completo antes de
+escrever qualquer código. Em caso de conflito entre este arquivo e
+qualquer outro documento do repositório, **este arquivo vale**.
+
+Documentos de apoio (na pasta `docs/` do repo): visão geral, escopo
+detalhado, arquitetura técnica, práticas de GitHub, wireframes completos,
+plano de implementação, roadmap de longo prazo. Consulte-os quando
+precisar de mais detalhe do que está aqui.
+
+---
+
+## 1. O que é o projeto
+
+App web (PWA) que conecta prestadores de serviço a clientes em Lumiar e
+São Pedro da Serra (distritos de Nova Friburgo, RJ), substituindo grupos
+de WhatsApp caóticos. Gratuito pro prestador, sem comissão. Navegável sem
+login; login só é exigido pra cadastrar um serviço.
+
+---
+
+## 2. Regra de ouro: uma feature de cada vez
+
+**Não implemente tudo de uma vez.** Siga a ordem de `docs/11_PLANO_IMPLEMENTACAO.md`
+— Fase 0 até Fase 7, uma feature por vez. Ao terminar cada feature:
+1. Mostre o resultado pro usuário
+2. Espere confirmação antes de commitar
+3. Só então siga pra próxima feature
+
+**Granularidade de commit:** 1 commit = 1 feature completa e testada,
+nunca 1 commit por pequena alteração isolada (input novo, cor mudada,
+typo corrigido) — isso polui o log e gasta tokens à toa. Mas também nunca
+"o app inteiro num commit só" — perde rastreabilidade. Ver
+`docs/04_GITHUB_PRATICAS.md` pra convenção de mensagem de commit
+(Conventional Commits).
+
+---
+
+## 3. Segurança sempre em primeiro lugar
+
+Segurança nunca é sacrificada por velocidade. Checklist obrigatória,
+aplicada a **todo** código, sem exceção:
+
+| # | Item | Como aplicar |
+|---|---|---|
+| 1 | Hide API keys | Só em `.env.local` / Vercel env vars, nunca hardcoded |
+| 2 | Purge git secrets | `.env*` no `.gitignore` desde o 1º commit; `gitleaks` no CI |
+| 3 | Use public DB key | Frontend usa só a `anon key` do Supabase; `service_role key` nunca sai do backend |
+| 4 | Enable RLS | Row-Level Security ligado em **toda** tabela desde a criação |
+| 5 | Encrypt sensitive data | Dados sensíveis nunca em texto plano em logs |
+| 6 | Enforce server-side auth | Toda mutação validada no servidor, nunca só no frontend |
+| 7 | Lock record access | RLS restringe cada registro ao dono (`profile_id`/`user_id`) |
+| 8 | Block field tampering | Whitelist de campos aceitos por endpoint — nunca aceitar `status`, `role` etc. vindos do cliente |
+| 9 | Secure session cookies | `httpOnly`, `secure`, `SameSite` (Supabase Auth já cobre) |
+| 10 | Hash passwords | bcrypt/Argon2 via Supabase Auth nativo — nunca reimplementar |
+| 11 | Rate limit login | Vercel Edge Middleware + Upstash Redis |
+| 12 | Add bot protection | Captcha (hCaptcha/Turnstile) em cadastro e login |
+| 13 | Parameterize queries | Sempre via client Supabase, nunca SQL concatenado |
+| 14 | Validate all input | Zod no backend, mesmo se já validado no frontend |
+| 15 | Escape user content | Nunca `dangerouslySetInnerHTML` sem sanitizar |
+| 16 | Restrict file uploads | Só imagem, tamanho máximo, bucket com policy própria |
+| 17 | Trim API responses | Nunca devolver senha, data de nascimento etc. em resposta pública |
+| 18 | Add security headers | CSP, `X-Frame-Options`, `Strict-Transport-Security` no `next.config.js` |
+| 19 | Force HTTPS | Automático no Vercel |
+| 20 | Scan dependencies | `npm audit` + Dependabot no CI |
+
+Antes de considerar a Fase 2 (auth) e qualquer feature que mexe com dados
+de usuário como "pronta", revise contra esta tabela item por item.
+
+### Regra de sensibilidade de dados (crítica)
+
+```
+STATUS PENDENTE (pessoa ou serviço):
+   → TODAS as informações são privadas, sem exceção — inclusive campos
+     que seriam públicos depois de aprovado (foto, nome, categoria)
+   → Nada aparece em busca, nenhuma URL pública acessível
+   → Só o admin vê, no dashboard
+
+STATUS APROVADO:
+   → Só os campos marcados como públicos ficam visíveis:
+     foto principal, foto de capa, nome, categoria, descrição,
+     Instagram, telefone (via botão de WhatsApp)
+   → Sempre privados, mesmo aprovado: email, senha, data de nascimento,
+     endereço completo
+```
+
+---
+
+## 4. Convenção de idioma
+
+- **Código** (variáveis, funções, arquivos, commits): sempre em **inglês**
+- **Comentários no código**: sempre em **português**
+- **UI/navegação do app**: **português** como padrão, com opção de
+  **inglês** (`next-intl`)
+
+---
+
+## 5. Stack técnica
+
+| Camada | Escolha |
+|---|---|
+| Frontend | Next.js (App Router) + React + TypeScript + Tailwind |
+| Componentes UI | shadcn/ui |
+| Backend | Next.js API Routes |
+| Database | Supabase (PostgreSQL + Auth + RLS) |
+| Hosting | Vercel |
+| Email transacional | Resend |
+| Erros | Sentry |
+| Rate limiting | Vercel Edge Middleware + Upstash Redis |
+| i18n | next-intl |
+| Validação | Zod (sempre no backend) |
+| Endereço | Google Places Autocomplete + Geocoding API |
+
+Custo mensal do MVP: R$ 0 (free tiers).
+
+---
+
+## 6. Escopo do V0 — o que construir
+
+### Dentro do V0
+- Navegação livre, sem login
+- Cadastro de Prestador de Serviço (login só exigido aqui)
+- Categorias: Motoboy, Faxina, Mototáxi, Uber, Estética, Adestramento,
+  Hospedagem Pet, Lojas, Babá, Educação, Psicólogo, Artes
+- Botão de WhatsApp em cada perfil
+- Aprovação manual pelo admin (todo serviço nasce PENDENTE)
+- Aba Úteis: horários de ônibus, clima, telefones úteis
+- Toggle Cards/Lista em Home, Categorias, Busca e Úteis
+- PWA: adicionar à tela inicial (com detecção de navegador/SO)
+- Enviar Sugestão (geral, lugar, ou problema)
+- Anúncio voluntário (botão "Ver Anúncio", Fase 1 do plano de ads)
+
+### Fora do V0 (adiado, não cancelado — ver `docs/06_VISAO_LONGO_PRAZO.md`)
+- Negócio/CNPJ, badge automático, galeria de negócio
+- Avaliações/rating
+- Feed de notícias/eventos (substituído pelo widget de Clima)
+- Status "disponível agora" / online-offline
+- Chat interno, pagamento, app nativo
+
+---
+
+## 7. Fluxo de cadastro
+
+### Passo 1 — Sua Conta (só ao clicar "Cadastrar Serviço")
+```
+Foto de Perfil (obrigatória)
+Nome            ← auto-capitaliza
+Sobrenome       ← auto-capitaliza
+Email           ← valida formato
+Telefone        ← máscara (xx) xxxxx-xxxx
+Data de Nascimento  ← formato xx/xx/xxxx, ícone de calendário
+Senha + Confirmar Senha  ← medidor de força, precisam bater
+Endereço        ← Google Places Autocomplete, normaliza formato
+                   (aceita fora da área, sinaliza pro admin, não bloqueia)
+☑️ Termos de Uso
+
+→ Email/telefone já existentes: erro inline, sugere login
+```
+
+### Passo 2 — Seu Serviço (direto na sequência)
+```
+Foto Principal (obrigatória — centro do card)
+Foto de Capa (opcional — fundo atrás da principal)
+Categoria (dropdown)
+Nome do Serviço (opcional)   ← auto-capitaliza
+Descrição (opcional)         ← auto-capitaliza
+Instagram (opcional)
+☑️ Termos de Prestador
+
+→ Status PENDENTE
+→ Cai na tela do próprio serviço (não no formulário) — galeria de fotos
+  (até 5) é adicionada lá, não durante o cadastro
+```
+
+### Menores de idade
+Sem bloqueio automático. Se a data indicar menor de 18, o cadastro é
+aceito e enviado normalmente, mas fica marcado "⚠️ MENOR DE IDADE" só
+pro admin (nunca visível pro usuário) — decisão de aprovar/rejeitar é
+manual, caso a caso. **Não mostrar aviso em tempo real** de idade mínima
+no formulário (evita ensinar como burlar trocando a data).
+
+⚠️ Ponto de atenção legal (não resolvido ainda): coleta de dados de
+possíveis menores pode acionar exigências da LGPD (Art. 14) sobre
+consentimento de responsável. Não é algo pra resolver só no código —
+está pendente de consulta jurídica, não bloqueia o desenvolvimento mas
+bloqueia o lançamento público.
+
+---
+
+## 8. Estrutura de dados (schema base)
+
+Ver `docs/03_ARQUITETURA_TECNICA.md` pro schema SQL completo. Resumo:
+
+- `profiles` — dados extras do usuário (auth/senha ficam no `auth.users`
+  nativo do Supabase, nunca reimplementar hash de senha)
+- `prestadores` — cada serviço (1 profile pode ter vários), com
+  `foto_principal_url` (obrigatória) + `foto_capa_url` (opcional)
+- `galeria_fotos` — até 5 por prestador, adicionadas pós-cadastro
+- `categorias` — seed com a lista da seção 6
+- `sugestoes` — formulário de sugestão
+
+Sem tabela de avaliação/rating (fora do V0). Sem tabela de negócio/CNPJ
+(fora do V0). Extensões futuras entram via migration nova, nunca
+reescrevendo o que já existe.
+
+---
+
+## 9. Design system
+
+```
+PRIMARY:    Verde-azulado profundo   #0F6E5C
+SECONDARY:  Terracota suave          #C97B4A
+NEUTRAL:    Cinza-pedra #4A4A48 (texto) / Bege-claro #F5F3EF (fundo)
+SUCCESS:    Verde WhatsApp #25D366 (reservado só pro botão de WhatsApp)
+ERROR:      Vermelho-terracota #B4442E
+TIPOGRAFIA: Inter (headings + body)
+ESPAÇAMENTO: múltiplos de 8px
+```
+
+### Princípios de UI obrigatórios
+- **Cards compactos**, não gigantes (grid de 3 colunas em mobile)
+- **Toggle Cards/Lista** disponível em Home, Categorias, Busca e Úteis;
+  ambos os formatos sempre clicáveis
+- **Foto em duas camadas:** capa (opcional, fundo) + principal
+  (obrigatória, círculo central) — sem capa, mostra cor neutra de fundo
+- **Nome/título nunca sobreposto na foto** — sempre como texto separado,
+  abaixo dela
+- Botões de trocar foto ficam **perto** da foto, nunca sobrepostos nela
+- Mobile-first, breakpoints por largura de tela (não por modelo de
+  celular)
+- WCAG 2.1 AA desde o início (shadcn/ui já cobre boa parte)
+
+Wireframes completos de cada tela (ASCII, com todas as correções
+aplicadas): `docs/10_WIREFRAMES_SKETCH_BAIXO.md`.
+
+---
+
+## 10. Navegação (bottom nav)
+
+```
+Deslogado / sem serviço:  🏠 Home   🔍 Buscar   🔧 Úteis   ☰ Menu
+Logado com serviço:       🏠 Home   🔍 Buscar   🔧 Úteis   ☰ Perfil
+```
+
+Menu/Perfil contém: Login (se deslogado) ou dados da conta + "Meus
+Serviços" (se logado), Configurações (tema claro/escuro, idioma com
+bandeiras 🇧🇷/🇺🇸), Adicionar à Tela Inicial, Enviar Sugestão, Sobre o App
+(Termos de Uso + Política de Privacidade).
+
+Dados privados (email) nunca aparecem nem pro próprio dono na tela de
+Perfil — ele já sabe qual é o email dele.
+
+---
+
+## 11. PWA — adicionar à tela inicial
+
+```
+1. Já rodando em modo instalado? → não mostra nada
+2. Navegador suporta instalação nativa (Chrome/Edge/etc)? → botão de
+   1 clique (API beforeinstallprompt)
+3. iPhone + navegador que não é Safari? → "abra este link no Safari
+   pra instalar"
+4. iPhone + Safari? → passo a passo (Compartilhar → Adicionar à Tela
+   de Início)
+```
+
+Botão fica disponível em três lugares: Home, onboarding (primeira
+visita), e Menu/Perfil.
+
+---
+
+## 12. O que NÃO fazer
+
+- Não implementar rating/avaliação (fora do V0)
+- Não implementar feed de notícias completo (só o widget de Clima)
+- Não implementar status online/offline
+- Não implementar Negócio/CNPJ
+- Não bloquear cadastro de menor de idade automaticamente (fica pendente
+  pro admin decidir)
+- Não mostrar mensagem de "idade mínima" em tempo real no formulário
+- Não expor nenhum campo de um cadastro/serviço PENDENTE publicamente,
+  mesmo os que seriam públicos depois de aprovado
+- Não reimplementar hash de senha manualmente — usar Supabase Auth nativo
+- Não usar `service_role key` no frontend
+- Não pular a checklist de segurança pra "ir mais rápido"
+
+---
+
+## 13. Pendências conhecidas (não bloqueiam o desenvolvimento)
+
+- Rede de anúncios (AdSense provável, avaliar perto do lançamento)
+- Texto de Política de Privacidade e Termos de Uso (placeholder ok por
+  enquanto, mas precisa existir antes do lançamento público)
+- Consulta jurídica sobre dados de menores (LGPD) — antes do lançamento,
+  não antes de codar
+
+Ver `docs/08_PENDENCIAS_ABERTAS.md` pra lista completa e atualizada.
+
+---
+
+## 14. Ideias de fases futuras (não implementar agora)
+
+Registradas em `docs/05_IDEIAS_E_DECISOES_UX.md` e
+`docs/06_VISAO_LONGO_PRAZO.md`: Negócio/Fase 1, marketplace leve/Fase 2,
+módulo de turismo/Fase 3, app nativo/Fase 4, aba de Jogos com desafios
+diários, leaderboard de corrida (KMs acumulados). Nenhuma dessas entra
+no V0 — só mencionar se o usuário perguntar sobre o roadmap.
