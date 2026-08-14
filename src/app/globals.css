@@ -1,9 +1,156 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Espaçamento em múltiplos de 8px (seção 9 do CLAUDE.md) — redefine a
+     unidade base do Tailwind, então p-1=8px, p-2=16px, p-3=24px... */
+  --spacing: 8px;
+
+  /* Paleta de marca — escalas usadas direto (ex: bg-primary-500) */
+  --color-primary-50: #f0fdf9;
+  --color-primary-100: #dcfaf3;
+  --color-primary-200: #b9f3e8;
+  --color-primary-300: #85e7d5;
+  --color-primary-400: #4dd4bf;
+  --color-primary-500: #0f6e5c;
+  --color-primary-600: #0d5c4a;
+  --color-primary-700: #0b4a39;
+  --color-primary-800: #083a2c;
+  --color-primary-900: #062a21;
+
+  --color-secondary-50: #fef4f0;
+  --color-secondary-100: #fde4d9;
+  --color-secondary-200: #fac9af;
+  --color-secondary-300: #f6a57d;
+  --color-secondary-400: #f08254;
+  --color-secondary-500: #c97b4a;
+  --color-secondary-600: #b86937;
+  --color-secondary-700: #9d5429;
+  --color-secondary-800: #7d3f1f;
+  --color-secondary-900: #632d17;
+
+  --color-neutral-text: #4a4a48;
+  --color-neutral-bg: #f5f3ef;
+
+  /* Verde WhatsApp — reservado só pro botão de WhatsApp, nunca usado como
+     "success" genérico em outro contexto */
+  --color-whatsapp: #25d366;
+}
 
 @layer base {
-  body {
-    @apply bg-neutral-bg text-neutral-text font-inter;
+  /* Tokens semânticos do shadcn/ui — mapeados pra marca (seção 9 do
+     CLAUDE.md). Contraste checado contra WCAG AA (4.5:1 texto normal):
+     primary/secondary/destructive com foreground branco ou preto passam
+     todos acima de 5:1; neutral-text sobre neutral-bg passa em ~7.8:1. */
+  :root {
+    --background: #f5f3ef;
+    --foreground: #4a4a48;
+
+    --card: #ffffff;
+    --card-foreground: #4a4a48;
+
+    --popover: #ffffff;
+    --popover-foreground: #4a4a48;
+
+    --primary: #0f6e5c;
+    --primary-foreground: #ffffff;
+
+    --secondary: #c97b4a;
+    --secondary-foreground: #000000;
+
+    --muted: #ede9e2;
+    --muted-foreground: #6b6b68;
+
+    --accent: #e3f3ef;
+    --accent-foreground: #0b4a39;
+
+    --destructive: #b4442e;
+    --destructive-foreground: #ffffff;
+
+    --border: #e2dfd7;
+    --input: #e2dfd7;
+    --ring: #0f6e5c;
+
+    --radius: 0.625rem;
   }
+
+  .dark {
+    --background: #1c1c1a;
+    --foreground: #f5f3ef;
+
+    --card: #262624;
+    --card-foreground: #f5f3ef;
+
+    --popover: #262624;
+    --popover-foreground: #f5f3ef;
+
+    --primary: #4dd4bf;
+    --primary-foreground: #062a21;
+
+    --secondary: #f08254;
+    --secondary-foreground: #000000;
+
+    --muted: #33322e;
+    --muted-foreground: #b5b2a9;
+
+    --accent: #0b4a39;
+    --accent-foreground: #b9f3e8;
+
+    --destructive: #e5836c;
+    --destructive-foreground: #2a0d06;
+
+    --border: rgb(255 255 255 / 12%);
+    --input: rgb(255 255 255 / 15%);
+    --ring: #4dd4bf;
+  }
+
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply font-sans;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
