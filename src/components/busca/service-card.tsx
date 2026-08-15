@@ -7,6 +7,7 @@ import type { Prestador } from '@/lib/mock-data'
 import { getCategoria } from '@/lib/mock-data'
 import type { ViewMode } from '@/components/shared/view-toggle'
 import { cn } from '@/lib/utils'
+import { whatsappHref } from '@/lib/whatsapp'
 
 // Cores de placeholder pro avatar — enquanto não existe foto real
 // (upload de foto chega na Fase 3), cicla por essas cores de marca
@@ -29,13 +30,6 @@ function initials(nome: string) {
     .map((p) => p[0])
     .join('')
     .toUpperCase()
-}
-
-function whatsappHref(numero: string, nomeServico: string) {
-  const mensagem = encodeURIComponent(
-    `Olá! Vi seu serviço "${nomeServico}" no app Lumiar/São Pedro da Serra.`
-  )
-  return `https://wa.me/${numero}?text=${mensagem}`
 }
 
 // Botão, não <a> — o card inteiro já é um Link (não pode aninhar <a> em <a>)

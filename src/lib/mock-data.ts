@@ -47,6 +47,15 @@ export type Prestador = {
   categoriaSlug: string
   descricao: string
   whatsapp: string
+  telefoneDisplay: string
+  // Só o distrito, nunca endereço completo (dado sensível — CLAUDE.md
+  // item 8 da estrutura de dados)
+  endereco: string
+  instagram?: string
+}
+
+export function getPrestador(id: string): Prestador | undefined {
+  return PRESTADORES.find((p) => p.id === id)
 }
 
 // Dados fake pra Fase 1 (telas estáticas) — substituído por dados reais
@@ -59,6 +68,9 @@ export const PRESTADORES: Prestador[] = [
     categoriaSlug: 'motoboy',
     descricao: 'Entrego qualquer coisa. Rápido e seguro, todo dia até 22h.',
     whatsapp: '5521987654321',
+    telefoneDisplay: '(21) 98765-4321',
+    endereco: 'Lumiar, Nova Friburgo',
+    instagram: 'joao_moto',
   },
   {
     id: '2',
@@ -67,6 +79,8 @@ export const PRESTADORES: Prestador[] = [
     categoriaSlug: 'faxina',
     descricao: 'Faxina completa, com ou sem produtos. Referências na região.',
     whatsapp: '5521987654322',
+    telefoneDisplay: '(21) 98765-4322',
+    endereco: 'São Pedro da Serra, Nova Friburgo',
   },
   {
     id: '3',
@@ -75,6 +89,9 @@ export const PRESTADORES: Prestador[] = [
     categoriaSlug: 'mototaxi',
     descricao: 'Corridas em Lumiar e São Pedro, 24h.',
     whatsapp: '5521987654323',
+    telefoneDisplay: '(21) 98765-4323',
+    endereco: 'Lumiar, Nova Friburgo',
+    instagram: 'carlao_mototaxi',
   },
   {
     id: '4',
@@ -83,6 +100,8 @@ export const PRESTADORES: Prestador[] = [
     categoriaSlug: 'uber',
     descricao: 'Carro confortável, ar-condicionado. Viagens até Nova Friburgo.',
     whatsapp: '5521987654324',
+    telefoneDisplay: '(21) 98765-4324',
+    endereco: 'Lumiar, Nova Friburgo',
   },
   {
     id: '5',
@@ -91,6 +110,9 @@ export const PRESTADORES: Prestador[] = [
     categoriaSlug: 'estetica',
     descricao: 'Manicure, pedicure e sobrancelha. Atendo em domicílio.',
     whatsapp: '5521987654325',
+    telefoneDisplay: '(21) 98765-4325',
+    endereco: 'São Pedro da Serra, Nova Friburgo',
+    instagram: 'espacobelaana',
   },
   {
     id: '6',
@@ -99,6 +121,9 @@ export const PRESTADORES: Prestador[] = [
     categoriaSlug: 'adestramento',
     descricao: 'Adestramento básico e comportamental, cães de todas as idades.',
     whatsapp: '5521987654326',
+    telefoneDisplay: '(21) 98765-4326',
+    endereco: 'Lumiar, Nova Friburgo',
+    instagram: 'adestrabicho',
   },
   {
     id: '7',
@@ -107,6 +132,9 @@ export const PRESTADORES: Prestador[] = [
     categoriaSlug: 'hospedagem-pet',
     descricao: 'Hospedagem com carinho pro seu pet enquanto você viaja.',
     whatsapp: '5521987654327',
+    telefoneDisplay: '(21) 98765-4327',
+    endereco: 'São Pedro da Serra, Nova Friburgo',
+    instagram: 'hotelpetdafe',
   },
   {
     id: '8',
@@ -115,6 +143,8 @@ export const PRESTADORES: Prestador[] = [
     categoriaSlug: 'lojas',
     descricao: 'Mercearia com produtos frescos direto da roça.',
     whatsapp: '5521987654328',
+    telefoneDisplay: '(21) 98765-4328',
+    endereco: 'Lumiar, Nova Friburgo',
   },
   {
     id: '9',
@@ -123,6 +153,8 @@ export const PRESTADORES: Prestador[] = [
     categoriaSlug: 'baba',
     descricao: 'Babá experiente, referências de famílias da região.',
     whatsapp: '5521987654329',
+    telefoneDisplay: '(21) 98765-4329',
+    endereco: 'São Pedro da Serra, Nova Friburgo',
   },
   {
     id: '10',
@@ -131,6 +163,9 @@ export const PRESTADORES: Prestador[] = [
     categoriaSlug: 'educacao',
     descricao: 'Aulas de reforço pra ensino fundamental e médio.',
     whatsapp: '5521987654330',
+    telefoneDisplay: '(21) 98765-4330',
+    endereco: 'Lumiar, Nova Friburgo',
+    instagram: 'reforcomv',
   },
   {
     id: '11',
@@ -139,6 +174,9 @@ export const PRESTADORES: Prestador[] = [
     categoriaSlug: 'psicologo',
     descricao: 'Atendimento psicológico presencial e online, CRP ativo.',
     whatsapp: '5521987654331',
+    telefoneDisplay: '(21) 98765-4331',
+    endereco: 'São Pedro da Serra, Nova Friburgo',
+    instagram: 'camilarocha.psi',
   },
   {
     id: '12',
@@ -147,6 +185,9 @@ export const PRESTADORES: Prestador[] = [
     categoriaSlug: 'artes',
     descricao: 'Pinturas, retratos e encomendas personalizadas.',
     whatsapp: '5521987654332',
+    telefoneDisplay: '(21) 98765-4332',
+    endereco: 'Lumiar, Nova Friburgo',
+    instagram: 'atelierafael',
   },
   {
     id: '13',
@@ -155,6 +196,8 @@ export const PRESTADORES: Prestador[] = [
     categoriaSlug: 'faxina',
     descricao: 'Diaristas disponíveis de segunda a sábado.',
     whatsapp: '5521987654333',
+    telefoneDisplay: '(21) 98765-4333',
+    endereco: 'São Pedro da Serra, Nova Friburgo',
   },
   {
     id: '14',
@@ -163,6 +206,8 @@ export const PRESTADORES: Prestador[] = [
     categoriaSlug: 'motoboy',
     descricao: 'Entrega de encomendas e documentos, mesmo dia.',
     whatsapp: '5521987654334',
+    telefoneDisplay: '(21) 98765-4334',
+    endereco: 'Lumiar, Nova Friburgo',
   },
   {
     id: '15',
@@ -171,5 +216,8 @@ export const PRESTADORES: Prestador[] = [
     categoriaSlug: 'estetica',
     descricao: 'Design de sobrancelha, cílios e limpeza de pele.',
     whatsapp: '5521987654335',
+    telefoneDisplay: '(21) 98765-4335',
+    endereco: 'São Pedro da Serra, Nova Friburgo',
+    instagram: 'studiopatriciaestetica',
   },
 ]
