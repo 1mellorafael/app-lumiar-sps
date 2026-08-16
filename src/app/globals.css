@@ -39,8 +39,18 @@
   --color-neutral-bg: #f5f3ef;
 
   /* Verde WhatsApp — reservado só pro botão de WhatsApp, nunca usado como
-     "success" genérico em outro contexto */
+     "success" genérico em outro contexto.
+     Texto/ícone sobre esse verde é sempre preto (text-black), nunca
+     branco: branco dá 1.98:1 de contraste (reprova WCAG AA); o próprio
+     neutral-text do app dá só 4.48:1 (reprova por pouco); preto dá
+     10.6:1. Não trocar de volta pra branco sem recalcular o contraste. */
   --color-whatsapp: #25d366;
+
+  /* Sombra suave — usada nos cards no lugar de borda pesada, pra dar
+     sensação de leveza/premium sem depender de cor. Multi-camada e
+     baixa opacidade de propósito (sombra única e escura fica "datada"). */
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.03), 0 4px 14px rgb(0 0 0 / 0.05);
+  --shadow-card-hover: 0 2px 4px rgb(0 0 0 / 0.04), 0 10px 24px rgb(0 0 0 / 0.09);
 }
 
 @layer base {
@@ -77,7 +87,9 @@
     --input: #e2dfd7;
     --ring: #0f6e5c;
 
-    --radius: 0.625rem;
+    /* Cantos um pouco mais suaves que o padrão shadcn (0.625rem) — dá
+       sensação mais premium/acolhedora sem virar "bolha" (evitar 1rem+) */
+    --radius: 0.875rem;
   }
 
   .dark {
