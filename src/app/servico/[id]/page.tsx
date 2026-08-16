@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import {
   ArrowLeft,
   MapPin,
@@ -39,6 +39,7 @@ function initials(nome: string) {
 }
 
 export default function ServicoPage() {
+  const router = useRouter()
   const params = useParams<{ id: string }>()
   const prestador = getPrestador(params.id)
   const [copiado, setCopiado] = useState<'sucesso' | 'erro' | null>(null)
@@ -89,14 +90,14 @@ export default function ServicoPage() {
 
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
-      <Link
-        href="/categorias"
+      <button
+        onClick={() => router.back()}
         aria-label="Voltar"
         className="text-neutral-text hover:text-primary-500 flex w-fit items-center gap-1 text-sm font-medium"
       >
         <ArrowLeft className="size-4" />
         Voltar
-      </Link>
+      </button>
 
       {/* Foto composta: capa (cor neutra) + principal (círculo central) —
           nome fica fora da moldura, abaixo — seção 9 do CLAUDE.md */}
@@ -105,11 +106,11 @@ export default function ServicoPage() {
           <div
             className={`border-background absolute left-1/2 top-8 flex size-16 -translate-x-1/2 items-center justify-center rounded-full border-2 text-lg font-semibold text-white ${avatarColor(prestador.id)}`}
           >
-            {initials(prestador.nome)}
+            {initials(prestador.nomeServico)}
           </div>
         </div>
         <p className="text-card-foreground mt-4 text-lg font-bold">
-          {prestador.nome}
+          {prestador.nomeServico}
         </p>
       </div>
 

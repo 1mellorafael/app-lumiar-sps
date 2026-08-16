@@ -13,7 +13,7 @@ const PAGE_SIZE = 10
 export default function CategoriaResultadosPage() {
   const params = useParams<{ slug: string }>()
   const categoria = getCategoria(params.slug)
-  const [view, setView] = useState<ViewMode>('cards')
+  const [view, setView] = useState<ViewMode>('list')
   const [page, setPage] = useState(1)
 
   const resultados = useMemo(

@@ -63,7 +63,7 @@ export function ServiceCard({ prestador, view }: ServiceCardProps) {
             avatarColor(prestador.id)
           )}
         >
-          {initials(prestador.nome)}
+          {initials(prestador.nomeServico)}
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-card-foreground truncate text-sm font-medium">
@@ -101,7 +101,7 @@ export function ServiceCard({ prestador, view }: ServiceCardProps) {
             avatarColor(prestador.id)
           )}
         >
-          {initials(prestador.nome)}
+          {initials(prestador.nomeServico)}
         </div>
       </div>
       <div className="flex flex-col items-center gap-0.5 px-2 pb-2 pt-6 text-center">
