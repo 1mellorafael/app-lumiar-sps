@@ -94,7 +94,7 @@ export default function UteisPage() {
                     <a
                       key={itemIdx}
                       href={`tel:${item.numero.replace(/\D/g, '')}`}
-                      className="hover:bg-accent -mx-1 flex items-center justify-between gap-2 rounded-md px-1 py-1 transition-colors"
+                      className="hover:bg-accent active:bg-accent/70 -mx-1 flex items-center justify-between gap-2 rounded-md px-1 py-1 transition-colors duration-150 ease-standard"
                     >
                       <span className="text-neutral-text text-xs">
                         {item.nome}
@@ -116,7 +116,7 @@ export default function UteisPage() {
                 <a
                   key={`${grupo.categoria}-${itemIdx}`}
                   href={`tel:${item.numero.replace(/\D/g, '')}`}
-                  className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col gap-0.5 rounded-lg border p-2.5 transition-all duration-200 ease-out"
+                  className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col gap-0.5 rounded-lg border p-2.5 transition-all duration-200 ease-decelerate"
                 >
                   <span className="text-muted-foreground text-[10px] uppercase tracking-wide">
                     {grupo.categoria}

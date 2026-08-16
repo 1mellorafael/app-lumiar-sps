@@ -46,7 +46,7 @@ export function BottomNav() {
                 onClick={() => handleBuscaClick(active)}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex flex-1 flex-col items-center gap-0.5 py-2 text-xs transition-colors',
+                  'flex flex-1 flex-col items-center gap-0.5 py-2 text-xs transition-all duration-150 ease-standard active:scale-90',
                   active
                     ? 'text-primary-500'
                     : 'text-muted-foreground hover:text-foreground'
@@ -64,7 +64,7 @@ export function BottomNav() {
               href={item.href}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex flex-1 flex-col items-center gap-0.5 py-2 text-xs transition-colors',
+                'flex flex-1 flex-col items-center gap-0.5 py-2 text-xs transition-all duration-150 ease-standard active:scale-90',
                 active
                   ? 'text-primary-500'
                   : 'text-muted-foreground hover:text-foreground'

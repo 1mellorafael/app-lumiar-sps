@@ -181,36 +181,77 @@ Turismo/Marketplace no roadmap de longo prazo, mesmo entrando depois
 do V0 neste plano de implementação (que cobre só a Fase 0 do roadmap
 maior em `06_VISAO_LONGO_PRAZO.md`).
 
-19. Estrutura genérica de "post comunitário" (tipo: pede_ai |
-    pet_perdido | alerta) — base pros itens 20-22
-    → commit: "feat(comunidade): estrutura base de post comunitário"
+ORDEM DE IMPLEMENTAÇÃO DENTRO DA FASE 8 (definido em 16/08, refinado em sessão posterior):
 
-20. Alerta — Defesa Civil/CEMADEN (chuva/deslizamento) + INPE Queimadas
-    (incêndio) + override manual do admin
-    → commit: "feat(alerta): widget de alerta com fonte automática e
-      override manual"
+19. Morador account (account table + login + opcional "moro aqui" checkbox)
+    → commit: "feat(morador): conta de morador separada de prestador"
 
-21. Pede Aí — mural de pedido reverso, formato lista
-    → commit: "feat(pede-ai): mural de pedidos da comunidade"
+20. Colunas/Dicas — prestadores podem postar dicas e conselhos
+    (reusa prestador account, não precisa de morador account)
+    → commit: "feat(colunas): dicas e conselhos de prestadores"
 
-22. Pet Perdido — card no feed + gerador de cartaz exportável
-    → commit: "feat(pet-perdido): cartão de pet perdido com gerador de
-      cartaz"
+21. Push notifications infrastructure — triggers pra Carona, Coluna,
+    Alerta (PWA infrastructure já existe, só faltam os triggers)
+    → commit: "feat(push): notificações push para novas atividades"
 
-23. Jornal/Colunas — conteúdo 100% local, papel de colunista com
-    permissão própria (curadoria delegável, não só admin)
+22. Carona — primeiro e único tipo de "Pede Aí" no lançamento desta
+    fase (destino, data/hora, need/offer, contato WhatsApp)
+    → commit: "feat(carona): caronas compartilhadas entre moradores"
+
+23. Corrida/Leaderboard — km acumulados, ranking diário/semanal
+    (gamification driver para retenção-hábito)
+    → commit: "feat(corrida): leaderboard de km acumulados"
+
+24. Alerta — Defesa Civil/CEMADEN (chuva/deslizamento) + INPE Queimadas
+    (incêndio) + override manual do admin + denúncia de morador (com moderação)
+    → commit: "feat(alerta): widget de alerta com fonte automática, override e denúncia"
+
+25. Estrutura genérica de "post comunitário" (tipo: pede_ai |
+    pet_perdido | alerta) — base pra expandir Pede Aí além de Carona
+    → commit: "feat(comunidade): estrutura base de post comunitário genérico"
+
+26. Pede Aí genérico — expande além de Carona quando comunidade tem
+    momentum (produtos usados, objetos perdidos, favores, etc.)
+    → commit: "feat(pede-ai-generico): mural de pedidos genéricos da comunidade"
+
+27. Pet Perdido — card no feed + gerador de cartaz exportável
+    (reutiliza estrutura de post comunitário do item 25)
+    → commit: "feat(pet-perdido): cartão de pet perdido com gerador de cartaz"
+
+28. Jornal/Colunas expande — conteúdo 100% local, papel de colunista com
+    permissão própria (curadoria delegável, não só admin). Diferente de
+    "Dicas de Prestador" (item 20) — aqui é content curator escrevendo artigos.
     → commit: "feat(jornal): módulo de colunas com papel de colunista"
 
-24. Selo "Verificado pela comunidade" — contador de confirmação no
+29. Selo "Verificado pela comunidade" — contador de confirmação no
     perfil do prestador, badge automático (não é rating)
     → commit: "feat(selo): selo de verificação comunitária"
 
-25. Home modular — usuário logado escolhe widgets (ônibus, clima,
-    contato útil, jornal, etc.)
+30. Home modular — usuário logado escolhe widgets (ônibus, clima,
+    contato útil, jornal, etc.) — widgets editáveis ao clicar/pressionar
     → commit: "feat(home): home modular configurável pelo usuário"
 
 Detalhe completo de cada item, racional e pesquisa que embasou as
 decisões em `06_VISAO_LONGO_PRAZO.md` e `05_IDEIAS_E_DECISOES_UX.md`.
+
+ESTRATÉGIA DE LANÇAMENTO (Comunidade Phase — decisão de 16/08):
+```
+├─ Fase 1 (Fechadíssima ~10-20 pessoas):
+│  └─ Contas criadas na mão pelo admin (sem sistema de código ainda)
+│  └─ Testam cadastro/login/perfil de ponta a ponta
+│  └─ Prestadores cadastram serviço real (povoa Busca)
+│
+├─ Fase 2 (Um pouco mais aberto):
+│  └─ Inclui primeiros prestadores que vão postar Coluna
+│  └─ Testa Carona com gente que já sabe que vai pro Rio/Friburgo
+│  └─ Testam Push notifications end-to-end
+│
+└─ Fase 3 (Anúncio público nos grupos):
+   └─ Anuncia nos grupos WhatsApp/Facebook APENAS quando:
+   │  └─ Busca já tem gente de verdade (provou que não tá "morto")
+   │  └─ Já tem pelo menos 1 Coluna postada
+   │  └─ Alerta já está configurado e rodando
+   │  └─ Convites por código de invite, liberados em waves
 ```
 
 ---

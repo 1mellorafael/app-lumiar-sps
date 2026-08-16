@@ -20,7 +20,7 @@ export default function Home() {
       <div className="grid grid-cols-2 gap-2">
         <a
           href="/cadastro"
-          className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col items-start gap-1 rounded-lg border p-3 transition-all duration-200 ease-out"
+          className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col items-start gap-1 rounded-lg border p-3 transition-all duration-200 ease-decelerate"
         >
           <Briefcase className="text-primary-500 size-5" />
           <p className="text-card-foreground text-xs font-medium">
@@ -37,7 +37,7 @@ export default function Home() {
 
         <button
           type="button"
-          className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-all duration-200 ease-out"
+          className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-all duration-200 ease-decelerate"
         >
           <Tv className="text-primary-500 size-5" />
           <p className="text-card-foreground text-xs font-medium">

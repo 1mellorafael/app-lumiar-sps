@@ -66,29 +66,62 @@ Por que fase 1 e não já no MVP:
    gente usando a base.
 ```
 
-### FASE 2 — Comunidade (prioridade alta — decisão de 16/08)
+### FASE 2 — Comunidade (prioridade alta — decisão de 16/08, refinada em sessão posterior)
+
 ```
-O que é:
-├─ Alerta — Defesa Civil (chuva/deslizamento via CEMADEN GeoRisk) +
-│  risco de incêndio (INPE Queimadas, dados abertos, atualização
-│  quase em tempo real) + override manual do admin sempre disponível
-│  (nunca 100% dependente de API de terceiro pra algo de segurança)
-├─ Pede Aí — mural de pedido reverso ("preciso de alguém pra X"),
-│  formato LISTA (não card — conteúdo de ação/busca rápida, não
-│  navegação visual), contato via WhatsApp direto igual ao resto do app
-├─ Pet Perdido — card normal dentro do feed (reaproveita o mesmo
-│  ViewToggle Cards/Lista do resto do app) + botão "Gerar Cartaz" que
-│  exporta uma imagem estilo panfleto de poste (alto contraste, foto
-│  grande) pra compartilhar no WhatsApp ou imprimir de verdade
-├─ Jornal/Colunas — conteúdo 100% local. Regra dura: nunca agregar
-│  notícia genérica do mundo solta (ver seção de monetização/riscos
-│  abaixo, caso Patch.com). Curadoria pode ser delegada — não precisa
-│  ser só o admin escrevendo
-└─ Selo "Verificado pela comunidade" — botão no perfil do prestador
-   tipo "Eu conheço, confirmo"; contador de confirmações; badge
-   automático ao bater um mínimo. NÃO é rating/nota (isso continua
-   fora de escopo, ver seção 12 do CLAUDE.md) — é validação social
-   passiva, o prestador não pede nem gerencia isso
+ARQUITETURA DE RETENÇÃO:
+Esta fase tem 3 pilares de retenção-hábito (usuários retornam todo dia):
+├─ Colunas/Dicas — prestadores compartilham expertise (reusa conta existente)
+├─ Carona — compartilha caronas (demanda já existe em WhatsApp, só move pra app)
+└─ Corrida/Leaderboard — gamification (km acumulados, ranking)
+
++ Alerta (retenção-utilidade — volta quando precisa) — Defesa Civil +
+  INPE + override manual + denúncia de morador
++ Selo (retenção passiva — validação social comunitária, não é rating)
+
+O que são:
+
+1. MORADOR ACCOUNT (pré-requisito pra Comunidade)
+   ├─ Conta separada de prestador (1 pessoa pode ter ambas)
+   ├─ Login mesmo, pode ser omitido se a pessoa só tá navegando
+   ├─ Checkbox opcional "Moro aqui" no cadastro
+   ├─ Acesso às features comunitárias (Carona, Pede Aí, Alerta, Selo)
+   └─ Sem verificação de comprovante (comunidade pequena se modera sozinha)
+
+2. COLUNAS/DICAS (retenção-hábito #1 — expertise do prestador)
+   ├─ Prestadores postam conselhos/dicas sobre seu serviço
+   ├─ Não requer morador account (reusa prestador account)
+   ├─ Widget de "Dica do Dia" na Home (rota com conteúdo novo)
+   └─ Reaproveitado depois por Jornal expandido (item maior em item 28)
+
+3. CARONA (retenção-hábito #2 — primeiro e único "Pede Aí" no lançamento)
+   ├─ Mural de caronas compartilhadas (destino, data/hora, precisa/oferece)
+   ├─ Contato via WhatsApp direto
+   ├─ Demanda já existe (grupos de WhatsApp já organizam isso)
+   ├─ Soluciona "cold-start" do Pede Aí — tem demanda real de dia 1
+   └─ Pede Aí genérico (produtos, favores, etc.) é fase posterior (item 26)
+
+4. CORRIDA/LEADERBOARD (retenção-hábito #3 — gamification)
+   ├─ Usuário loga km manualmente ou por integração de GPS
+   ├─ Ranking diário, semanal, mensal
+   ├─ Pode cruzar com Selo futuramente (missão: "confirme 5 vizinhos")
+   └─ Motiva abertura do app todo dia
+
+5. ALERTA (retenção-utilidade — "volta quando precisa")
+   ├─ Defesa Civil/CEMADEN: chuva, deslizamento (automático)
+   ├─ INPE Queimadas: risco de incêndio (automático)
+   ├─ Override manual do admin (nunca 100% dependente de API)
+   ├─ Denúncia de morador: "pessoa estranha na região", "buzinada",
+   │  etc. (com moderação — Nextdoor teve problema com racial profiling)
+   ├─ Push notification em tempo real
+   └─ Diferente de Pede Aí/Carona: não é "usuário gera", é "app avisa"
+
+6. SELO "Verificado pela comunidade" (retenção passiva)
+   ├─ Botão "Eu conheço este prestador" no perfil
+   ├─ Contador automático de confirmações
+   ├─ Badge automática ao bater mínimo (ex: 10 confirmações)
+   ├─ NÃO é rating/nota (continua fora de escopo)
+   └─ Validação social passiva — prestador não pede nem gerencia
 
 Por que Comunidade vem ANTES de Turismo (mudança de ordem em relação à
 versão anterior deste documento):
@@ -100,7 +133,8 @@ versão anterior deste documento):
    Forum, Patch.com, CEMADEN, INPE Queimadas).
 
 Curadoria distribuída (não fica tudo com o admin):
-├─ Colunista — responsável só pelo Jornal/Colunas
+├─ Dica de Coluna — qualquer prestador escreve
+├─ Colunista (Jornal expandido) — responsável só pelo Jornal/Colunas de conteúdo
 ├─ Curador de ônibus — mantém horários atualizados
 └─ Curador de alertas — pode confirmar/ajustar alerta manualmente
    Cada papel é um nível de permissão mais leve que admin completo,
@@ -108,8 +142,9 @@ Curadoria distribuída (não fica tudo com o admin):
    prestador (PENDENTE → APROVADO).
 
 Base de dados sugerida: modelar como uma estrutura genérica de "post
-comunitário" (tipo: pede_ai | pet_perdido | alerta) em vez de 3
-sistemas separados — Pede Aí e Pet Perdido reaproveitam quase tudo.
+comunitário" (tipo: carona | pede_ai | pet_perdido | alerta) em vez de
+N sistemas separados — Carona, Pede Aí e Pet Perdido reaproveitam quase
+tudo (título, descrição, tipo, data, status, contato).
 ```
 
 ### FASE 3 — Vendedores / Marketplace leve
@@ -217,7 +252,7 @@ Estrutura em 3 camadas, não 2:
 1. Serviços (aberto, sem login) — já é assim, continua assim.
    Serve morador E turista ao mesmo tempo, é a base que já existe.
 
-2. Comunidade (fechada — Pede Aí, Pet Perdido, Alerta, Jornal, Selo) —
+2. Comunidade (fechada — Carona, Pede Aí, Pet Perdido, Alerta, Jornal, Selo) —
    só pra quem confirma "moro aqui". Verificação leve no início
    (autodeclarada, tipo checkbox), não precisa ser tão rígida quanto
    Nextdoor/Vizinhos (que pedem comprovante de residência) — a
@@ -236,6 +271,70 @@ pilar já fixado desde o início do projeto — "gratuito pro prestador,
 sem comissão, navegável sem login" (seção 1 do CLAUDE.md). Fechar tudo
 reduziria o alcance do prestador, que é o oposto do que o app deveria
 fazer por ele.
+```
+
+---
+
+## 📞 GRUPOS FECHADOS — ideia futura, não V0
+
+```
+Observação do Rafa (sessão posterior a 16/08): percebeu que comunidade
+small de Lumiar já usa grupos no Facebook pra conversar por afinidade
+(feministas, hobby, interesse local, etc.), e que essa demanda é real.
+
+Realidade técnica: grupos de conversa/chat é o que o Facebook faz
+melhor — 15+ anos de infraestrutura, muito investimento. Construir
+isso agora para brigar com FB no seu ponto forte seria gastar esforço
+sem diferenciação.
+
+Decisão: isso fica como **ideia futura de fase bem distante** (pós-Fase 4,
+talvez). Documentado aqui pra não esquecer, mas não trava o lançamento
+da Comunidade agora.
+
+Alternativamente: quando/se virar prioridade, considerar integração com
+grupo FB existente em vez de reimplementar (link no app → abre grupo).
+
+Não confundir com:
+├─ Pede Aí — não é chat, é mural de pedidos (texto+contato WhatsApp)
+├─ Colunas — não é conversa, é conteúdo de expertise
+└─ Carona — não é group chat, é "eu ofereço X, tire para Y" (WhatsApp direto)
+```
+
+---
+
+## 🎯 ESTRATÉGIA DE LANÇAMENTO GRADUAL — decisão de sessão posterior
+
+```
+Problema que resolve: app aparecer "morto" no primeiro dia desanima
+usuários. Solução: lançar em 3 waves, começando fechado.
+
+WAVE 1 — FECHADÍSSIMO (~10-20 pessoas, 1-2 semanas)
+├─ Contas criadas manualmente pelo admin (sem sistema de código ainda)
+├─ Objetivo: testar cadastro/login/perfil de ponta a ponta
+├─ Resultado esperado: Busca já tem gente de verdade (prova de vida)
+└─ Sem anúncio público — só gente que você convida pessoalmente
+
+WAVE 2 — UM POUCO MAIS ABERTO (50-100 pessoas, 1-2 semanas depois)
+├─ Sistema de código de invite está pronto
+├─ Inclui primeiros prestadores que vão postar Coluna
+├─ Testam Carona com gente que já sabe que vai pro Rio/Friburgo
+├─ Testam Push notifications end-to-end
+├─ Resultado esperado: 1+ Coluna postada, Alerta rodando
+└─ Ainda sem anúncio nos grupos — só "vai chegando gente"
+
+WAVE 3 — ANÚNCIO PÚBLICO
+├─ Anuncia nos grupos WhatsApp/Facebook APENAS quando:
+│  ├─ Busca tem 50+ serviços ativos (prova que não tá vazio)
+│  ├─ Já tem 3+ Colunas postadas (prova que tem conteúdo novo)
+│  ├─ Alerta está rodando há 1 semana sem bugs (prova que funciona)
+│  └─ Infraestrutura de invite codes testada (não vai quebrar no pico)
+├─ Convites por código, liberados em lotes (50 por dia, etc.)
+└─ Espaço de "betinha" declarado no app (feedback welcome)
+
+Por que essa ordem:
+└─ Garante que V0 não nasce "morto" (app vazio mata engajamento)
+└─ Permite descobrir bugs com 20 pessoas antes de 2000
+└─ Constrói momentum social ("eh, vi que tá cheio de gente lá")
 ```
 
 ## 🧩 REUSABILIDADE — Jornal/Colunas pode virar produto (decisão de 16/08)

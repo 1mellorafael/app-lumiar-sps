@@ -51,6 +51,15 @@
      baixa opacidade de propósito (sombra única e escura fica "datada"). */
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.03), 0 4px 14px rgb(0 0 0 / 0.05);
   --shadow-card-hover: 0 2px 4px rgb(0 0 0 / 0.04), 0 10px 24px rgb(0 0 0 / 0.09);
+
+  /* Curvas de motion — tokens do Material Design 3 (M3), a mesma família
+     usada por Android/iOS moderno. "Standard" pra feedback rápido e
+     discreto (toque em botão pequeno); "decelerate" pra elemento que
+     entra/assenta na tela (card levantando sombra, tile aparecendo) —
+     tem uma "freada" no final que o ease-out genérico do Tailwind não
+     tem, é o que dá a sensação de "assentar" em vez de só parar. */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
 }
 
 @layer base {

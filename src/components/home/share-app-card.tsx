@@ -32,7 +32,7 @@ export function ShareAppCard() {
     <button
       type="button"
       onClick={compartilhar}
-      className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-all duration-200 ease-out"
+      className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-all duration-200 ease-decelerate"
     >
       {copiado ? (
         <Check className="text-primary-500 size-5" />

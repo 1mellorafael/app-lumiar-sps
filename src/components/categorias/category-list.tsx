@@ -18,7 +18,7 @@ export function CategoryList({ categorias, view }: CategoryListProps) {
           <Link
             key={categoria.slug}
             href={`/busca/${categoria.slug}`}
-            className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col items-center gap-1 rounded-lg border px-1 py-3 text-center transition-all duration-200 ease-out"
+            className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col items-center gap-1 rounded-lg border px-1 py-3 text-center transition-all duration-200 ease-decelerate"
           >
             <categoria.icon className="text-primary-500 size-6" />
             <span className="text-card-foreground text-xs leading-tight">
@@ -37,7 +37,7 @@ export function CategoryList({ categorias, view }: CategoryListProps) {
           key={categoria.slug}
           href={`/busca/${categoria.slug}`}
           className={cn(
-            'hover:bg-accent flex items-center gap-3 px-2 py-2.5 transition-colors ease-out',
+            'hover:bg-accent active:bg-accent/70 flex items-center gap-3 px-2 py-2.5 transition-colors duration-150 ease-standard',
             i !== categorias.length - 1 && 'border-border/70 border-b'
           )}
         >
