@@ -24,6 +24,7 @@ login; login só é exigido pra cadastrar um serviço.
 
 **Não implemente tudo de uma vez.** Siga a ordem de `docs/11_PLANO_IMPLEMENTACAO.md`
 — Fase 0 até Fase 7, uma feature por vez. Ao terminar cada feature:
+
 1. Mostre o resultado pro usuário
 2. Espere confirmação antes de commitar
 3. Só então siga pra próxima feature
@@ -42,28 +43,28 @@ typo corrigido) — isso polui o log e gasta tokens à toa. Mas também nunca
 Segurança nunca é sacrificada por velocidade. Checklist obrigatória,
 aplicada a **todo** código, sem exceção:
 
-| # | Item | Como aplicar |
-|---|---|---|
-| 1 | Hide API keys | Só em `.env.local` / Vercel env vars, nunca hardcoded |
-| 2 | Purge git secrets | `.env*` no `.gitignore` desde o 1º commit; `gitleaks` no CI |
-| 3 | Use public DB key | Frontend usa só a `anon key` do Supabase; `service_role key` nunca sai do backend |
-| 4 | Enable RLS | Row-Level Security ligado em **toda** tabela desde a criação |
-| 5 | Encrypt sensitive data | Dados sensíveis nunca em texto plano em logs |
-| 6 | Enforce server-side auth | Toda mutação validada no servidor, nunca só no frontend |
-| 7 | Lock record access | RLS restringe cada registro ao dono (`profile_id`/`user_id`) |
-| 8 | Block field tampering | Whitelist de campos aceitos por endpoint — nunca aceitar `status`, `role` etc. vindos do cliente |
-| 9 | Secure session cookies | `httpOnly`, `secure`, `SameSite` (Supabase Auth já cobre) |
-| 10 | Hash passwords | bcrypt/Argon2 via Supabase Auth nativo — nunca reimplementar |
-| 11 | Rate limit login | Vercel Edge Middleware + Upstash Redis |
-| 12 | Add bot protection | Captcha (hCaptcha/Turnstile) em cadastro e login |
-| 13 | Parameterize queries | Sempre via client Supabase, nunca SQL concatenado |
-| 14 | Validate all input | Zod no backend, mesmo se já validado no frontend |
-| 15 | Escape user content | Nunca `dangerouslySetInnerHTML` sem sanitizar |
-| 16 | Restrict file uploads | Só imagem, tamanho máximo, bucket com policy própria |
-| 17 | Trim API responses | Nunca devolver senha, data de nascimento etc. em resposta pública |
-| 18 | Add security headers | CSP, `X-Frame-Options`, `Strict-Transport-Security` no `next.config.js` |
-| 19 | Force HTTPS | Automático no Vercel |
-| 20 | Scan dependencies | `npm audit` + Dependabot no CI |
+| #   | Item                     | Como aplicar                                                                                     |
+| --- | ------------------------ | ------------------------------------------------------------------------------------------------ |
+| 1   | Hide API keys            | Só em `.env.local` / Vercel env vars, nunca hardcoded                                            |
+| 2   | Purge git secrets        | `.env*` no `.gitignore` desde o 1º commit; `gitleaks` no CI                                      |
+| 3   | Use public DB key        | Frontend usa só a `anon key` do Supabase; `service_role key` nunca sai do backend                |
+| 4   | Enable RLS               | Row-Level Security ligado em **toda** tabela desde a criação                                     |
+| 5   | Encrypt sensitive data   | Dados sensíveis nunca em texto plano em logs                                                     |
+| 6   | Enforce server-side auth | Toda mutação validada no servidor, nunca só no frontend                                          |
+| 7   | Lock record access       | RLS restringe cada registro ao dono (`profile_id`/`user_id`)                                     |
+| 8   | Block field tampering    | Whitelist de campos aceitos por endpoint — nunca aceitar `status`, `role` etc. vindos do cliente |
+| 9   | Secure session cookies   | `httpOnly`, `secure`, `SameSite` (Supabase Auth já cobre)                                        |
+| 10  | Hash passwords           | bcrypt/Argon2 via Supabase Auth nativo — nunca reimplementar                                     |
+| 11  | Rate limit login         | Vercel Edge Middleware + Upstash Redis                                                           |
+| 12  | Add bot protection       | Captcha (hCaptcha/Turnstile) em cadastro e login                                                 |
+| 13  | Parameterize queries     | Sempre via client Supabase, nunca SQL concatenado                                                |
+| 14  | Validate all input       | Zod no backend, mesmo se já validado no frontend                                                 |
+| 15  | Escape user content      | Nunca `dangerouslySetInnerHTML` sem sanitizar                                                    |
+| 16  | Restrict file uploads    | Só imagem, tamanho máximo, bucket com policy própria                                             |
+| 17  | Trim API responses       | Nunca devolver senha, data de nascimento etc. em resposta pública                                |
+| 18  | Add security headers     | CSP, `X-Frame-Options`, `Strict-Transport-Security` no `next.config.js`                          |
+| 19  | Force HTTPS              | Automático no Vercel                                                                             |
+| 20  | Scan dependencies        | `npm audit` + Dependabot no CI                                                                   |
 
 Antes de considerar a Fase 2 (auth) e qualquer feature que mexe com dados
 de usuário como "pronta", revise contra esta tabela item por item.
@@ -98,19 +99,19 @@ STATUS APROVADO:
 
 ## 5. Stack técnica
 
-| Camada | Escolha |
-|---|---|
-| Frontend | Next.js (App Router) + React + TypeScript + Tailwind |
-| Componentes UI | shadcn/ui |
-| Backend | Next.js API Routes |
-| Database | Supabase (PostgreSQL + Auth + RLS) |
-| Hosting | Vercel |
-| Email transacional | Resend |
-| Erros | Sentry |
-| Rate limiting | Vercel Edge Middleware + Upstash Redis |
-| i18n | next-intl |
-| Validação | Zod (sempre no backend) |
-| Endereço | Google Places Autocomplete + Geocoding API |
+| Camada             | Escolha                                              |
+| ------------------ | ---------------------------------------------------- |
+| Frontend           | Next.js (App Router) + React + TypeScript + Tailwind |
+| Componentes UI     | shadcn/ui                                            |
+| Backend            | Next.js API Routes                                   |
+| Database           | Supabase (PostgreSQL + Auth + RLS)                   |
+| Hosting            | Vercel                                               |
+| Email transacional | Resend                                               |
+| Erros              | Sentry                                               |
+| Rate limiting      | Vercel Edge Middleware + Upstash Redis               |
+| i18n               | next-intl                                            |
+| Validação          | Zod (sempre no backend)                              |
+| Endereço           | Google Places Autocomplete + Geocoding API           |
 
 Custo mensal do MVP: R$ 0 (free tiers).
 
@@ -119,6 +120,7 @@ Custo mensal do MVP: R$ 0 (free tiers).
 ## 6. Escopo do V0 — o que construir
 
 ### Dentro do V0
+
 - Navegação livre, sem login
 - Cadastro de Prestador de Serviço (login só exigido aqui)
 - Categorias: Motoboy, Faxina, Mototáxi, Uber, Estética, Adestramento,
@@ -126,12 +128,13 @@ Custo mensal do MVP: R$ 0 (free tiers).
 - Botão de WhatsApp em cada perfil
 - Aprovação manual pelo admin (todo serviço nasce PENDENTE)
 - Aba Úteis: horários de ônibus, clima, telefones úteis
-- Toggle Cards/Lista em Home, Categorias, Busca e Úteis
+- Toggle Cards/Lista em Categorias e Úteis
 - PWA: adicionar à tela inicial (com detecção de navegador/SO)
 - Enviar Sugestão (geral, lugar, ou problema)
 - Anúncio voluntário (botão "Ver Anúncio", Fase 1 do plano de ads)
 
 ### Fora do V0 (adiado, não cancelado — ver `docs/06_VISAO_LONGO_PRAZO.md`)
+
 - Negócio/CNPJ, badge automático, galeria de negócio
 - Avaliações/rating
 - Feed de notícias/eventos (substituído pelo widget de Clima)
@@ -143,6 +146,7 @@ Custo mensal do MVP: R$ 0 (free tiers).
 ## 7. Fluxo de cadastro
 
 ### Passo 1 — Sua Conta (só ao clicar "Cadastrar Serviço")
+
 ```
 Foto de Perfil (obrigatória)
 Nome            ← auto-capitaliza
@@ -159,6 +163,7 @@ Endereço        ← Google Places Autocomplete, normaliza formato
 ```
 
 ### Passo 2 — Seu Serviço (direto na sequência)
+
 ```
 Foto Principal (obrigatória — centro do card)
 Foto de Capa (opcional — fundo atrás da principal)
@@ -174,6 +179,7 @@ Instagram (opcional)
 ```
 
 ### Menores de idade
+
 Sem bloqueio automático. Se a data indicar menor de 18, o cadastro é
 aceito e enviado normalmente, mas fica marcado "⚠️ MENOR DE IDADE" só
 pro admin (nunca visível pro usuário) — decisão de aprovar/rejeitar é
@@ -219,9 +225,10 @@ ESPAÇAMENTO: múltiplos de 8px
 ```
 
 ### Princípios de UI obrigatórios
+
 - **Cards compactos**, não gigantes (grid de 3 colunas em mobile)
-- **Toggle Cards/Lista** disponível em Home, Categorias, Busca e Úteis;
-  ambos os formatos sempre clicáveis
+- **Toggle Cards/Lista** disponível em Categorias e Úteis; ambos os
+  formatos sempre clicáveis
 - **Foto em duas camadas:** capa (opcional, fundo) + principal
   (obrigatória, círculo central) — sem capa, mostra cor neutra de fundo
 - **Nome/título nunca sobreposto na foto** — sempre como texto separado,
@@ -239,8 +246,8 @@ aplicadas): `docs/10_WIREFRAMES_SKETCH_BAIXO.md`.
 ## 10. Navegação (bottom nav)
 
 ```
-Deslogado / sem serviço:  🏠 Home   🔍 Buscar   🔧 Úteis   ☰ Menu
-Logado com serviço:       🏠 Home   🔍 Buscar   🔧 Úteis   ☰ Perfil
+Deslogado / sem serviço:  🏠 Home   🔲 Categorias   🔧 Úteis   ☰ Menu
+Logado com serviço:       🏠 Home   🔲 Categorias   🔧 Úteis   ☰ Perfil
 ```
 
 Menu/Perfil contém: Login (se deslogado) ou dados da conta + "Meus

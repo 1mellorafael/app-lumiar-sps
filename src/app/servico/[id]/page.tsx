@@ -90,7 +90,7 @@ export default function ServicoPage() {
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
       <Link
-        href="/buscar"
+        href="/categorias"
         aria-label="Voltar"
         className="text-neutral-text hover:text-primary-500 flex w-fit items-center gap-1 text-sm font-medium"
       >
@@ -101,14 +101,14 @@ export default function ServicoPage() {
       {/* Foto composta: capa (cor neutra) + principal (círculo central) —
           nome fica fora da moldura, abaixo — seção 9 do CLAUDE.md */}
       <div className="flex flex-col items-center gap-2">
-        <div className="bg-muted relative h-28 w-full rounded-lg">
+        <div className="bg-muted relative h-16 w-full rounded-lg">
           <div
-            className={`border-background absolute left-1/2 top-14 flex size-24 -translate-x-1/2 items-center justify-center rounded-full border-4 text-2xl font-semibold text-white ${avatarColor(prestador.id)}`}
+            className={`border-background absolute left-1/2 top-8 flex size-16 -translate-x-1/2 items-center justify-center rounded-full border-2 text-lg font-semibold text-white ${avatarColor(prestador.id)}`}
           >
             {initials(prestador.nome)}
           </div>
         </div>
-        <p className="text-card-foreground mt-10 text-lg font-bold">
+        <p className="text-card-foreground mt-4 text-lg font-bold">
           {prestador.nome}
         </p>
       </div>

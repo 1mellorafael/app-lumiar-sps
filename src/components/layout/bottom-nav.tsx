@@ -2,12 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Search, Wrench, Menu } from 'lucide-react'
+import { Home, LayoutGrid, Wrench, Menu } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const ITEMS = [
   { href: '/', label: 'Home', icon: Home },
-  { href: '/buscar', label: 'Buscar', icon: Search },
+  { href: '/categorias', label: 'Categorias', icon: LayoutGrid },
   { href: '/uteis', label: 'Úteis', icon: Wrench },
   { href: '/menu', label: 'Menu', icon: Menu },
 ]

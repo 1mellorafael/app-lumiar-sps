@@ -55,11 +55,11 @@ export function ServiceCard({ prestador, view }: ServiceCardProps) {
     return (
       <Link
         href={`/servico/${prestador.id}`}
-        className="border-border bg-card hover:bg-accent flex items-center gap-3 rounded-lg border p-3 transition-colors"
+        className="border-border bg-card hover:bg-accent flex items-center gap-2 rounded-lg border p-2 transition-colors"
       >
         <div
           className={cn(
-            'flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white',
+            'flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white',
             avatarColor(prestador.id)
           )}
         >
@@ -79,9 +79,9 @@ export function ServiceCard({ prestador, view }: ServiceCardProps) {
             openWhatsapp(e, prestador.whatsapp, prestador.nomeServico)
           }
           aria-label={`Chamar ${prestador.nomeServico} no WhatsApp`}
-          className="bg-whatsapp flex size-9 shrink-0 items-center justify-center rounded-full text-white transition-opacity hover:opacity-90"
+          className="bg-whatsapp flex size-8 shrink-0 items-center justify-center rounded-full text-white transition-opacity hover:opacity-90"
         >
-          <MessageCircle className="size-4" />
+          <MessageCircle className="size-3.5" />
         </button>
       </Link>
     )
@@ -94,18 +94,18 @@ export function ServiceCard({ prestador, view }: ServiceCardProps) {
     >
       {/* Foto composta: capa (cor neutra, sem foto real ainda) + principal
           (círculo central) — seção 9 do CLAUDE.md */}
-      <div className="bg-muted relative h-14">
+      <div className="bg-muted relative h-8">
         <div
           className={cn(
-            'border-card absolute left-1/2 top-7 flex size-14 -translate-x-1/2 items-center justify-center rounded-full border-4 text-base font-semibold text-white',
+            'border-card absolute left-1/2 top-3 flex size-10 -translate-x-1/2 items-center justify-center rounded-full border-2 text-sm font-semibold text-white',
             avatarColor(prestador.id)
           )}
         >
           {initials(prestador.nome)}
         </div>
       </div>
-      <div className="flex flex-col items-center gap-0.5 px-2 pb-3 pt-8 text-center">
-        <p className="text-card-foreground line-clamp-1 text-sm font-medium">
+      <div className="flex flex-col items-center gap-0.5 px-2 pb-2 pt-6 text-center">
+        <p className="text-card-foreground line-clamp-1 text-xs font-medium">
           {prestador.nomeServico}
         </p>
         <p className="text-muted-foreground text-xs">{categoria?.nome}</p>
@@ -117,9 +117,9 @@ export function ServiceCard({ prestador, view }: ServiceCardProps) {
           onClick={(e) =>
             openWhatsapp(e, prestador.whatsapp, prestador.nomeServico)
           }
-          className="bg-whatsapp mt-1.5 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-white transition-opacity hover:opacity-90"
+          className="bg-whatsapp mt-1 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-white transition-opacity hover:opacity-90"
         >
-          <MessageCircle className="size-3.5" />
+          <MessageCircle className="size-3" />
           WhatsApp
         </button>
       </div>

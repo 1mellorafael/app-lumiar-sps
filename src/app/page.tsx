@@ -1,7 +1,6 @@
 import { Share2, Smartphone, Tv, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { WeatherBadge } from '@/components/home/weather-badge'
-import { CategorySection } from '@/components/home/category-section'
 
 export default function Home() {
   return (
@@ -12,8 +11,6 @@ export default function Home() {
         </h1>
         <WeatherBadge tempC={22} condition="ensolarado" />
       </header>
-
-      <CategorySection />
 
       <section className="border-border bg-card flex flex-col gap-1 rounded-lg border p-4">
         <p className="text-card-foreground text-sm">

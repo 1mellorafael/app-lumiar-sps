@@ -5,9 +5,12 @@
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
-  /* Espaçamento em múltiplos de 8px (seção 9 do CLAUDE.md) — redefine a
-     unidade base do Tailwind, então p-1=8px, p-2=16px, p-3=24px... */
-  --spacing: 8px;
+  /* Espaçamento em múltiplos de 8px (seção 9 do CLAUDE.md): a unidade
+     padrão do Tailwind já é 4px, então basta usar utilities pares
+     (p-2=8px, p-4=16px, p-6=24px...) — NÃO redefinir --spacing aqui.
+     --spacing controla toda a escala numérica (padding, gap, size-*,
+     h-*, w-*, inset...), não só espaçamento; setar 8px dobrava ícones,
+     avatares e botões do app inteiro, não só o respiro entre elementos. */
 
   /* Paleta de marca — escalas usadas direto (ex: bg-primary-500) */
   --color-primary-50: #f0fdf9;
