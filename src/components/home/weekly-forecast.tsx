@@ -31,7 +31,10 @@ const PREVISAO_SEMANA: DiaPrevisao[] = [
 // pra lugar nenhum (o próprio celular já tem app de clima)
 export function WeeklyForecast() {
   return (
-    <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+    <div
+      className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      style={{ msOverflowStyle: 'none' }}
+    >
       {PREVISAO_SEMANA.map((dia, idx) => {
         const Icon = ICONS[dia.condition]
         const hoje = idx === 0
