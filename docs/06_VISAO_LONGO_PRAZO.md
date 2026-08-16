@@ -66,7 +66,53 @@ Por que fase 1 e não já no MVP:
    gente usando a base.
 ```
 
-### FASE 2 — Vendedores / Marketplace leve
+### FASE 2 — Comunidade (prioridade alta — decisão de 16/08)
+```
+O que é:
+├─ Alerta — Defesa Civil (chuva/deslizamento via CEMADEN GeoRisk) +
+│  risco de incêndio (INPE Queimadas, dados abertos, atualização
+│  quase em tempo real) + override manual do admin sempre disponível
+│  (nunca 100% dependente de API de terceiro pra algo de segurança)
+├─ Pede Aí — mural de pedido reverso ("preciso de alguém pra X"),
+│  formato LISTA (não card — conteúdo de ação/busca rápida, não
+│  navegação visual), contato via WhatsApp direto igual ao resto do app
+├─ Pet Perdido — card normal dentro do feed (reaproveita o mesmo
+│  ViewToggle Cards/Lista do resto do app) + botão "Gerar Cartaz" que
+│  exporta uma imagem estilo panfleto de poste (alto contraste, foto
+│  grande) pra compartilhar no WhatsApp ou imprimir de verdade
+├─ Jornal/Colunas — conteúdo 100% local. Regra dura: nunca agregar
+│  notícia genérica do mundo solta (ver seção de monetização/riscos
+│  abaixo, caso Patch.com). Curadoria pode ser delegada — não precisa
+│  ser só o admin escrevendo
+└─ Selo "Verificado pela comunidade" — botão no perfil do prestador
+   tipo "Eu conheço, confirmo"; contador de confirmações; badge
+   automático ao bater um mínimo. NÃO é rating/nota (isso continua
+   fora de escopo, ver seção 12 do CLAUDE.md) — é validação social
+   passiva, o prestador não pede nem gerencia isso
+
+Por que Comunidade vem ANTES de Turismo (mudança de ordem em relação à
+versão anterior deste documento):
+└─ Decisão explícita do Rafa: o objetivo principal do app é construir
+   reputação/confiança dentro da comunidade primeiro — mesmo que isso
+   signifique adiar a parte que geraria receita mais rápido (turismo +
+   ads). Ver `05_IDEIAS_E_DECISOES_UX.md` pro racional completo da
+   pesquisa que embasou essa fase (Nextdoor, Vizinhos App, Front Porch
+   Forum, Patch.com, CEMADEN, INPE Queimadas).
+
+Curadoria distribuída (não fica tudo com o admin):
+├─ Colunista — responsável só pelo Jornal/Colunas
+├─ Curador de ônibus — mantém horários atualizados
+└─ Curador de alertas — pode confirmar/ajustar alerta manualmente
+   Cada papel é um nível de permissão mais leve que admin completo,
+   reaproveitando o mesmo modelo de aprovação que já existe pra
+   prestador (PENDENTE → APROVADO).
+
+Base de dados sugerida: modelar como uma estrutura genérica de "post
+comunitário" (tipo: pede_ai | pet_perdido | alerta) em vez de 3
+sistemas separados — Pede Aí e Pet Perdido reaproveitam quase tudo.
+```
+
+### FASE 3 — Vendedores / Marketplace leve
 ```
 O que muda:
 ├─ Catálogo de produtos (já anotado como v1.1+ antes)
@@ -80,12 +126,12 @@ Isso já é o "vendedores poderiam vender ali" que você
 mencionou — só que de forma leve, sem virar um Mercado Livre.
 ```
 
-### FASE 3 — Módulo de Turismo
+### FASE 4 — Módulo de Turismo (pausado de propósito — decisão de 16/08)
 ```
 O que muda:
-├─ Cachoeiras, trilhas, pontos turísticos como novo "tipo
-│  de conteúdo" (parecido com negócio, mas sem prestador
-│  de serviço — é só informação + localização)
+├─ Cachoeiras, trilhas, pontos turísticos, restaurantes/pousadas
+│  maiores como novo "tipo de conteúdo" (parecido com negócio, mas
+│  sem prestador de serviço — é só informação + localização)
 ├─ Esse conteúdo funciona MUITO bem sem precisar de login
 │  (turista chega, vê, usa)
 └─ Pode ter dica de acesso, nível de dificuldade, fotos
@@ -94,6 +140,20 @@ Esse módulo é o que passa a trazer tráfego de FORA de
 Lumiar — pessoas pesquisando "cachoeiras perto de Nova
 Friburgo" no Google podem cair no seu site.
 
+Por que pausado: decisão explícita do Rafa — focar em Comunidade
+primeiro, mesmo sacrificando velocidade de monetização. Turismo só
+volta a ser prioridade depois que a Comunidade estiver validada com
+uso real. Quando voltar, começar reaproveitando o catálogo de
+prestadores já existente (restaurante/pousada como categoria nova)
+antes de investir num site de turismo separado com ads — testa
+demanda barato antes de construir caro.
+
+Monetização, quando essa fase entrar: negócio paga por
+destaque/posição (listagem em destaque), nunca cobra do morador nem
+do prestador individual — ver `05_IDEIAS_E_DECISOES_UX.md` pro
+racional completo. Ads voluntários (já previsto no V0) continuam
+rodando em paralelo como complemento, não como fonte principal.
+
 Aqui entra a questão que você levantou: diferenciar
 morador de visitante. Não precisa decidir agora — mas
 a arquitetura de login único (Opção A que recomendei)
@@ -101,7 +161,7 @@ já aguenta isso numa flag futura tipo "é_morador: true/false"
 sem precisar redesenhar nada.
 ```
 
-### FASE 4 — App Nativo (opcional, só se fizer sentido)
+### FASE 5 — App Nativo (opcional, só se fizer sentido)
 ```
 Só decide isso quando:
 ├─ Já tem uso recorrente forte (site/PWA validado)
@@ -148,6 +208,63 @@ Ideias pra quando for pensar nisso (só pra não esquecer):
 ```
 
 ---
+
+## 🔓🔒 ABERTO vs FECHADO — decisão de 16/08
+
+```
+Estrutura em 3 camadas, não 2:
+
+1. Serviços (aberto, sem login) — já é assim, continua assim.
+   Serve morador E turista ao mesmo tempo, é a base que já existe.
+
+2. Comunidade (fechada — Pede Aí, Pet Perdido, Alerta, Jornal, Selo) —
+   só pra quem confirma "moro aqui". Verificação leve no início
+   (autodeclarada, tipo checkbox), não precisa ser tão rígida quanto
+   Nextdoor/Vizinhos (que pedem comprovante de residência) — a
+   comunidade pequena de Lumiar/SPS já se modera sozinha via grupos de
+   WhatsApp, então dá pra confiar mais cedo e endurecer só se virar
+   problema.
+
+3. Turismo (aberto, futuro) — cachoeiras, trilhas, restaurantes
+   maiores. Fica de fora da Comunidade de propósito: turista não tem
+   motivo pra ver "cachorro perdido no bairro" nem alerta de risco de
+   uma região onde não mora, e misturar os dois dilui a confiança que
+   faz a Comunidade funcionar.
+
+Por que NÃO fechar o app inteiro (opção descartada): contradiz o
+pilar já fixado desde o início do projeto — "gratuito pro prestador,
+sem comissão, navegável sem login" (seção 1 do CLAUDE.md). Fechar tudo
+reduziria o alcance do prestador, que é o oposto do que o app deveria
+fazer por ele.
+```
+
+## 🧩 REUSABILIDADE — Jornal/Colunas pode virar produto (decisão de 16/08)
+
+```
+Diferente dos outros módulos de Comunidade (que dependem de dado
+específico de Lumiar/SPS — geografia de risco, prestadores locais), o
+Jornal/Colunas depende só de "gente que quer escrever sobre onde
+mora" — isso existe em qualquer cidade pequena do Brasil. Insight do
+Rafa: essa pode ser a peça de maior potencial de reuso do projeto.
+
+Existe precedente real disso funcionando como categoria de produto:
+"Daily Neighbor" é um template de plataforma de notícia hiperlocal
+pronto pra qualquer comunidade montar, sem precisar programar do zero.
+Ou seja: se o Jornal/Colunas funcionar bem em Lumiar/SPS, no futuro
+pode virar algo oferecido pra outras cidades pequenas — não é
+prioridade agora, só um caminho que ficou mais claro com a pesquisa.
+
+Cuidado histórico (caso Patch.com, EUA, achado na pesquisa de 16/08):
+a AOL investiu US$300 milhões tentando construir centenas de sites de
+notícia hiperlocal contratando jornalista full-time — e quebrou (corte
+de 40% da equipe em 2013). O modelo só ficou lucrativo depois que a
+empresa foi vendida e reestruturada em cima de colunista
+voluntário/comunitário, exatamente o caminho que o Rafa já escolheu
+("posso deixar essa frente com alguém"). Lição prática: nunca
+contratar jornalista em escala pra isso, e nunca misturar notícia
+genérica do mundo no meio do conteúdo local (Patch tentou, os leitores
+rejeitaram).
+```
 
 ## 🎯 O QUE ISSO MUDA NO QUE JÁ FOI DECIDIDO
 

@@ -17,8 +17,8 @@ export function CategoryList({ categorias, view }: CategoryListProps) {
         {categorias.map((categoria) => (
           <Link
             key={categoria.slug}
-            href={`/categorias/${categoria.slug}`}
-            className="border-border bg-card hover:bg-accent flex flex-col items-center gap-1 rounded-lg border px-1 py-3 text-center transition-colors"
+            href={`/busca/${categoria.slug}`}
+            className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col items-center gap-1 rounded-lg border px-1 py-3 text-center transition-all duration-200 ease-out"
           >
             <categoria.icon className="text-primary-500 size-6" />
             <span className="text-card-foreground text-xs leading-tight">
@@ -31,15 +31,14 @@ export function CategoryList({ categorias, view }: CategoryListProps) {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col overflow-hidden rounded-lg border">
       {categorias.map((categoria, i) => (
         <Link
           key={categoria.slug}
-          href={`/categorias/${categoria.slug}`}
+          href={`/busca/${categoria.slug}`}
           className={cn(
-            'border-border bg-card hover:bg-accent flex items-center gap-3 border-x border-b px-2 py-2.5 transition-colors',
-            i === 0 && 'rounded-t-lg border-t',
-            i === categorias.length - 1 && 'rounded-b-lg'
+            'hover:bg-accent flex items-center gap-3 px-2 py-2.5 transition-colors ease-out',
+            i !== categorias.length - 1 && 'border-border/70 border-b'
           )}
         >
           <categoria.icon className="text-primary-500 size-5 shrink-0" />

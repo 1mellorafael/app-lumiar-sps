@@ -84,8 +84,11 @@ seguríssima primeiro, features em cima dela.
 
 ```
 8. Sistema de login/cadastro (Supabase Auth)
-   - Passo 1: dados da conta (nome, sobrenome, email, telefone, senha,
-     endereço com autocomplete)
+   - Passo 1: dados da conta — nome, email, telefone, senha (cadastro
+     leve por decisão de 15/08: sem CPF, sem endereço, sem data de
+     nascimento). Aviso fixo: plataforma exclusiva pra Lumiar/São
+     Pedro da Serra, cadastro fora da região pode ser removido sem
+     aviso prévio
    - Validações: capitalização, máscara telefone, força de senha,
      confirmar senha, duplicidade email/telefone
    → commit: "feat(auth): sistema de cadastro e login com Supabase Auth"
@@ -165,6 +168,49 @@ seguríssima primeiro, features em cima dela.
 
 18. Performance — next/image, lazy loading, Vercel Analytics
     → commit: "perf: otimizações de imagem e carregamento"
+```
+
+---
+
+### Fase 8 — Comunidade (pós-V0, prioridade alta — ver `06_VISAO_LONGO_PRAZO.md`)
+
+```
+Não implementar ainda — registrado aqui só pra manter a ordem visível
+quando o V0 estiver completo. Decisão de 16/08: essa fase vem ANTES de
+Turismo/Marketplace no roadmap de longo prazo, mesmo entrando depois
+do V0 neste plano de implementação (que cobre só a Fase 0 do roadmap
+maior em `06_VISAO_LONGO_PRAZO.md`).
+
+19. Estrutura genérica de "post comunitário" (tipo: pede_ai |
+    pet_perdido | alerta) — base pros itens 20-22
+    → commit: "feat(comunidade): estrutura base de post comunitário"
+
+20. Alerta — Defesa Civil/CEMADEN (chuva/deslizamento) + INPE Queimadas
+    (incêndio) + override manual do admin
+    → commit: "feat(alerta): widget de alerta com fonte automática e
+      override manual"
+
+21. Pede Aí — mural de pedido reverso, formato lista
+    → commit: "feat(pede-ai): mural de pedidos da comunidade"
+
+22. Pet Perdido — card no feed + gerador de cartaz exportável
+    → commit: "feat(pet-perdido): cartão de pet perdido com gerador de
+      cartaz"
+
+23. Jornal/Colunas — conteúdo 100% local, papel de colunista com
+    permissão própria (curadoria delegável, não só admin)
+    → commit: "feat(jornal): módulo de colunas com papel de colunista"
+
+24. Selo "Verificado pela comunidade" — contador de confirmação no
+    perfil do prestador, badge automático (não é rating)
+    → commit: "feat(selo): selo de verificação comunitária"
+
+25. Home modular — usuário logado escolhe widgets (ônibus, clima,
+    contato útil, jornal, etc.)
+    → commit: "feat(home): home modular configurável pelo usuário"
+
+Detalhe completo de cada item, racional e pesquisa que embasou as
+decisões em `06_VISAO_LONGO_PRAZO.md` e `05_IDEIAS_E_DECISOES_UX.md`.
 ```
 
 ---

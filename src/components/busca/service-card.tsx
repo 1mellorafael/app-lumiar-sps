@@ -67,7 +67,7 @@ export function ServiceCard({
     return variant === 'a' ? (
       <Link
         href={`/servico/${prestador.id}`}
-        className="border-border bg-card hover:bg-accent flex items-start gap-2 rounded-lg border p-2 transition-colors"
+        className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex items-start gap-2 rounded-lg border p-2.5 transition-all duration-200 ease-out"
       >
         <div
           className={cn(
@@ -79,7 +79,7 @@ export function ServiceCard({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-card-foreground text-sm font-medium">
+            <p className="text-card-foreground text-sm font-semibold">
               {prestador.nomeServico}
             </p>
             <button
@@ -88,7 +88,7 @@ export function ServiceCard({
                 openWhatsapp(e, prestador.whatsapp, prestador.nomeServico)
               }
               aria-label={`Chamar ${prestador.nomeServico} no WhatsApp`}
-              className="bg-whatsapp flex size-8 shrink-0 items-center justify-center rounded-full text-white transition-opacity hover:opacity-90"
+              className="bg-whatsapp flex size-8 shrink-0 items-center justify-center rounded-full text-black shadow-[var(--shadow-card)] transition-all duration-150 ease-out hover:opacity-90 active:scale-90"
             >
               <MessageCircle className="size-3.5" />
             </button>
@@ -116,7 +116,7 @@ export function ServiceCard({
     ) : (
       <Link
         href={`/servico/${prestador.id}`}
-        className="border-border bg-card hover:bg-accent flex flex-col gap-1.5 rounded-lg border p-3 transition-colors"
+        className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex flex-col gap-1.5 rounded-lg border p-3 transition-all duration-200 ease-out"
       >
         <div className="flex items-center gap-2">
           <div
@@ -158,7 +158,7 @@ export function ServiceCard({
               openWhatsapp(e, prestador.whatsapp, prestador.nomeServico)
             }
             aria-label={`Chamar ${prestador.nomeServico} no WhatsApp`}
-            className="bg-whatsapp flex size-8 shrink-0 items-center justify-center rounded-full text-white transition-opacity hover:opacity-90"
+            className="bg-whatsapp flex size-8 shrink-0 items-center justify-center rounded-full text-black shadow-[var(--shadow-card)] transition-all duration-150 ease-out hover:opacity-90 active:scale-90"
           >
             <MessageCircle className="size-3.5" />
           </button>
@@ -170,14 +170,14 @@ export function ServiceCard({
   return variant === 'a' ? (
     <Link
       href={`/servico/${prestador.id}`}
-      className="border-border bg-card hover:bg-accent flex flex-col overflow-hidden rounded-lg border transition-colors"
+      className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex flex-col overflow-hidden rounded-lg border transition-all duration-200 ease-out"
     >
       {/* Foto composta: capa (cor neutra, sem foto real ainda) + principal
           (círculo central) — seção 9 do CLAUDE.md */}
       <div className="bg-muted relative h-8">
         <div
           className={cn(
-            'border-card absolute left-1/2 top-3 flex size-10 -translate-x-1/2 items-center justify-center rounded-full border-2 text-sm font-semibold text-white',
+            'border-card absolute left-1/2 top-3 flex size-10 -translate-x-1/2 items-center justify-center rounded-full border shadow-[0_2px_6px_rgb(0_0_0_/_0.15)] text-sm font-semibold text-white',
             avatarColor(prestador.id)
           )}
         >
@@ -185,7 +185,7 @@ export function ServiceCard({
         </div>
       </div>
       <div className="flex flex-col items-center gap-0.5 px-2 pb-2 pt-6 text-center">
-        <p className="text-card-foreground text-xs font-medium">
+        <p className="text-card-foreground text-xs font-semibold">
           {prestador.nomeServico}
         </p>
         {!hideCategoria && (
@@ -209,7 +209,7 @@ export function ServiceCard({
           onClick={(e) =>
             openWhatsapp(e, prestador.whatsapp, prestador.nomeServico)
           }
-          className="bg-whatsapp mt-1 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-white transition-opacity hover:opacity-90"
+          className="bg-whatsapp mt-1 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-black transition-all duration-150 ease-out hover:opacity-90 active:scale-95"
         >
           <MessageCircle className="size-3" />
           WhatsApp
@@ -219,12 +219,12 @@ export function ServiceCard({
   ) : (
     <Link
       href={`/servico/${prestador.id}`}
-      className="border-border bg-card hover:bg-accent flex flex-col overflow-hidden rounded-lg border transition-colors"
+      className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex flex-col overflow-hidden rounded-lg border transition-all duration-200 ease-out"
     >
       <div className="bg-muted relative h-20">
         <div
           className={cn(
-            'border-card absolute -bottom-6 left-3 flex size-14 items-center justify-center rounded-full border-2 text-base font-semibold text-white',
+            'border-card absolute -bottom-6 left-3 flex size-14 items-center justify-center rounded-full border shadow-[0_2px_6px_rgb(0_0_0_/_0.15)] text-base font-semibold text-white',
             avatarColor(prestador.id)
           )}
         >
@@ -260,7 +260,7 @@ export function ServiceCard({
           onClick={(e) =>
             openWhatsapp(e, prestador.whatsapp, prestador.nomeServico)
           }
-          className="bg-whatsapp mt-1 inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          className="bg-whatsapp mt-1 inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-black transition-all duration-150 ease-out hover:opacity-90 active:scale-95"
         >
           <MessageCircle className="size-4" />
           WhatsApp

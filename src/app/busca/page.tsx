@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { CATEGORIAS, PRESTADORES } from '@/lib/mock-data'
 import { normalizeSearch } from '@/lib/utils'
@@ -12,12 +12,20 @@ import { VariantToggle } from '@/components/busca/variant-toggle'
 
 const PAGE_SIZE = 10
 
-export default function CategoriasPage() {
+export default function BuscaPage() {
+  const inputRef = useRef<HTMLInputElement>(null)
   const [view, setView] = useState<ViewMode>('cards')
   const [cardVariant, setCardVariant] = useState<CardVariant>('a')
   const [listVariant, setListVariant] = useState<CardVariant>('a')
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(1)
+
+  useEffect(() => {
+    const handleFocusSearch = () => inputRef.current?.focus()
+    window.addEventListener('focus-search-input', handleFocusSearch)
+    return () =>
+      window.removeEventListener('focus-search-input', handleFocusSearch)
+  }, [])
 
   const resultados = useMemo(() => {
     if (!query) return []
@@ -38,12 +46,13 @@ export default function CategoriasPage() {
 
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
-      <h1 className="text-primary-500 text-lg font-bold">Categorias</h1>
+      <h1 className="text-primary-500 text-lg font-bold">Busca</h1>
 
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <Search className="text-muted-foreground absolute left-2.5 top-1/2 size-4 -translate-y-1/2" />
           <Input
+            ref={inputRef}
             value={query}
             onChange={(e) => {
               setQuery(e.target.value)

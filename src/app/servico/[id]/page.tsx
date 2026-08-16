@@ -102,20 +102,22 @@ export default function ServicoPage() {
 
       {/* Foto composta: capa (cor neutra) + principal (círculo central) —
           nome fica fora da moldura, abaixo — seção 9 do CLAUDE.md */}
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center">
         <div className="bg-muted relative h-16 w-full rounded-lg">
           <div
-            className={`border-background absolute left-1/2 top-8 flex size-16 -translate-x-1/2 items-center justify-center rounded-full border-2 text-lg font-semibold text-white ${avatarColor(prestador.id)}`}
+            className={`border-background absolute left-1/2 top-8 flex size-16 -translate-x-1/2 items-center justify-center rounded-full border shadow-[0_2px_6px_rgb(0_0_0_/_0.15)] text-lg font-semibold text-white ${avatarColor(prestador.id)}`}
           >
             {initials(prestador.nomeServico)}
           </div>
         </div>
-        <p className="text-card-foreground mt-4 text-lg font-bold">
+        {/* mt-12: a foto (size-16, top-8) transborda 32px abaixo da moldura
+            (h-16) — precisa de margem maior que o normal pra não sobrepor */}
+        <p className="text-card-foreground mt-12 text-lg font-bold">
           {prestador.nomeServico}
         </p>
       </div>
 
-      <section className="border-border bg-card flex flex-col gap-2 rounded-lg border p-4">
+      <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-4">
         <h2 className="text-neutral-text text-sm font-semibold uppercase tracking-wide">
           Informações
         </h2>
@@ -147,7 +149,7 @@ export default function ServicoPage() {
         </div>
       </section>
 
-      <section className="border-border bg-card flex flex-col gap-2 rounded-lg border p-4">
+      <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-4">
         <h2 className="text-neutral-text text-sm font-semibold uppercase tracking-wide">
           Sobre
         </h2>
@@ -159,7 +161,7 @@ export default function ServicoPage() {
           href={`https://instagram.com/${prestador.instagram}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="border-border bg-card text-card-foreground hover:bg-accent flex items-center gap-2 rounded-lg border p-4 text-sm font-medium transition-colors"
+          className="border-border/70 bg-card text-card-foreground shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] flex items-center gap-2 rounded-lg border p-4 text-sm font-medium transition-all duration-200 ease-out"
         >
           <Instagram className="text-primary-500 size-4" />@
           {prestador.instagram}
@@ -170,7 +172,7 @@ export default function ServicoPage() {
         href={whatsappHref(prestador.whatsapp, prestador.nomeServico)}
         target="_blank"
         rel="noopener noreferrer"
-        className="bg-whatsapp inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
+        className="bg-whatsapp inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-black transition-opacity ease-out hover:opacity-90"
       >
         <MessageCircle className="size-4" />
         Chamar no WhatsApp
