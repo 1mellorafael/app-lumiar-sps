@@ -1,6 +1,7 @@
-import { Share2, Smartphone, Tv, ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Briefcase, Tv, ArrowRight } from 'lucide-react'
 import { WeatherBadge } from '@/components/home/weather-badge'
+import { InstallCard } from '@/components/home/install-card'
+import { ShareAppCard } from '@/components/home/share-app-card'
 
 export default function Home() {
   return (
@@ -12,48 +13,41 @@ export default function Home() {
         <WeatherBadge tempC={22} condition="ensolarado" />
       </header>
 
-      <section className="border-border bg-card flex flex-col gap-1 rounded-lg border p-4">
-        <p className="text-card-foreground text-sm">
-          Presta algum serviço em Lumiar ou São Pedro?
-        </p>
+      {/* Grade compacta — 4 módulos fixos por política (não editáveis pelo
+          usuário ainda, ver decisão de 16/08): Cadastro e Compartilhar
+          sempre no topo, Instalar some sozinho quando já instalado,
+          Anúncio fica até decisão de rede de ads (pendência aberta). */}
+      <div className="grid grid-cols-2 gap-2">
         <a
           href="/cadastro"
-          className="text-primary-500 inline-flex items-center gap-1 text-sm font-medium hover:underline"
+          className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col items-start gap-1 rounded-lg border p-3 transition-all duration-200 ease-out"
         >
-          Cadastre-se <ArrowRight className="size-3.5" />
+          <Briefcase className="text-primary-500 size-5" />
+          <p className="text-card-foreground text-xs font-medium">
+            Presta serviço?
+          </p>
+          <span className="text-primary-500 inline-flex items-center gap-0.5 text-xs font-semibold">
+            Cadastre-se <ArrowRight className="size-3" />
+          </span>
         </a>
-      </section>
 
-      <section className="border-border bg-card flex flex-col gap-2 rounded-lg border p-4">
-        <p className="text-card-foreground text-sm">
-          Conhece alguém que presta serviço? Ou só curte o app? Divulgue o
-          Lumiar! 📲
-        </p>
-        <Button variant="secondary" className="w-fit">
-          <Share2 />
-          Compartilhar app
-        </Button>
-      </section>
+        <ShareAppCard />
 
-      <section className="border-border bg-card flex flex-col gap-2 rounded-lg border p-4">
-        <p className="text-card-foreground text-sm">
-          Adicione o app à tela inicial do seu celular
-        </p>
-        <Button variant="outline" size="sm" className="w-fit">
-          <Smartphone />
-          Adicionar
-        </Button>
-      </section>
+        <InstallCard />
 
-      <section className="border-border bg-card flex flex-col gap-2 rounded-lg border p-4">
-        <p className="text-card-foreground text-sm">
-          Ver um anúncio pra ajudar a manter o app no ar
-        </p>
-        <Button variant="outline" size="sm" className="w-fit">
-          <Tv />
-          Ver Anúncio
-        </Button>
-      </section>
+        <button
+          type="button"
+          className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-all duration-200 ease-out"
+        >
+          <Tv className="text-primary-500 size-5" />
+          <p className="text-card-foreground text-xs font-medium">
+            Ajude o app
+          </p>
+          <span className="text-primary-500 text-xs font-semibold">
+            Ver anúncio
+          </span>
+        </button>
+      </div>
     </main>
   )
 }
