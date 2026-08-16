@@ -61,7 +61,7 @@ aplicada a **todo** código, sem exceção:
 | 14  | Validate all input       | Zod no backend, mesmo se já validado no frontend                                                 |
 | 15  | Escape user content      | Nunca `dangerouslySetInnerHTML` sem sanitizar                                                    |
 | 16  | Restrict file uploads    | Só imagem, tamanho máximo, bucket com policy própria                                             |
-| 17  | Trim API responses       | Nunca devolver senha, data de nascimento etc. em resposta pública                                |
+| 17  | Trim API responses       | Nunca devolver senha, email etc. em resposta pública                                             |
 | 18  | Add security headers     | CSP, `X-Frame-Options`, `Strict-Transport-Security` no `next.config.js`                          |
 | 19  | Force HTTPS              | Automático no Vercel                                                                             |
 | 20  | Scan dependencies        | `npm audit` + Dependabot no CI                                                                   |
@@ -82,8 +82,7 @@ STATUS APROVADO:
    → Só os campos marcados como públicos ficam visíveis:
      foto principal, foto de capa, nome, categoria, descrição,
      Instagram, telefone (via botão de WhatsApp)
-   → Sempre privados, mesmo aprovado: email, senha, data de nascimento,
-     endereço completo
+   → Sempre privados, mesmo aprovado: email, senha
 ```
 
 ---
@@ -111,7 +110,6 @@ STATUS APROVADO:
 | Rate limiting      | Vercel Edge Middleware + Upstash Redis               |
 | i18n               | next-intl                                            |
 | Validação          | Zod (sempre no backend)                              |
-| Endereço           | Google Places Autocomplete + Geocoding API           |
 
 Custo mensal do MVP: R$ 0 (free tiers).
 
@@ -148,16 +146,14 @@ Custo mensal do MVP: R$ 0 (free tiers).
 ### Passo 1 — Sua Conta (só ao clicar "Cadastrar Serviço")
 
 ```
-Foto de Perfil (obrigatória)
-Nome            ← auto-capitaliza
-Sobrenome       ← auto-capitaliza
-Email           ← valida formato
-Telefone        ← máscara (xx) xxxxx-xxxx
-Data de Nascimento  ← formato xx/xx/xxxx, ícone de calendário
-Senha + Confirmar Senha  ← medidor de força, precisam bater
-Endereço        ← Google Places Autocomplete, normaliza formato
-                   (aceita fora da área, sinaliza pro admin, não bloqueia)
-☑️ Termos de Uso
+Nome                    ← auto-capitaliza
+Email                   ← valida formato
+Telefone                ← máscara (xx) xxxxx-xxxx
+Senha + Confirmar Senha ← medidor de força, precisam bater
+
+⚠️ Aviso permanente antes do botão:
+   "Plataforma apenas para Lumiar e São Pedro da Serra.
+    Cadastros fora da região podem ser removidos sem aviso prévio."
 
 → Email/telefone já existentes: erro inline, sugere login
 ```
@@ -177,20 +173,6 @@ Instagram (opcional)
 → Cai na tela do próprio serviço (não no formulário) — galeria de fotos
   (até 5) é adicionada lá, não durante o cadastro
 ```
-
-### Menores de idade
-
-Sem bloqueio automático. Se a data indicar menor de 18, o cadastro é
-aceito e enviado normalmente, mas fica marcado "⚠️ MENOR DE IDADE" só
-pro admin (nunca visível pro usuário) — decisão de aprovar/rejeitar é
-manual, caso a caso. **Não mostrar aviso em tempo real** de idade mínima
-no formulário (evita ensinar como burlar trocando a data).
-
-⚠️ Ponto de atenção legal (não resolvido ainda): coleta de dados de
-possíveis menores pode acionar exigências da LGPD (Art. 14) sobre
-consentimento de responsável. Não é algo pra resolver só no código —
-está pendente de consulta jurídica, não bloqueia o desenvolvimento mas
-bloqueia o lançamento público.
 
 ---
 
@@ -283,9 +265,6 @@ visita), e Menu/Perfil.
 - Não implementar feed de notícias completo (só o widget de Clima)
 - Não implementar status online/offline
 - Não implementar Negócio/CNPJ
-- Não bloquear cadastro de menor de idade automaticamente (fica pendente
-  pro admin decidir)
-- Não mostrar mensagem de "idade mínima" em tempo real no formulário
 - Não expor nenhum campo de um cadastro/serviço PENDENTE publicamente,
   mesmo os que seriam públicos depois de aprovado
 - Não reimplementar hash de senha manualmente — usar Supabase Auth nativo
@@ -299,8 +278,6 @@ visita), e Menu/Perfil.
 - Rede de anúncios (AdSense provável, avaliar perto do lançamento)
 - Texto de Política de Privacidade e Termos de Uso (placeholder ok por
   enquanto, mas precisa existir antes do lançamento público)
-- Consulta jurídica sobre dados de menores (LGPD) — antes do lançamento,
-  não antes de codar
 
 Ver `docs/08_PENDENCIAS_ABERTAS.md` pra lista completa e atualizada.
 
@@ -309,7 +286,29 @@ Ver `docs/08_PENDENCIAS_ABERTAS.md` pra lista completa e atualizada.
 ## 14. Ideias de fases futuras (não implementar agora)
 
 Registradas em `docs/05_IDEIAS_E_DECISOES_UX.md` e
-`docs/06_VISAO_LONGO_PRAZO.md`: Negócio/Fase 1, marketplace leve/Fase 2,
-módulo de turismo/Fase 3, app nativo/Fase 4, aba de Jogos com desafios
-diários, leaderboard de corrida (KMs acumulados). Nenhuma dessas entra
-no V0 — só mencionar se o usuário perguntar sobre o roadmap.
+`docs/06_VISAO_LONGO_PRAZO.md`. Ordem de prioridade pós-V0 (decidida em
+16/08): **Comunidade vem antes de Turismo** — foco em construir
+reputação/confiança na comunidade primeiro, mesmo que isso signifique
+adiar monetização via ads.
+
+- **Fase Comunidade** (prioridade alta): Alerta (Defesa Civil/CEMADEN +
+  risco de incêndio/INPE Queimadas, sempre com override manual do
+  admin), Pede Aí (mural de pedido reverso, formato lista), Pet Perdido
+  (card no feed + gerador de cartaz exportável pra WhatsApp/impressão),
+  Jornal/Colunas (conteúdo 100% local, nunca agrega notícia genérica do
+  mundo solta), selo "Verificado pela comunidade" (contador de
+  confirmação — não é rating/nota). Curadoria distribuída: partes
+  específicas (jornal, horário de ônibus, alertas) podem ficar com
+  pessoas de confiança além do admin.
+- **Fase Negócio/Marketplace leve**: catálogo de produtos, sem
+  pagamento processado na plataforma
+- **Fase Turismo**: cachoeiras, trilhas, restaurantes/pousadas maiores
+  — pausada de propósito até a Comunidade validar; monetização aqui é
+  negócio pagando por destaque, nunca cobrando do morador
+- **Fase App Nativo**: só quando uso recorrente justificar
+- Aba de Jogos com desafios diários, leaderboard de corrida (KMs
+  acumulados) — sistemas próprios, podem se cruzar com o selo no
+  futuro (ex: missão de confirmar vizinhos) sem nascerem acoplados
+
+Nenhuma dessas entra no V0 atual — só mencionar se o usuário perguntar
+sobre o roadmap.

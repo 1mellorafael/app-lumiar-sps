@@ -512,6 +512,77 @@ com conta).
 
 ---
 
+## 🏘️ IDEIA NOVA (16/08) — Módulo Comunidade (Alerta, Pede Aí, Pet Perdido, Jornal, Selo)
+
+Sessão longa de brainstorm com pesquisa na internet (Nextdoor, Vizinhos
+App, Front Porch Forum, Colab, Patch.com, CEMADEN, INPE Queimadas).
+Resultado: um módulo inteiro novo, priorizado ANTES de Turismo (ver
+`06_VISAO_LONGO_PRAZO.md` pro roadmap atualizado). Resumo das peças:
+
+**Alerta** — Defesa Civil (chuva/deslizamento, fonte: CEMADEN GeoRisk,
+previsão até 72h) + risco de incêndio (fonte: INPE Queimadas, dados
+abertos, atualização a cada 10min-3h desde 1998) + override manual do
+admin sempre disponível. Motivação: Nova Friburgo tem alerta real de
+risco moderado de deslizamento registrado em dez/2025, e histórico
+trágico de encosta na região — nenhum concorrente genérico oferece
+isso hiperlocal.
+
+**Pede Aí** — mural de pedido reverso ("preciso de alguém pra X"),
+formato LISTA (pesquisa de UX confirma: lista é melhor pra
+busca/ação, card é melhor pra navegação/descoberta — Pede Aí é ação).
+Reaproveita o `ViewToggle` que já existe no app, sem inventar estética
+nova de "classificados" (risco de ficar datado/tosco).
+
+**Pet Perdido** — dividido em duas partes: (1) card normal dentro do
+feed, mesmo visual do resto do app; (2) botão "Gerar Cartaz" que
+exporta uma imagem estilo panfleto de poste (alto contraste, foto
+grande, "DESAPARECIDO"), inspirado na parceria real Nextdoor+PawBoost —
+resolve o desejo de estética "colado no poste" sem forçar isso na UI
+principal do app.
+
+**Jornal/Colunas** — conteúdo 100% local, curadoria delegável (não só
+o admin escreve). Regra dura, baseada no caso Patch.com: nunca agregar
+notícia genérica do mundo solta — se um colunista comentar algo do
+mundo, é sempre pela lente local. Diferença Alerta vs. Notícia: o
+critério é URGÊNCIA (alerta = ação imediata, curta duração, sempre no
+topo; notícia = informativo, pode ser resumo/digest, vida mais longa).
+
+**Selo "Verificado pela comunidade"** — botão no perfil do prestador
+("eu conheço, confirmo"), contador, badge automático ao bater um
+mínimo. Inspirado em "Compra Verificada" da Amazon — binário, não é
+nota de 1 a 5.
+
+**Curadoria distribuída** — colunista (Jornal), curador de ônibus
+(horários), curador de alertas — papéis de permissão mais leves que
+admin completo, reaproveitando o mesmo fluxo PENDENTE→APROVADO já
+usado pra prestador.
+
+**Arquitetura aberto/fechado** — Serviços fica aberto (como já é hoje).
+Comunidade fica atrás de um "confirmo que moro aqui" leve/autodeclarado
+(não é comprovante de residência como Nextdoor/Vizinhos fazem — a
+comunidade pequena já se modera via WhatsApp, dá pra confiar mais cedo).
+Turismo (futuro) fica aberto também, mas separado da Comunidade.
+
+**Monetização** — não cobrar do morador nem do prestador individual
+(mantém a alma do projeto). Ads voluntários (já previstos no V0)
+continuam. A peça nova: negócio maior (restaurante, pousada, loja)
+paga por destaque no futuro diretório de turismo — isso é adiado até
+Turismo virar prioridade de novo.
+
+⚠️ **Conflitos com ideias antigas deste documento, resolvidos em
+16/08:**
+- *"Ideia 5: Badge de Verificação Especial"* (seção UI/DESIGN) tinha
+  "🏆 Top Prestador (5 stars + 10+ reviews)" — **descartado**, contradiz
+  a decisão de não ter rating. Só o "✓ Verificado" simples sobrevive,
+  na forma do Selo comunitário acima.
+- *"Ideia 1: Rating em Tempo Real"* (seção GAMIFICATION) — **fora de
+  escopo**, mesma razão. Ver seção 12 do CLAUDE.md.
+- *"Ideia 4: Badge Premium"* (seção MONETIZAÇÃO, cliente paga R$29/mês)
+  — **não é o caminho escolhido**; monetização decidida é negócio
+  pagando por destaque, não cliente/morador pagando assinatura.
+
+---
+
 ## 🔄 COMO USAR ESTE DOCUMENTO
 
 1. **Você tem ideia:** Adiciona aqui na categoria correta
