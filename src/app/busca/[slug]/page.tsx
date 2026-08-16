@@ -11,7 +11,7 @@ import { VariantToggle } from '@/components/busca/variant-toggle'
 
 const PAGE_SIZE = 10
 
-export default function CategoriaResultadosPage() {
+export default function BuscaCategoriaPage() {
   const params = useParams<{ slug: string }>()
   const categoria = getCategoria(params.slug)
   const [view, setView] = useState<ViewMode>('list')
@@ -38,7 +38,7 @@ export default function CategoriaResultadosPage() {
           Categoria não encontrada.
         </p>
         <Link
-          href="/categorias"
+          href="/busca"
           className="text-primary-500 text-sm font-medium hover:underline"
         >
           Voltar pra Categorias
@@ -50,7 +50,7 @@ export default function CategoriaResultadosPage() {
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
       <Link
-        href="/categorias"
+        href="/busca"
         aria-label="Voltar"
         className="text-neutral-text hover:text-primary-500 flex w-fit items-center gap-1 text-sm font-medium"
       >

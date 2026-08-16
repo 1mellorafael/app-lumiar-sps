@@ -1,19 +1,30 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { Home, LayoutGrid, Wrench, Menu } from 'lucide-react'
+import { useRouter, usePathname } from 'next/navigation'
+import { Home, Search, Wrench, Menu } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const ITEMS = [
   { href: '/', label: 'Home', icon: Home },
-  { href: '/categorias', label: 'Categorias', icon: LayoutGrid },
+  { href: '/busca', label: 'Busca', icon: Search },
   { href: '/uteis', label: 'Úteis', icon: Wrench },
   { href: '/menu', label: 'Menu', icon: Menu },
 ]
 
 export function BottomNav() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  const handleBuscaClick = (active: boolean) => {
+    if (active) {
+      // Já está em /busca — foca o input
+      window.dispatchEvent(new CustomEvent('focus-search-input'))
+    } else {
+      // Navega pra /busca
+      router.push('/busca')
+    }
+  }
 
   return (
     <nav
@@ -26,6 +37,26 @@ export function BottomNav() {
             item.href === '/'
               ? pathname === '/'
               : pathname.startsWith(item.href)
+
+          // Item Busca é especial: clique duplo ativa input, primeiro clique navega
+          if (item.label === 'Busca') {
+            return (
+              <button
+                key={item.href}
+                onClick={() => handleBuscaClick(active)}
+                aria-current={active ? 'page' : undefined}
+                className={cn(
+                  'flex flex-1 flex-col items-center gap-0.5 py-2 text-xs transition-colors',
+                  active
+                    ? 'text-primary-500'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                <item.icon className="size-5" />
+                {item.label}
+              </button>
+            )
+          }
 
           return (
             <Link
