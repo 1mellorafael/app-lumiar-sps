@@ -583,6 +583,29 @@ Turismo virar prioridade de novo.
 
 ---
 
+## 🪙 IDEIA NOVA (16/08) — Token de Lumiar
+
+Brainstorm: uma moeda/token próprio da plataforma — gamificação, ação
+com lojas locais, resgate de algum tipo de benefício. **Ainda não é
+decisão de escopo**, mesma categoria da Aba de Jogos e do Leaderboard de
+Corrida acima — ideia pra amadurecer, não pra construir agora.
+
+**Por que não agora:** diferente do selo de verificado (funciona com só
+2 vizinhos confirmando), um sistema de token só tem utilidade real
+quando já existe volume de gente e de negócio participando — token
+circulando entre poucos usuários e nenhuma loja aceitando não é
+economia, é decoração. Precisa de massa crítica que a Comunidade ainda
+não tem.
+
+**Quando reavaliar:** depois que a Fase Comunidade estiver validada com
+uso real e, idealmente, já existir alguma relação com negócios locais
+(conecta com a fase de Turismo/monetização por destaque pago, que
+também está pausada de propósito — ver `06_VISAO_LONGO_PRAZO.md`). Se
+voltar à mesa, pensar junto com Jogos/Leaderboard em vez de como
+sistema isolado, já que os três mexem com a mesma ideia de engajamento.
+
+---
+
 ## 🔄 COMO USAR ESTE DOCUMENTO
 
 1. **Você tem ideia:** Adiciona aqui na categoria correta
