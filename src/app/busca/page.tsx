@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState, useRef, useEffect } from 'react'
-import { Search, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { CATEGORIAS, PRESTADORES } from '@/lib/mock-data'
 import { normalizeSearch } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -25,6 +25,18 @@ export default function BuscaPage() {
     window.addEventListener('focus-search-input', handleFocusSearch)
     return () =>
       window.removeEventListener('focus-search-input', handleFocusSearch)
+  }, [])
+
+  useEffect(() => {
+    // Rolar a lista de resultados dispensa o teclado — mesmo padrão do
+    // iOS Mail/Mensagens ("scroll-to-dismiss")
+    const handleScroll = () => {
+      if (document.activeElement === inputRef.current) {
+        inputRef.current?.blur()
+      }
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   const resultados = useMemo(() => {
@@ -58,9 +70,28 @@ export default function BuscaPage() {
               setQuery(e.target.value)
               setPage(1)
             }}
+            onKeyDown={(e) => {
+              // Enter (tecla "Buscar" do teclado mobile) confirma e some
+              if (e.key === 'Enter') inputRef.current?.blur()
+            }}
+            enterKeyHint="search"
             placeholder="Buscar por nome ou serviço..."
-            className="pl-8"
+            className="pl-8 pr-8"
           />
+          {query && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery('')
+                setPage(1)
+                inputRef.current?.blur()
+              }}
+              aria-label="Limpar busca"
+              className="text-muted-foreground hover:text-foreground absolute right-2.5 top-1/2 -translate-y-1/2"
+            >
+              <X className="size-4" />
+            </button>
+          )}
         </div>
         <ViewToggle value={view} onChange={setView} />
       </div>
