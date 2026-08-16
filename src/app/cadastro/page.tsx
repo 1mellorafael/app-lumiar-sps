@@ -5,6 +5,11 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { capitalizeWords } from '@/lib/utils'
+import {
+  getPasswordStrength,
+  PASSWORD_STRENGTH_LABEL,
+} from '@/lib/password-strength'
 
 export default function CadastroPage() {
   const [step, setStep] = useState<'account' | 'service'>('account')
@@ -21,6 +26,11 @@ export default function CadastroPage() {
   })
   const [termos, setTermos] = useState(false)
   const [termosPresta, setTermosPresta] = useState(false)
+  const [accountError, setAccountError] = useState<string | null>(null)
+  const [accountErrorField, setAccountErrorField] = useState<string | null>(
+    null
+  )
+  const [submitting, setSubmitting] = useState(false)
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -30,7 +40,7 @@ export default function CadastroPage() {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === 'nome' ? capitalizeWords(value) : value,
     }))
   }
 
@@ -50,21 +60,50 @@ export default function CadastroPage() {
     }))
   }
 
-  const handleAccountSubmit = (e: React.FormEvent) => {
+  const handleAccountSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setAccountError(null)
+    setAccountErrorField(null)
+
     if (!termos) {
       alert('Precisa aceitar os termos pra continuar')
       return
     }
     if (formData.senha !== formData.confirmaSenha) {
-      alert('As senhas não combinam')
+      setAccountError('As senhas não combinam')
       return
     }
     if (formData.senha.length < 6) {
-      alert('Senha precisa ter no mínimo 6 caracteres')
+      setAccountError('Senha precisa ter no mínimo 6 caracteres')
       return
     }
-    setStep('service')
+
+    setSubmitting(true)
+    try {
+      const res = await fetch('/api/auth/cadastro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: formData.nome,
+          email: formData.email,
+          telefone: formData.telefone,
+          senha: formData.senha,
+        }),
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        setAccountError(data.error ?? 'Não foi possível criar a conta.')
+        setAccountErrorField(data.field ?? null)
+        return
+      }
+
+      setStep('service')
+    } catch {
+      setAccountError('Erro de conexão. Tente novamente.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handleServiceSubmit = (e: React.FormEvent) => {
@@ -127,8 +166,17 @@ export default function CadastroPage() {
               value={formData.email}
               onChange={handleInputChange}
               placeholder="seu@email.com"
+              aria-invalid={accountErrorField === 'email'}
               required
             />
+            {accountErrorField === 'email' && (
+              <p className="text-destructive mt-1 text-xs">
+                {accountError}{' '}
+                <Link href="/login" className="underline">
+                  Fazer login
+                </Link>
+              </p>
+            )}
           </div>
 
           <div>
@@ -145,8 +193,17 @@ export default function CadastroPage() {
               onChange={handleTelefoneChange}
               placeholder="(24) 99999-9999"
               maxLength={18}
+              aria-invalid={accountErrorField === 'telefone'}
               required
             />
+            {accountErrorField === 'telefone' && (
+              <p className="text-destructive mt-1 text-xs">
+                {accountError}{' '}
+                <Link href="/login" className="underline">
+                  Fazer login
+                </Link>
+              </p>
+            )}
           </div>
 
           <div>
@@ -165,6 +222,29 @@ export default function CadastroPage() {
               placeholder="••••••"
               required
             />
+            {formData.senha.length > 0 && (
+              <div className="mt-1 flex items-center gap-2">
+                <div className="bg-muted flex h-1 flex-1 gap-1 overflow-hidden rounded-full">
+                  {[1, 2, 3].map((level) => (
+                    <div
+                      key={level}
+                      className={`h-full flex-1 rounded-full transition-colors ${
+                        getPasswordStrength(formData.senha) >= level
+                          ? getPasswordStrength(formData.senha) === 1
+                            ? 'bg-destructive'
+                            : getPasswordStrength(formData.senha) === 2
+                              ? 'bg-secondary'
+                              : 'bg-primary'
+                          : 'bg-transparent'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-muted-foreground text-xs">
+                  {PASSWORD_STRENGTH_LABEL[getPasswordStrength(formData.senha)]}
+                </span>
+              </div>
+            )}
           </div>
 
           <div>
@@ -184,6 +264,10 @@ export default function CadastroPage() {
               required
             />
           </div>
+
+          {accountError && !accountErrorField && (
+            <p className="text-destructive text-xs">{accountError}</p>
+          )}
 
           <div className="bg-orange-50 border-orange-200 rounded-lg border p-3">
             <p className="text-orange-800 text-xs">
@@ -222,8 +306,8 @@ export default function CadastroPage() {
             </label>
           </div>
 
-          <Button type="submit" className="w-full">
-            Próximo
+          <Button type="submit" className="w-full" disabled={submitting}>
+            {submitting ? 'Criando conta...' : 'Próximo'}
           </Button>
         </form>
       </main>

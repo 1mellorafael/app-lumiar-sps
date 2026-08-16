@@ -13,3 +13,12 @@ export function cn(...inputs: ClassValue[]) {
 export function normalizeSearch(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
 }
+
+// Auto-capitaliza cada palavra (ex: "joão silva" -> "João Silva"), usado
+// no campo Nome do cadastro (CLAUDE.md seção 7)
+export function capitalizeWords(text: string): string {
+  return text.replace(
+    /\p{L}+/gu,
+    (word) => word[0].toUpperCase() + word.slice(1).toLowerCase()
+  )
+}

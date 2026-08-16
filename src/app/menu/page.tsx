@@ -1,34 +1,20 @@
-'use client'
-
 import Link from 'next/link'
-import { LogIn, Settings, Share2, Smartphone, MessageSquare, HelpCircle, FileText } from 'lucide-react'
+import { Settings, Share2, Smartphone, MessageSquare, HelpCircle, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { AccountSection } from '@/components/menu/account-section'
+import { createClient } from '@/lib/supabase/server'
 
-// Auth (Supabase) ainda não existe — Fase 2 do plano de implementação.
-// Até lá não há sessão possível, então "Meus serviços" nunca aparece.
-const isLoggedIn = false
+export default async function MenuPage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-export default function MenuPage() {
   return (
     <main className="mx-auto flex max-w-md flex-col gap-2 p-4">
       <h1 className="text-primary-500 mb-2 text-lg font-bold">Menu</h1>
 
-      {/* Seção Conta */}
-      <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-3">
-        <div className="flex items-center gap-2">
-          <LogIn className="text-primary-500 size-4" />
-          <h2 className="text-neutral-text text-sm font-semibold">Conta</h2>
-        </div>
-        {isLoggedIn ? (
-          <Button variant="ghost" className="justify-start" size="sm">
-            Meus serviços
-          </Button>
-        ) : (
-          <Button variant="ghost" className="justify-start" size="sm">
-            Fazer login
-          </Button>
-        )}
-      </section>
+      <AccountSection email={user?.email ?? null} />
 
       {/* Seção App */}
       <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-3">
