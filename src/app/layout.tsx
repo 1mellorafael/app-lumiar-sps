@@ -11,6 +11,23 @@ export const metadata: Metadata = {
   title: 'App de Lumiar',
   description:
     'Conecta prestadores de serviço a clientes em Lumiar e São Pedro da Serra',
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Lumiar',
+  },
+}
+
+export const viewport = {
+  themeColor: '#0F6E5C',
 }
 
 export default function RootLayout({
