@@ -68,7 +68,17 @@ inclusive pra essas categorias mais "loja-like".
 
 ## 3. Cadastro — fluxo e campos
 
-Detalhado visualmente em `10_WIREFRAMES_SKETCH_BAIXO.md`. Resumo funcional:
+> ⚠️ **Seção desatualizada (revisão de 16/08).** O que foi de fato
+> implementado é o cadastro **leve** do CLAUDE.md seção 7: só Nome, Email,
+> Telefone, Senha+Confirmar no Passo 1 — sem foto de perfil, sobrenome,
+> data de nascimento nem endereço/geocoding. `database/schema.sql` foi
+> corrigido nesta revisão pra bater com isso. Em caso de conflito, CLAUDE.md
+> vale (ele mesmo declara essa precedência). Conteúdo abaixo fica só como
+> histórico de uma versão mais pesada que foi descartada — pode ter ideia
+> aproveitável se algum desses campos voltar a fazer sentido no futuro.
+
+Detalhado visualmente em `10_WIREFRAMES_SKETCH_BAIXO.md` (também desatualizado
+nesse ponto). Resumo funcional da versão **descartada**:
 
 ### Passo 1 — Sua Conta (só acontece ao clicar "Cadastrar Serviço")
 
@@ -129,6 +139,11 @@ lista de serviços próprios, e tudo que o Menu normal já tinha
 
 ## 4. Menores de idade
 
+> ⚠️ **Depende do campo de Data de Nascimento, que saiu do cadastro real**
+> (ver aviso da seção 3). Enquanto esse campo não voltar a existir no
+> formulário, a lógica abaixo não roda — fica registrada como ideia pra
+> quando/se o cadastro voltar a coletar data de nascimento.
+
 **Regra atualizada em 14/08 (rodada 2):** não existe mais bloqueio
 silencioso/automático. O campo de Data de Nascimento **fica visível** no
 cadastro (Passo 1). Se a pessoa for menor de idade, ela **consegue
@@ -177,6 +192,14 @@ advogado antes do lançamento, ver `08_PENDENCIAS_ABERTAS.md`):
 ---
 
 ## 5. Geo-restrição (Lumiar / São Pedro da Serra)
+
+> ⚠️ **Implementado de forma mais simples do que descrito abaixo.** A
+> versão real (CLAUDE.md seção 7) é só um aviso de texto fixo antes do
+> botão de cadastro ("Cadastros fora da região podem ser removidos sem
+> aviso prévio") — sem geocoding automático, porque o endereço não é mais
+> coletado no cadastro (ver seção 3). Moderação de região fica manual,
+> junto com a aprovação do admin. Fica como ideia pra endurecer depois se
+> virar problema real.
 
 O endereço do prestador é pedido só pra validar que ele atende na região —
 **não aparece publicamente** no perfil dele.

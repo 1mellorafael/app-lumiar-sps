@@ -18,15 +18,14 @@
 -- profiles: dados extras de quem se cadastrou (auth/senha ficam no
 -- auth.users nativo do Supabase Auth — nunca reimplementar hash de senha)
 -- ============================================================
+-- Campos batem com o cadastro leve decidido em 15/08 (CLAUDE.md seção 7):
+-- só nome, email (fica em auth.users), telefone e senha no Passo 1. Sem
+-- sobrenome, foto de perfil, data de nascimento ou endereço — geo-restrição
+-- vira só aviso de texto fixo antes do botão, não geocoding automático.
 create table profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   nome varchar(255) not null,
-  sobrenome varchar(255) not null,
   telefone varchar(20) not null,
-  foto_perfil_url varchar(500) not null,
-  data_nascimento date not null, -- nunca exposta publicamente
-  endereco_completo varchar(500),
-  endereco_dentro_area boolean default null, -- resultado do geocoding
   is_admin boolean not null default false, -- nunca setável pelo cliente
   created_at timestamptz not null default now()
 );
@@ -225,15 +224,12 @@ security definer set search_path = public
 as $$
 begin
   insert into public.profiles (
-    id, nome, sobrenome, telefone, foto_perfil_url, data_nascimento
+    id, nome, telefone
   )
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'nome', ''),
-    coalesce(new.raw_user_meta_data->>'sobrenome', ''),
-    coalesce(new.raw_user_meta_data->>'telefone', ''),
-    coalesce(new.raw_user_meta_data->>'foto_perfil_url', ''),
-    (new.raw_user_meta_data->>'data_nascimento')::date
+    coalesce(new.raw_user_meta_data->>'telefone', '')
   );
   return new;
 end;

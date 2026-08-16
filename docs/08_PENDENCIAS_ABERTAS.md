@@ -25,11 +25,12 @@ Google AdSense é o mais comum, mas Lumiar é uma comunidade pequena — pode
 não qualificar tráfego suficiente no início. Avaliar quando chegar mais
 perto do lançamento. Ver `10_WIREFRAMES_SKETCH_BAIXO.md`, seção 11.
 
-### 3. Política de Privacidade e Termos de Uso — escrever
+### 3. Política de Privacidade e Termos de Uso — revisão jurídica
 
-Ainda não existem como texto. Precisam existir antes do lançamento
-(rodapé já reserva o espaço). Ver `10_WIREFRAMES_SKETCH_BAIXO.md`,
-seção 12.
+Texto placeholder já publicado (`src/app/termos/page.tsx` e
+`privacidade/page.tsx`), com aviso visível de "versão preliminar" na
+própria página. Falta a revisão jurídica antes do lançamento público —
+não é mais "escrever do zero", é "validar o que já existe".
 
 ### 4. ⚠️ LGPD — dados de menores (recomendo consulta jurídica)
 
