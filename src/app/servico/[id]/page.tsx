@@ -8,6 +8,7 @@ import {
   MapPin,
   Phone,
   Tag,
+  Clock,
   Instagram,
   MessageCircle,
   Link2,
@@ -120,8 +121,22 @@ export default function ServicoPage() {
         </h2>
         <div className="text-card-foreground flex items-center gap-2 text-sm">
           <MapPin className="text-primary-500 size-4 shrink-0" />
-          {prestador.endereco}
+          {prestador.endereco
+            ? `${prestador.endereco} — ${prestador.localizacao}`
+            : prestador.localizacao}
         </div>
+        {prestador.horarios && prestador.horarios.length > 0 && (
+          <div className="text-card-foreground flex items-start gap-2 text-sm">
+            <Clock className="text-primary-500 mt-0.5 size-4 shrink-0" />
+            <div className="flex flex-col gap-0.5">
+              {prestador.horarios.map((h, i) => (
+                <span key={i}>
+                  {h.dias}: {h.abre} – {h.fecha}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="text-card-foreground flex items-center gap-2 text-sm">
           <Phone className="text-primary-500 size-4 shrink-0" />
           {prestador.telefoneDisplay}

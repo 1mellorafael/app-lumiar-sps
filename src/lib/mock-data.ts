@@ -40,6 +40,12 @@ export function getCategoria(slug: string): Categoria | undefined {
   return CATEGORIAS.find((c) => c.slug === slug)
 }
 
+export type HorarioBloco = {
+  dias: string // texto livre por enquanto — ex: "Seg-Sex", "Todos os dias"
+  abre: string // "09:00"
+  fecha: string // "18:00"
+}
+
 export type Prestador = {
   id: string
   nome: string
@@ -48,10 +54,33 @@ export type Prestador = {
   descricao: string
   whatsapp: string
   telefoneDisplay: string
-  // Só o distrito, nunca endereço completo (dado sensível — CLAUDE.md
-  // item 8 da estrutura de dados)
-  endereco: string
+  // Distrito é sempre público (chip curto nos cards/lista). Diferente do
+  // endereço da CONTA (Passo 1 do cadastro), que é dado sensível — este
+  // aqui é o endereço do SERVIÇO, opcional, que o prestador escolhe
+  // divulgar (ex: "atendo só em domicílio" → nem preenche)
+  localizacao: 'Lumiar' | 'São Pedro da Serra'
+  endereco?: string
+  horarios?: HorarioBloco[]
   instagram?: string
+}
+
+// Chip curto pra caber no card/lista — "São Pedro da Serra" não cabe
+export function localizacaoAbrev(loc: Prestador['localizacao']): string {
+  return loc === 'São Pedro da Serra' ? 'SPS' : 'Lumiar'
+}
+
+function formatHora(h: string): string {
+  const [hh, mm] = h.split(':')
+  return mm === '00' ? `${Number(hh)}h` : `${Number(hh)}h${mm}`
+}
+
+// Resumo de 1 linha pro card/lista — a página de detalhe mostra todos
+// os blocos, aqui só o primeiro (+N se tiver mais)
+export function horarioResumo(horarios?: HorarioBloco[]): string | null {
+  if (!horarios || horarios.length === 0) return null
+  const [primeiro, ...resto] = horarios
+  const base = `${primeiro.dias} ${formatHora(primeiro.abre)}-${formatHora(primeiro.fecha)}`
+  return resto.length > 0 ? `${base} +${resto.length}` : base
 }
 
 export function getPrestador(id: string): Prestador | undefined {
@@ -69,7 +98,9 @@ export const PRESTADORES: Prestador[] = [
     descricao: 'Entrego qualquer coisa. Rápido e seguro, todo dia até 22h.',
     whatsapp: '5521987654321',
     telefoneDisplay: '(21) 98765-4321',
-    endereco: 'Lumiar, Nova Friburgo',
+    localizacao: 'Lumiar',
+    // Sem endereço — atende em movimento, não faz sentido divulgar local fixo
+    horarios: [{ dias: 'Todos os dias', abre: '08:00', fecha: '22:00' }],
     instagram: 'joao_moto',
   },
   {
@@ -80,7 +111,8 @@ export const PRESTADORES: Prestador[] = [
     descricao: 'Faxina completa, com ou sem produtos. Referências na região.',
     whatsapp: '5521987654322',
     telefoneDisplay: '(21) 98765-4322',
-    endereco: 'São Pedro da Serra, Nova Friburgo',
+    localizacao: 'São Pedro da Serra',
+    // Sem horário preenchido — prestadora ainda não quis marcar
   },
   {
     id: '3',
@@ -90,7 +122,8 @@ export const PRESTADORES: Prestador[] = [
     descricao: 'Corridas em Lumiar e São Pedro, 24h.',
     whatsapp: '5521987654323',
     telefoneDisplay: '(21) 98765-4323',
-    endereco: 'Lumiar, Nova Friburgo',
+    localizacao: 'Lumiar',
+    horarios: [{ dias: 'Todos os dias', abre: '00:00', fecha: '23:59' }],
     instagram: 'carlao_mototaxi',
   },
   {
@@ -101,17 +134,23 @@ export const PRESTADORES: Prestador[] = [
     descricao: 'Carro confortável, ar-condicionado. Viagens até Nova Friburgo.',
     whatsapp: '5521987654324',
     telefoneDisplay: '(21) 98765-4324',
-    endereco: 'Lumiar, Nova Friburgo',
+    localizacao: 'Lumiar',
   },
   {
     id: '5',
     nome: 'Ana Beatriz',
     nomeServico: 'Espaço Bela Ana',
     categoriaSlug: 'estetica',
-    descricao: 'Manicure, pedicure e sobrancelha. Atendo em domicílio.',
+    descricao:
+      'Manicure, pedicure, sobrancelha e depilação. Atendo em domicílio ou no espaço, marcação por WhatsApp com pelo menos um dia de antecedência. Trabalho com esmaltação em gel e uso só produtos de primeira linha, sempre esterilizados entre um atendimento e outro.',
     whatsapp: '5521987654325',
     telefoneDisplay: '(21) 98765-4325',
-    endereco: 'São Pedro da Serra, Nova Friburgo',
+    localizacao: 'São Pedro da Serra',
+    endereco: 'Rua das Flores, 123 - Centro',
+    horarios: [
+      { dias: 'Seg-Sex', abre: '09:00', fecha: '19:00' },
+      { dias: 'Sáb', abre: '09:00', fecha: '13:00' },
+    ],
     instagram: 'espacobelaana',
   },
   {
@@ -122,7 +161,7 @@ export const PRESTADORES: Prestador[] = [
     descricao: 'Adestramento básico e comportamental, cães de todas as idades.',
     whatsapp: '5521987654326',
     telefoneDisplay: '(21) 98765-4326',
-    endereco: 'Lumiar, Nova Friburgo',
+    localizacao: 'Lumiar',
     instagram: 'adestrabicho',
   },
   {
@@ -133,7 +172,8 @@ export const PRESTADORES: Prestador[] = [
     descricao: 'Hospedagem com carinho pro seu pet enquanto você viaja.',
     whatsapp: '5521987654327',
     telefoneDisplay: '(21) 98765-4327',
-    endereco: 'São Pedro da Serra, Nova Friburgo',
+    localizacao: 'São Pedro da Serra',
+    endereco: 'Estrada do Rio Bonito, km 3',
     instagram: 'hotelpetdafe',
   },
   {
@@ -144,7 +184,9 @@ export const PRESTADORES: Prestador[] = [
     descricao: 'Mercearia com produtos frescos direto da roça.',
     whatsapp: '5521987654328',
     telefoneDisplay: '(21) 98765-4328',
-    endereco: 'Lumiar, Nova Friburgo',
+    localizacao: 'Lumiar',
+    endereco: 'Rua Principal, 45',
+    horarios: [{ dias: 'Seg-Dom', abre: '07:00', fecha: '20:00' }],
   },
   {
     id: '9',
@@ -154,7 +196,7 @@ export const PRESTADORES: Prestador[] = [
     descricao: 'Babá experiente, referências de famílias da região.',
     whatsapp: '5521987654329',
     telefoneDisplay: '(21) 98765-4329',
-    endereco: 'São Pedro da Serra, Nova Friburgo',
+    localizacao: 'São Pedro da Serra',
   },
   {
     id: '10',
@@ -164,7 +206,7 @@ export const PRESTADORES: Prestador[] = [
     descricao: 'Aulas de reforço pra ensino fundamental e médio.',
     whatsapp: '5521987654330',
     telefoneDisplay: '(21) 98765-4330',
-    endereco: 'Lumiar, Nova Friburgo',
+    localizacao: 'Lumiar',
     instagram: 'reforcomv',
   },
   {
@@ -175,7 +217,8 @@ export const PRESTADORES: Prestador[] = [
     descricao: 'Atendimento psicológico presencial e online, CRP ativo.',
     whatsapp: '5521987654331',
     telefoneDisplay: '(21) 98765-4331',
-    endereco: 'São Pedro da Serra, Nova Friburgo',
+    localizacao: 'São Pedro da Serra',
+    horarios: [{ dias: 'Ter e Qui', abre: '14:00', fecha: '20:00' }],
     instagram: 'camilarocha.psi',
   },
   {
@@ -186,7 +229,7 @@ export const PRESTADORES: Prestador[] = [
     descricao: 'Pinturas, retratos e encomendas personalizadas.',
     whatsapp: '5521987654332',
     telefoneDisplay: '(21) 98765-4332',
-    endereco: 'Lumiar, Nova Friburgo',
+    localizacao: 'Lumiar',
     instagram: 'atelierafael',
   },
   {
@@ -197,7 +240,7 @@ export const PRESTADORES: Prestador[] = [
     descricao: 'Diaristas disponíveis de segunda a sábado.',
     whatsapp: '5521987654333',
     telefoneDisplay: '(21) 98765-4333',
-    endereco: 'São Pedro da Serra, Nova Friburgo',
+    localizacao: 'São Pedro da Serra',
   },
   {
     id: '14',
@@ -207,7 +250,7 @@ export const PRESTADORES: Prestador[] = [
     descricao: 'Entrega de encomendas e documentos, mesmo dia.',
     whatsapp: '5521987654334',
     telefoneDisplay: '(21) 98765-4334',
-    endereco: 'Lumiar, Nova Friburgo',
+    localizacao: 'Lumiar',
   },
   {
     id: '15',
@@ -217,7 +260,9 @@ export const PRESTADORES: Prestador[] = [
     descricao: 'Design de sobrancelha, cílios e limpeza de pele.',
     whatsapp: '5521987654335',
     telefoneDisplay: '(21) 98765-4335',
-    endereco: 'São Pedro da Serra, Nova Friburgo',
+    localizacao: 'São Pedro da Serra',
+    endereco: 'Centro',
+    horarios: [{ dias: 'Seg-Sáb', abre: '08:30', fecha: '18:30' }],
     instagram: 'studiopatriciaestetica',
   },
 ]

@@ -6,7 +6,8 @@ import { useParams } from 'next/navigation'
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react'
 import { getCategoria, PRESTADORES } from '@/lib/mock-data'
 import { ViewToggle, type ViewMode } from '@/components/shared/view-toggle'
-import { ServiceCard } from '@/components/busca/service-card'
+import { ServiceCard, type CardVariant } from '@/components/busca/service-card'
+import { VariantToggle } from '@/components/busca/variant-toggle'
 
 const PAGE_SIZE = 10
 
@@ -14,6 +15,8 @@ export default function CategoriaResultadosPage() {
   const params = useParams<{ slug: string }>()
   const categoria = getCategoria(params.slug)
   const [view, setView] = useState<ViewMode>('list')
+  const [cardVariant, setCardVariant] = useState<CardVariant>('a')
+  const [listVariant, setListVariant] = useState<CardVariant>('a')
   const [page, setPage] = useState(1)
 
   const resultados = useMemo(
@@ -63,6 +66,21 @@ export default function CategoriaResultadosPage() {
         <ViewToggle value={view} onChange={setView} />
       </div>
 
+      {/* Comparador de layout — temporário, pra decidir o design final */}
+      {view === 'cards' ? (
+        <VariantToggle
+          label="Estilo do card"
+          value={cardVariant}
+          onChange={setCardVariant}
+        />
+      ) : (
+        <VariantToggle
+          label="Estilo da lista"
+          value={listVariant}
+          onChange={setListVariant}
+        />
+      )}
+
       {paginados.length === 0 ? (
         <p className="text-muted-foreground py-8 text-center text-sm">
           Nenhum serviço encontrado nessa categoria ainda.
@@ -72,7 +90,9 @@ export default function CategoriaResultadosPage() {
           <div
             className={
               view === 'cards'
-                ? 'grid grid-cols-2 gap-2'
+                ? cardVariant === 'a'
+                  ? 'grid grid-cols-2 gap-2'
+                  : 'flex flex-col gap-2'
                 : 'flex flex-col gap-2'
             }
           >
@@ -81,6 +101,8 @@ export default function CategoriaResultadosPage() {
                 key={prestador.id}
                 prestador={prestador}
                 view={view}
+                variant={view === 'cards' ? cardVariant : listVariant}
+                hideCategoria
               />
             ))}
           </div>

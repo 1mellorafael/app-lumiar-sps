@@ -2,9 +2,9 @@
 
 import Link from 'next/link'
 import type { MouseEvent } from 'react'
-import { MessageCircle } from 'lucide-react'
+import { MessageCircle, MapPin, Clock } from 'lucide-react'
 import type { Prestador } from '@/lib/mock-data'
-import { getCategoria } from '@/lib/mock-data'
+import { getCategoria, localizacaoAbrev, horarioResumo } from '@/lib/mock-data'
 import type { ViewMode } from '@/components/shared/view-toggle'
 import { cn } from '@/lib/utils'
 import { whatsappHref } from '@/lib/whatsapp'
@@ -43,19 +43,31 @@ function openWhatsapp(e: MouseEvent, numero: string, nomeServico: string) {
   )
 }
 
+export type CardVariant = 'a' | 'b'
+
 type ServiceCardProps = {
   prestador: Prestador
   view: ViewMode
+  variant?: CardVariant
+  // true quando já se está dentro da categoria (repetir seria redundante)
+  hideCategoria?: boolean
 }
 
-export function ServiceCard({ prestador, view }: ServiceCardProps) {
+export function ServiceCard({
+  prestador,
+  view,
+  variant = 'a',
+  hideCategoria = false,
+}: ServiceCardProps) {
   const categoria = getCategoria(prestador.categoriaSlug)
+  const local = localizacaoAbrev(prestador.localizacao)
+  const horario = horarioResumo(prestador.horarios)
 
   if (view === 'list') {
-    return (
+    return variant === 'a' ? (
       <Link
         href={`/servico/${prestador.id}`}
-        className="border-border bg-card hover:bg-accent flex items-center gap-2 rounded-lg border p-2 transition-colors"
+        className="border-border bg-card hover:bg-accent flex items-start gap-2 rounded-lg border p-2 transition-colors"
       >
         <div
           className={cn(
@@ -66,28 +78,96 @@ export function ServiceCard({ prestador, view }: ServiceCardProps) {
           {initials(prestador.nomeServico)}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-card-foreground truncate text-sm font-medium">
-            {prestador.nomeServico}
-          </p>
-          <p className="text-muted-foreground truncate text-xs">
-            {categoria?.nome}
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-card-foreground text-sm font-medium">
+              {prestador.nomeServico}
+            </p>
+            <button
+              type="button"
+              onClick={(e) =>
+                openWhatsapp(e, prestador.whatsapp, prestador.nomeServico)
+              }
+              aria-label={`Chamar ${prestador.nomeServico} no WhatsApp`}
+              className="bg-whatsapp flex size-8 shrink-0 items-center justify-center rounded-full text-white transition-opacity hover:opacity-90"
+            >
+              <MessageCircle className="size-3.5" />
+            </button>
+          </div>
+          {!hideCategoria && (
+            <p className="text-muted-foreground text-xs">{categoria?.nome}</p>
+          )}
+          <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+            <span className="inline-flex items-center gap-0.5">
+              <MapPin className="size-3" />
+              {local}
+            </span>
+            {horario && (
+              <span className="inline-flex items-center gap-0.5">
+                <Clock className="size-3" />
+                {horario}
+              </span>
+            )}
+          </div>
+          <p className="text-muted-foreground mt-0.5 text-xs">
+            {prestador.descricao}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={(e) =>
-            openWhatsapp(e, prestador.whatsapp, prestador.nomeServico)
-          }
-          aria-label={`Chamar ${prestador.nomeServico} no WhatsApp`}
-          className="bg-whatsapp flex size-8 shrink-0 items-center justify-center rounded-full text-white transition-opacity hover:opacity-90"
-        >
-          <MessageCircle className="size-3.5" />
-        </button>
+      </Link>
+    ) : (
+      <Link
+        href={`/servico/${prestador.id}`}
+        className="border-border bg-card hover:bg-accent flex flex-col gap-1.5 rounded-lg border p-3 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <div
+            className={cn(
+              'flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white',
+              avatarColor(prestador.id)
+            )}
+          >
+            {initials(prestador.nomeServico)}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-card-foreground text-sm font-semibold">
+              {prestador.nomeServico}
+            </p>
+            {!hideCategoria && (
+              <p className="text-muted-foreground text-xs">
+                {categoria?.nome}
+              </p>
+            )}
+          </div>
+        </div>
+        <p className="text-card-foreground text-sm">{prestador.descricao}</p>
+        <div className="flex items-center justify-between">
+          <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
+            <span className="inline-flex items-center gap-0.5">
+              <MapPin className="size-3" />
+              {local}
+            </span>
+            {horario && (
+              <span className="inline-flex items-center gap-0.5">
+                <Clock className="size-3" />
+                {horario}
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={(e) =>
+              openWhatsapp(e, prestador.whatsapp, prestador.nomeServico)
+            }
+            aria-label={`Chamar ${prestador.nomeServico} no WhatsApp`}
+            className="bg-whatsapp flex size-8 shrink-0 items-center justify-center rounded-full text-white transition-opacity hover:opacity-90"
+          >
+            <MessageCircle className="size-3.5" />
+          </button>
+        </div>
       </Link>
     )
   }
 
-  return (
+  return variant === 'a' ? (
     <Link
       href={`/servico/${prestador.id}`}
       className="border-border bg-card hover:bg-accent flex flex-col overflow-hidden rounded-lg border transition-colors"
@@ -105,13 +185,25 @@ export function ServiceCard({ prestador, view }: ServiceCardProps) {
         </div>
       </div>
       <div className="flex flex-col items-center gap-0.5 px-2 pb-2 pt-6 text-center">
-        <p className="text-card-foreground line-clamp-1 text-xs font-medium">
+        <p className="text-card-foreground text-xs font-medium">
           {prestador.nomeServico}
         </p>
-        <p className="text-muted-foreground text-xs">{categoria?.nome}</p>
-        <p className="text-muted-foreground line-clamp-2 text-xs">
-          {prestador.descricao}
-        </p>
+        {!hideCategoria && (
+          <p className="text-muted-foreground text-xs">{categoria?.nome}</p>
+        )}
+        <div className="text-muted-foreground flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-[11px]">
+          <span className="inline-flex items-center gap-0.5">
+            <MapPin className="size-3" />
+            {local}
+          </span>
+          {horario && (
+            <span className="inline-flex items-center gap-0.5">
+              <Clock className="size-3" />
+              {horario}
+            </span>
+          )}
+        </div>
+        <p className="text-muted-foreground text-xs">{prestador.descricao}</p>
         <button
           type="button"
           onClick={(e) =>
@@ -120,6 +212,57 @@ export function ServiceCard({ prestador, view }: ServiceCardProps) {
           className="bg-whatsapp mt-1 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-white transition-opacity hover:opacity-90"
         >
           <MessageCircle className="size-3" />
+          WhatsApp
+        </button>
+      </div>
+    </Link>
+  ) : (
+    <Link
+      href={`/servico/${prestador.id}`}
+      className="border-border bg-card hover:bg-accent flex flex-col overflow-hidden rounded-lg border transition-colors"
+    >
+      <div className="bg-muted relative h-20">
+        <div
+          className={cn(
+            'border-card absolute -bottom-6 left-3 flex size-14 items-center justify-center rounded-full border-2 text-base font-semibold text-white',
+            avatarColor(prestador.id)
+          )}
+        >
+          {initials(prestador.nomeServico)}
+        </div>
+      </div>
+      <div className="flex flex-col gap-1.5 p-3 pt-8">
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-card-foreground text-base font-bold">
+            {prestador.nomeServico}
+          </p>
+          {!hideCategoria && (
+            <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2 py-0.5 text-[11px]">
+              {categoria?.nome}
+            </span>
+          )}
+        </div>
+        <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
+          <span className="inline-flex items-center gap-0.5">
+            <MapPin className="size-3" />
+            {local}
+          </span>
+          {horario && (
+            <span className="inline-flex items-center gap-0.5">
+              <Clock className="size-3" />
+              {horario}
+            </span>
+          )}
+        </div>
+        <p className="text-card-foreground text-sm">{prestador.descricao}</p>
+        <button
+          type="button"
+          onClick={(e) =>
+            openWhatsapp(e, prestador.whatsapp, prestador.nomeServico)
+          }
+          className="bg-whatsapp mt-1 inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+        >
+          <MessageCircle className="size-4" />
           WhatsApp
         </button>
       </div>
