@@ -16,12 +16,13 @@ export function BottomNav() {
   const pathname = usePathname()
   const router = useRouter()
 
-  const handleBuscaClick = (active: boolean) => {
-    if (active) {
-      // Já está em /busca — foca o input
+  const handleBuscaClick = () => {
+    if (pathname === '/busca') {
+      // Já está na tela de busca (não numa categoria) — foca o input
       window.dispatchEvent(new CustomEvent('focus-search-input'))
     } else {
-      // Navega pra /busca
+      // Navega pra /busca — inclusive vindo de /busca/[slug], que não
+      // tem campo de busca nenhum pra focar (clicar não fazia nada)
       router.push('/busca')
     }
   }
@@ -43,7 +44,7 @@ export function BottomNav() {
             return (
               <button
                 key={item.href}
-                onClick={() => handleBuscaClick(active)}
+                onClick={handleBuscaClick}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
                   'flex flex-1 flex-col items-center gap-0.5 py-2 text-xs transition-all duration-150 ease-standard active:scale-90',
