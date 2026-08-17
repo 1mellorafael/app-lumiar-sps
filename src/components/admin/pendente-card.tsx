@@ -45,7 +45,7 @@ export function PendenteCard({ pendente }: { pendente: Pendente }) {
   }
 
   return (
-    <div className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-3">
+    <div className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] flex flex-col gap-2 rounded-lg border p-3 transition-all duration-200 ease-decelerate">
       <Link href={`/servico/${pendente.id}`} className="group flex items-center gap-3">
         <div className="bg-muted size-12 shrink-0 overflow-hidden rounded-full">
           {pendente.fotoPrincipalUrl && (

@@ -232,6 +232,15 @@ ESPAÇAMENTO: múltiplos de 8px
 - **Nome/título nunca sobreposto na foto** — sempre como texto separado,
   abaixo dela
 - Botões de trocar foto ficam **perto** da foto, nunca sobrepostos nela
+- **Todo card usa o mesmo sistema de sombra e feedback de toque**, sem
+  exceção — inclusive telas internas/admin, não só as públicas:
+  `shadow-[var(--shadow-card)]` em repouso, `hover:shadow-[var(--shadow-card-hover)]`,
+  `transition-all duration-200 ease-decelerate`, e `active:scale-[0.97–0.99]`
+  quando o card inteiro (não só uma parte) é a área clicável. Regra
+  descoberta em 17/08 quando o card de aprovação do admin saiu
+  inconsistente do resto do app — antes de criar um card novo, conferir
+  contra um card existente (`service-card.tsx`, `category-list.tsx`),
+  nunca inventar um estilo de sombra/toque do zero
 - Mobile-first, breakpoints por largura de tela (não por modelo de
   celular)
 - WCAG 2.1 AA desde o início (shadcn/ui já cobre boa parte)
