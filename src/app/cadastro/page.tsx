@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ArrowLeft, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,6 +16,7 @@ import {
 // (/cadastro-negocio), não amarrada aqui. Conta serve pra qualquer
 // morador, não só pra quem tem negócio.
 export default function CadastroPage() {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
@@ -130,14 +132,15 @@ export default function CadastroPage() {
 
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
-      <Link
-        href="/"
+      <button
+        type="button"
+        onClick={() => router.back()}
         aria-label="Voltar"
         className="text-neutral-text hover:text-primary-500 flex w-fit items-center gap-1 text-sm font-medium"
       >
         <ArrowLeft className="size-4" />
         Voltar
-      </Link>
+      </button>
 
       <div>
         <h1 className="text-primary-500 text-lg font-bold">Criar Conta</h1>

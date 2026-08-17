@@ -43,14 +43,15 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
-      <Link
-        href="/"
+      <button
+        type="button"
+        onClick={() => router.back()}
         aria-label="Voltar"
         className="text-neutral-text hover:text-primary-500 flex w-fit items-center gap-1 text-sm font-medium"
       >
         <ArrowLeft className="size-4" />
         Voltar
-      </Link>
+      </button>
 
       <div>
         <h1 className="text-primary-500 text-lg font-bold">Entrar</h1>
