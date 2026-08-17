@@ -84,7 +84,14 @@ create policy "prestadores_select_anon"
 create policy "prestadores_select_authenticated"
   on prestadores for select
   to authenticated
-  using (status = 'ativo' or profile_id = (select auth.uid()));
+  using (
+    status = 'ativo'
+    or profile_id = (select auth.uid())
+    or exists (
+      select 1 from profiles p
+      where p.id = (select auth.uid()) and p.is_admin
+    )
+  );
 
 -- dono cria só pra si mesmo
 create policy "prestadores_insert_own"
@@ -100,6 +107,24 @@ create policy "prestadores_update_own"
   to authenticated
   using ((select auth.uid()) = profile_id)
   with check ((select auth.uid()) = profile_id);
+
+-- admin muda só o status (aprovar/rejeitar) — editar os outros campos
+-- continua sendo papel do dono, não do admin
+create policy "prestadores_update_status_admin"
+  on prestadores for update
+  to authenticated
+  using (
+    exists (
+      select 1 from profiles p
+      where p.id = (select auth.uid()) and p.is_admin
+    )
+  )
+  with check (
+    exists (
+      select 1 from profiles p
+      where p.id = (select auth.uid()) and p.is_admin
+    )
+  );
 
 -- ============================================================
 -- galeria_fotos: até 5 por prestador, adicionadas pós-cadastro
