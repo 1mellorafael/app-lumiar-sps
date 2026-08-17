@@ -38,6 +38,10 @@ export default function CadastroPage() {
   )
   const [serviceError, setServiceError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  // Depois de criada, voltar pro Passo 1 e clicar em "Próximo" de novo
+  // não pode tentar recriar a conta — bateria na proteção de duplicidade
+  // de email/telefone (funcionando certo, mas confuso pro usuário)
+  const [contaCriada, setContaCriada] = useState(false)
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -79,6 +83,11 @@ export default function CadastroPage() {
     setAccountError(null)
     setAccountErrorField(null)
 
+    if (contaCriada) {
+      setStep('service')
+      return
+    }
+
     if (!termos) {
       alert('Precisa aceitar os termos pra continuar')
       return
@@ -117,6 +126,7 @@ export default function CadastroPage() {
       // de quem cadastrou — ver docs/06, "Cadastro por terceiro"), mas
       // pré-preenche com o telefone da conta por conveniência no caso comum
       setFormData((prev) => ({ ...prev, telefoneContato: prev.telefone }))
+      setContaCriada(true)
       setStep('service')
     } catch {
       setAccountError('Erro de conexão. Tente novamente.')
@@ -184,6 +194,14 @@ export default function CadastroPage() {
           </p>
         </div>
 
+        {contaCriada && (
+          <div className="border-primary-500 bg-primary-500/10 text-primary-700 rounded-lg border px-3 py-2 text-sm">
+            Sua conta já foi criada. Clique em Próximo pra continuar pro
+            cadastro do serviço — esses dados não podem ser editados aqui
+            mais.
+          </div>
+        )}
+
         <form onSubmit={handleAccountSubmit} className="flex flex-col gap-3">
           <div>
             <label
@@ -199,6 +217,7 @@ export default function CadastroPage() {
               onChange={handleInputChange}
               onBlur={handleNomeBlur}
               placeholder="João Silva"
+              disabled={contaCriada}
               required
             />
           </div>
@@ -218,6 +237,7 @@ export default function CadastroPage() {
               onChange={handleInputChange}
               placeholder="seu@email.com"
               aria-invalid={accountErrorField === 'email'}
+              disabled={contaCriada}
               required
             />
             {accountErrorField === 'email' && (
@@ -245,6 +265,7 @@ export default function CadastroPage() {
               placeholder="(24) 99999-9999"
               maxLength={18}
               aria-invalid={accountErrorField === 'telefone'}
+              disabled={contaCriada}
               required
             />
             {accountErrorField === 'telefone' && (
@@ -271,6 +292,7 @@ export default function CadastroPage() {
               value={formData.senha}
               onChange={handleInputChange}
               placeholder="••••••"
+              disabled={contaCriada}
               required
             />
             {formData.senha.length > 0 && (
@@ -312,6 +334,7 @@ export default function CadastroPage() {
               value={formData.confirmaSenha}
               onChange={handleInputChange}
               placeholder="••••••"
+              disabled={contaCriada}
               required
             />
           </div>
