@@ -207,6 +207,36 @@ Até lá, PWA já resolve 90% da experiência "tipo app"
 sem o custo de manter loja Android/iOS.
 ```
 
+### IDEIA CANDIDATA — Menu "push" estilo Waze/apps de e-commerce (não alocada)
+
+Vídeo de referência trazido em 17/08 (@musabalfawal, "slide menu for
+mobile app"): em vez do Menu ser uma tela normal (bottom nav atual), é
+uma gaveta que "empurra" a tela principal pro lado ao abrir — conteúdo
+principal desliza e fica menor/inclinado, painel colorido cheio-tela
+aparece atrás com avatar/fechar no topo e lista de opções, gesto de
+arrastar pra abrir/fechar. Fica registrado como ideia de redesign de
+interação, não implementado ainda — é maior que um ajuste pontual,
+entra como feature própria quando houver espaço.
+
+### IDEIA CANDIDATA — Header/widget adaptativo por localização (não alocada)
+
+Ideia de 17/08: nome no topo da Home ("Lumiar" vs "São Pedro da Serra")
+e o widget de clima (que já tem toggle manual, ver `WeeklyForecast`)
+poderiam vir pré-selecionados de acordo com a localização real de quem
+tá usando, com logo diferente por local. Avaliação de viabilidade:
+**dá pra fazer, não é viagem** — Geolocation API do navegador (pede
+permissão, compara distância até os dois pontos). Cuidados:
+- Pedir permissão de localização uma vez só, guardar a escolha
+  (localStorage), não repetir toda visita
+- Sempre manter override manual disponível (reaproveita o toggle
+  Lumiar/SPS já construído no clima) — geolocalização erra perto de
+  divisa e run em bateria/sinal ruim
+- Logo diferente por local precisa das duas artes prontas — hoje só
+  existe uma
+
+Não implementado ainda, fica como candidata de UI polish depois do V0
+básico estar rodando com gente de verdade.
+
 ### IDEIA CANDIDATA — Aba de Jogos (não alocada em fase ainda)
 
 Brainstorm de 14/08, detalhado em `05_IDEIAS_E_DECISOES_UX.md`: desafios
