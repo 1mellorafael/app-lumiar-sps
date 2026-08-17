@@ -196,9 +196,12 @@ export default function CadastroPage() {
 
         {contaCriada && (
           <div className="border-primary-500 bg-primary-500/10 text-primary-700 rounded-lg border px-3 py-2 text-sm">
-            Sua conta já foi criada. Clique em Próximo pra continuar pro
-            cadastro do serviço — esses dados não podem ser editados aqui
-            mais.
+            Sua conta já foi criada — esses dados não podem ser editados
+            aqui mais. Clique em Próximo pra cadastrar um serviço agora, ou{' '}
+            <Link href="/menu" className="underline">
+              pule por enquanto
+            </Link>
+            .
           </div>
         )}
 
@@ -399,11 +402,19 @@ export default function CadastroPage() {
         Voltar
       </button>
 
-      <div>
-        <h1 className="text-primary-500 text-lg font-bold">Seu Serviço</h1>
-        <p className="text-muted-foreground text-sm">
-          Passo 2 de 2 — Dados do serviço
-        </p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h1 className="text-primary-500 text-lg font-bold">Seu Serviço</h1>
+          <p className="text-muted-foreground text-sm">
+            Passo 2 de 2 — Dados do serviço
+          </p>
+        </div>
+        <Link
+          href="/menu"
+          className="text-muted-foreground hover:text-primary-500 shrink-0 text-xs underline"
+        >
+          Pular por enquanto
+        </Link>
       </div>
 
       <form onSubmit={handleServiceSubmit} className="flex flex-col gap-3">
