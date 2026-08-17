@@ -181,8 +181,77 @@ Turismo/Marketplace no roadmap de longo prazo, mesmo entrando depois
 do V0 neste plano de implementação (que cobre só a Fase 0 do roadmap
 maior em `06_VISAO_LONGO_PRAZO.md`).
 
-ORDEM DE IMPLEMENTAÇÃO DENTRO DA FASE 8 (definido em 16/08, refinado em sessão posterior):
+### ⚠️ ORDEM REVISADA em 17/08 — foco em retenção, substitui a ordem original abaixo
 
+```
+Motivação: diretório de serviço é uso de BAIXA frequência (alguém
+procura um motoboy uma vez a cada duas semanas) — sem outro motivo de
+abrir o app, "cadastrou e nunca mais voltou" é o risco real do
+lançamento. A ordem original (Morador → Colunas → Push → Carona → ... →
+Alerta como item 24, quase no fim) coloca o único recurso que NÃO
+depende de massa crítica (Alerta) por último — invertido.
+
+Alerta também foi redesenhado nesta sessão: o comportamento real já
+observado na comunidade (grupos de voluntários — inclusive INEA — se
+mobilizam por foco de incêndio reportado por morador, não por dado de
+satélite) significa que fonte oficial automática (CEMADEN/INPE) chega
+sempre atrasada pro caso que mais importa (fogo). Reporte comunitário
+(tipo Waze: reporta, outros confirmam, admin encerra se for falso
+alarme) é o mecanismo PRINCIPAL, não um extra — fonte oficial vira
+camada de confirmação por cima, incremento posterior, não bloqueia o
+lançamento do Alerta. Isso também simplifica o caminho crítico: a
+integração com CEMADEN/INPE é a parte incerta (sem API pública bem
+documentada, confirmado em pesquisa de 17/08) — tirar ela da frente faz
+o Alerta sair MAIS rápido, não mais devagar.
+
+Sem push, um alerta comunitário de incêndio é só uma versão mais lenta
+do grupo de WhatsApp — perde a razão de existir. Por isso push deixa de
+ser "depois" e nasce junto com o Alerta, não numa fase separada.
+
+NOVA ORDEM:
+
+A. Admin mínimo (Fase 5 já existente no plano principal, não a Fase 8)
+   — só listar pendentes + aprovar/rejeitar. Bloqueia o lançamento de
+   qualquer jeito, sai antes de tudo abaixo.
+
+B. Morador account (era item 19) — pré-requisito do Alerta: hoje só
+   quem cadastra serviço tem login; um morador que só quer reportar um
+   foco de incêndio precisa de conta própria, mais leve que virar
+   prestador.
+   → commit: "feat(morador): conta de morador separada de prestador"
+
+C. Alerta comunitário + Push (fundidos numa fase só — era item 24 e 21
+   respectivamente, agora juntos e logo no início):
+   - Reporte de morador (incêndio, chuva/deslizamento): publica na hora,
+     sem fila de moderação prévia (mesma lógica de confiança comunitária
+     já usada no resto do app) — contador de confirmação de outros
+     moradores (tipo "ainda ativo?" do Waze), admin encerra se for falso
+   - Push dispara pra quem segue Alerta assim que alguém reporta
+   - Fonte oficial (CEMADEN chuva, INPE queimadas) fica como incremento
+     POSTERIOR, não bloqueia esta fase — quando entrar, só confirma/
+     reforça o que a comunidade já reporta
+   → commit: "feat(alerta): reporte comunitário com push, override do admin"
+
+D. Colunas/Dicas (era item 20) — primeiro gancho de conteúdo, já nasce
+   com push existente pra avisar de post novo (não depende de alguém
+   abrir o app por acaso)
+   → commit: "feat(colunas): dicas e conselhos de prestadores"
+
+E. Carona (era item 22) — só faz sentido depois que B-D já geraram
+   engajamento; mural vazio antes disso é pior que não ter mural
+   → commit: "feat(carona): caronas compartilhadas entre moradores"
+
+Itens 23 (Corrida/Leaderboard), 25-30 (estrutura genérica de post,
+Pede Aí genérico, Pet Perdido, Jornal expande, Selo, Home modular)
+continuam na ordem original, depois do item E — não foram reavaliados
+nesta sessão.
+```
+
+---
+
+### Ordem original (definida em 16/08) — mantida como referência histórica
+
+```
 19. Morador account (account table + login + opcional "moro aqui" checkbox)
     → commit: "feat(morador): conta de morador separada de prestador"
 
