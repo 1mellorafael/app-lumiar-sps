@@ -10,13 +10,7 @@ import { CATEGORIAS, LOCALIZACOES } from '@/lib/mock-data'
 import { PhotoCropField } from '@/components/cadastro-negocio/photo-crop-field'
 import { AddressAutocomplete } from '@/components/cadastro-negocio/address-autocomplete'
 import { MapEmbed } from '@/components/shared/map-embed'
-
-const formatarTelefone = (value: string) => {
-  const cleaned = value.replace(/\D/g, '')
-  if (cleaned.length <= 2) return cleaned
-  if (cleaned.length <= 7) return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`
-  return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`
-}
+import { formatarTelefone } from '@/lib/utils'
 
 export type NegocioExistente = {
   id: string

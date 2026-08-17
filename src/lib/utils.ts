@@ -22,3 +22,12 @@ export function capitalizeWords(text: string): string {
     (word) => word[0].toUpperCase() + word.slice(1).toLowerCase()
   )
 }
+
+// Telefone é salvo só com dígitos no banco (whatsappHref precisa disso
+// pro link do wa.me) — essa função formata pra exibição, "(22) 99999-9999"
+export function formatarTelefone(value: string): string {
+  const cleaned = value.replace(/\D/g, '')
+  if (cleaned.length <= 2) return cleaned
+  if (cleaned.length <= 7) return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`
+  return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`
+}

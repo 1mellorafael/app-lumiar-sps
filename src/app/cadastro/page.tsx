@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { capitalizeWords } from '@/lib/utils'
+import { capitalizeWords, formatarTelefone } from '@/lib/utils'
 import {
   getPasswordStrength,
   PASSWORD_STRENGTH_LABEL,
@@ -42,14 +42,6 @@ export default function CadastroPage() {
   // desfazia maiúscula intencional no meio do nome (ex: "McDonald")
   const handleNomeBlur = () => {
     setFormData((prev) => ({ ...prev, nome: capitalizeWords(prev.nome) }))
-  }
-
-  const formatarTelefone = (value: string) => {
-    const cleaned = value.replace(/\D/g, '')
-    if (cleaned.length <= 2) return cleaned
-    if (cleaned.length <= 7)
-      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`
-    return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`
   }
 
   const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {

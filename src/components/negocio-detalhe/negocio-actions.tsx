@@ -19,6 +19,23 @@ export function VoltarButton() {
   )
 }
 
+// Só a seta, flutuando sobre a foto de capa — sem texto "Voltar" porque
+// aqui não sobra espaço de página nenhum reservado só pra ela (referência:
+// apps de delivery, seta sobre a própria imagem)
+export function FloatingBackButton() {
+  const router = useRouter()
+  return (
+    <button
+      onClick={() => router.back()}
+      aria-label="Voltar"
+      className="absolute left-3 z-10 flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition-colors hover:bg-black/55 active:scale-90"
+      style={{ top: 'calc(0.75rem + env(safe-area-inset-top))' }}
+    >
+      <ArrowLeft className="size-5" />
+    </button>
+  )
+}
+
 export function NegocioActions({ nomeNegocio }: { nomeNegocio: string }) {
   const [copiado, setCopiado] = useState<'sucesso' | 'erro' | null>(null)
 

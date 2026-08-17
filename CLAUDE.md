@@ -237,8 +237,16 @@ ESPAÇAMENTO: múltiplos de 8px
   formatos sempre clicáveis
 - **Foto em duas camadas:** capa (opcional, fundo) + principal
   (obrigatória, círculo central) — sem capa, mostra cor neutra de fundo
-- **Nome/título nunca sobreposto na foto** — sempre como texto separado,
-  abaixo dela
+- **Tela de detalhe do negócio (decisão de 17/08, revisa a versão
+  anterior deste documento):** a capa ocupa a tela cheia do topo até o
+  avatar transbordar por baixo dela (referência: apps de delivery tipo
+  iFood), com o botão de voltar flutuando só como seta (sem texto) sobre
+  a própria foto — não reserva mais uma linha de página só pra ele. O
+  nome fica logo abaixo do avatar, mas ganha fundo próprio (pílula com
+  `shadow-[var(--shadow-card)]`) por estar próximo da capa — não é texto
+  solto direto em cima da foto. Esse layout vale só pra tela de detalhe;
+  nos cards de listagem (`service-card.tsx`) o nome continua como texto
+  separado, abaixo da moldura de foto, sem sobreposição nenhuma.
 - Botões de trocar foto ficam **perto** da foto, nunca sobrepostos nela
 - **Todo card usa o mesmo sistema de sombra e feedback de toque**, sem
   exceção — inclusive telas internas/admin, não só as públicas:

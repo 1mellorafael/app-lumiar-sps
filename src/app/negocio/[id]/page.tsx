@@ -2,9 +2,10 @@ import Link from 'next/link'
 import { MapPin, Phone, Tag, Instagram, MessageCircle, Pencil } from 'lucide-react'
 import { getNegocio, getCategoria, getLocalizacao } from '@/lib/mock-data'
 import { whatsappHref } from '@/lib/whatsapp'
+import { formatarTelefone } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/server'
 import { fotoSignedUrl } from '@/lib/supabase/signed-url'
-import { VoltarButton, NegocioActions } from '@/components/negocio-detalhe/negocio-actions'
+import { FloatingBackButton, NegocioActions } from '@/components/negocio-detalhe/negocio-actions'
 import { AdminActions } from '@/components/admin/admin-actions'
 import { MapEmbed } from '@/components/shared/map-embed'
 
@@ -43,6 +44,7 @@ type DadosNegocio = {
   descricao: string | null
   instagram: string | null
   whatsapp: string
+  telefoneDisplay: string
   fotoPrincipalUrl: string | null
   fotoCapaUrl: string | null
   fotoPrincipalPos: { x: number; y: number }
@@ -106,6 +108,7 @@ async function buscarNegocioReal(id: string): Promise<DadosNegocio | null> {
     descricao: negocio.descricao,
     instagram: negocio.instagram,
     whatsapp: negocio.telefone_contato,
+    telefoneDisplay: formatarTelefone(negocio.telefone_contato),
     fotoPrincipalUrl,
     fotoCapaUrl,
     fotoPrincipalPos: { x: negocio.foto_principal_pos_x, y: negocio.foto_principal_pos_y },
@@ -150,6 +153,7 @@ export default async function NegocioPage({
     descricao: mock!.descricao,
     instagram: mock!.instagram ?? null,
     whatsapp: mock!.whatsapp,
+    telefoneDisplay: mock!.telefoneDisplay,
     fotoPrincipalUrl: null,
     fotoCapaUrl: null,
     fotoPrincipalPos: { x: 50, y: 50 },
@@ -160,65 +164,64 @@ export default async function NegocioPage({
   }
 
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
-      <VoltarButton />
-
-      {dados.pendente && (
-        <div className="border-secondary-500 bg-secondary-500/10 text-secondary-700 rounded-lg border px-3 py-2 text-sm">
-          {dados.souDono
-            ? 'Seu cadastro está em análise. Só você (e o admin) consegue ver esta página por enquanto — assim que for aprovado, fica visível pra todo mundo.'
-            : 'Este cadastro ainda está pendente de aprovação — você está vendo como admin, não é público ainda.'}
+    <main className="mx-auto flex max-w-md flex-col">
+      {/* Capa em tela cheia, do topo até o avatar transbordar por baixo —
+          botão de voltar flutua sobre a própria foto (referência: apps de
+          delivery) em vez de reservar uma linha só pra seta. Decisão de
+          17/08, substitui o layout anterior (capa em faixa curta, nome
+          sempre fora da moldura) — CLAUDE.md seção 9 atualizada. */}
+      <div className="relative">
+        <div className="bg-muted relative h-56 w-full overflow-hidden">
+          {dados.fotoCapaUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={dados.fotoCapaUrl}
+              alt=""
+              style={{
+                objectPosition: `${dados.fotoCapaPos.x}% ${dados.fotoCapaPos.y}%`,
+              }}
+              className="size-full object-cover"
+            />
+          )}
         </div>
-      )}
-
-      {dados.pendente && dados.souAdmin && (
-        <AdminActions negocioId={dados.id} />
-      )}
-
-      {/* Foto composta: capa (opcional, fundo) + principal (círculo
-          central) — nome fica fora da moldura, abaixo — seção 9 do
-          CLAUDE.md */}
-      <div className="flex flex-col items-center">
-        {/* overflow-hidden fica só na capa, não no wrapper — senão corta a
-            metade de baixo do avatar, que precisa transbordar por cima */}
-        <div className="relative h-16 w-full">
-          <div className="bg-muted size-full overflow-hidden rounded-lg">
-            {dados.fotoCapaUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={dados.fotoCapaUrl}
-                alt=""
-                style={{
-                  objectPosition: `${dados.fotoCapaPos.x}% ${dados.fotoCapaPos.y}%`,
-                }}
-                className="size-full object-cover"
-              />
-            )}
-          </div>
-          <div
-            className={`border-background absolute left-1/2 top-8 flex size-16 -translate-x-1/2 items-center justify-center overflow-hidden rounded-full border shadow-[0_2px_6px_rgb(0_0_0_/_0.15)] text-lg font-semibold text-white ${avatarColor(dados.id)}`}
-          >
-            {dados.fotoPrincipalUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={dados.fotoPrincipalUrl}
-                alt=""
-                style={{
-                  objectPosition: `${dados.fotoPrincipalPos.x}% ${dados.fotoPrincipalPos.y}%`,
-                }}
-                className="size-full object-cover"
-              />
-            ) : (
-              initials(dados.nomeNegocio)
-            )}
-          </div>
+        <FloatingBackButton />
+        <div
+          className={`border-background absolute bottom-0 left-1/2 flex size-24 -translate-x-1/2 translate-y-1/2 items-center justify-center overflow-hidden rounded-full border-4 shadow-[0_2px_6px_rgb(0_0_0_/_0.15)] text-xl font-semibold text-white ${avatarColor(dados.id)}`}
+        >
+          {dados.fotoPrincipalUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={dados.fotoPrincipalUrl}
+              alt=""
+              style={{
+                objectPosition: `${dados.fotoPrincipalPos.x}% ${dados.fotoPrincipalPos.y}%`,
+              }}
+              className="size-full object-cover"
+            />
+          ) : (
+            initials(dados.nomeNegocio)
+          )}
         </div>
-        {/* mt-12: a foto (size-16, top-8) transborda 32px abaixo da moldura
-            (h-16) — precisa de margem maior que o normal pra não sobrepor */}
-        <p className="text-card-foreground mt-12 text-lg font-bold">
+      </div>
+
+      <div className="flex flex-col gap-4 p-4 pt-14">
+        {/* Nome ganha fundo próprio (pílula) — não fica só solto em cima
+            da capa, mesmo com o avatar transbordando bem perto dela */}
+        <p className="text-card-foreground bg-card shadow-[var(--shadow-card)] mx-auto rounded-full px-4 py-1.5 text-center text-lg font-bold">
           {dados.nomeNegocio}
         </p>
-      </div>
+
+        {dados.pendente && (
+          <div className="border-secondary-500 bg-secondary-500/10 text-secondary-700 rounded-lg border px-3 py-2 text-sm">
+            {dados.souDono
+              ? 'Seu cadastro está em análise. Só você (e o admin) consegue ver esta página por enquanto — assim que for aprovado, fica visível pra todo mundo.'
+              : 'Este cadastro ainda está pendente de aprovação — você está vendo como admin, não é público ainda.'}
+          </div>
+        )}
+
+        {dados.pendente && dados.souAdmin && (
+          <AdminActions negocioId={dados.id} />
+        )}
 
       <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-4">
         <h2 className="text-neutral-text text-sm font-semibold uppercase tracking-wide">
@@ -234,7 +237,7 @@ export default async function NegocioPage({
         )}
         <div className="text-card-foreground flex items-center gap-2 text-sm">
           <Phone className="text-primary-500 size-4 shrink-0" />
-          {mock?.telefoneDisplay ?? dados.whatsapp}
+          {dados.telefoneDisplay}
         </div>
         <div className="text-card-foreground flex items-center gap-2 text-sm">
           <Tag className="text-primary-500 size-4 shrink-0" />
@@ -286,6 +289,7 @@ export default async function NegocioPage({
       )}
 
       <NegocioActions nomeNegocio={dados.nomeNegocio} />
+      </div>
     </main>
   )
 }

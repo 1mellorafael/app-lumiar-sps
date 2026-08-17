@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache'
 import { createPublicClient } from '@/lib/supabase/public'
 import { fotoSignedUrl } from '@/lib/supabase/signed-url'
 import { localizacoesAbrev } from '@/lib/mock-data'
+import { formatarTelefone } from '@/lib/utils'
 import type { NegocioCard } from '@/lib/negocio-card'
 
 export const NEGOCIOS_ATIVOS_TAG = 'negocios-ativos'
@@ -31,7 +32,7 @@ async function buscarNegociosAtivos(): Promise<NegocioCard[]> {
       categoriaSlugs: n.categorias,
       descricao: n.descricao ?? '',
       whatsapp: n.telefone_contato,
-      telefoneDisplay: n.telefone_contato,
+      telefoneDisplay: formatarTelefone(n.telefone_contato),
       localizacaoLabel: localizacoesAbrev(n.localizacoes),
       fotoPrincipalUrl: await fotoSignedUrl(n.foto_principal_url),
       fotoPrincipalPos: { x: n.foto_principal_pos_x, y: n.foto_principal_pos_y },
