@@ -82,19 +82,37 @@ create policy "profiles_select_admin"
 create table negocios (
   id uuid primary key default gen_random_uuid(),
   profile_id uuid not null references profiles(id) on delete cascade,
-  nome_negocio varchar(255),
-  categoria varchar(100) not null,
+  nome_negocio varchar(255) not null,
+  -- array — um negócio pode ser mais de uma coisa (motoboy/mototáxi,
+  -- hospedagem pet/adestramento), evita cadastro duplicado só pra isso
+  categorias text[] not null,
   descricao text,
   foto_principal_url varchar(500) not null,
   foto_capa_url varchar(500),
+  -- object-position (%) escolhido pelo dono pra cada foto — recorte
+  -- circular (principal) ou banner (capa) nem sempre pega a parte certa
+  -- da imagem original com o centro padrão
+  foto_principal_pos_x smallint not null default 50,
+  foto_principal_pos_y smallint not null default 50,
+  foto_capa_pos_x smallint not null default 50,
+  foto_capa_pos_y smallint not null default 50,
   instagram varchar(255),
   -- telefone do NEGÓCIO, separado do telefone da conta (profiles.telefone)
   -- — quem cadastra e quem atende podem ser pessoas diferentes (ver docs/06,
   -- "Cadastro por terceiro")
   telefone_contato varchar(20) not null,
-  -- opcional — texto livre por enquanto (ex: "Seg-Sex, 8h-18h"), não
-  -- estruturado por dia/horário ainda
+  -- coluna existe mas não é coletada pela UI por enquanto (removido do
+  -- cadastro em 17/08) — não dropada, custo zero manter, evita mais uma
+  -- migration se voltar
   horario_funcionamento varchar(255),
+  -- pode atender só Lumiar, só São Pedro da Serra, ou os dois
+  localizacoes text[] not null,
+  -- endereço opcional — texto vem do autocomplete do Google; lat/lng só
+  -- preenchidos quando a pessoa escolhe um lugar real da lista (não
+  -- geocodificamos texto livre), usados pra desenhar o mapa embed
+  endereco varchar(500),
+  endereco_lat double precision,
+  endereco_lng double precision,
   status varchar(20) not null default 'pendente', -- pendente | ativo | rejeitado
   created_at timestamptz not null default now()
 );
@@ -144,6 +162,34 @@ create policy "negocios_update_status_admin"
   to authenticated
   using (public.is_admin())
   with check (public.is_admin());
+
+-- ============================================================
+-- negocio_edicoes: histórico de edições pós-aprovação
+-- ============================================================
+-- Editar um negócio já ativo não manda ele de volta pra pendente
+-- (decisão: continua ativo direto), mas fica registrado o que mudou e
+-- com que nível de alerta, pro admin revisar quando quiser.
+create table negocio_edicoes (
+  id uuid primary key default gen_random_uuid(),
+  negocio_id uuid not null references negocios(id) on delete cascade,
+  campos_alterados text[] not null,
+  nivel_alerta varchar(10) not null, -- baixo | medio | alto
+  editado_em timestamptz not null default now()
+);
+
+create index negocio_edicoes_negocio_id_idx on negocio_edicoes (negocio_id);
+
+alter table negocio_edicoes enable row level security;
+
+-- Só o admin lê o histórico — é auditoria interna, não informação do dono
+create policy "negocio_edicoes_select_admin"
+  on negocio_edicoes for select
+  to authenticated
+  using (public.is_admin());
+
+-- Sem policy de insert pra authenticated de propósito — a gravação
+-- acontece só pela API route via admin client, depois de validar a
+-- edição no servidor (mesmo padrão de fotoSignedUrl)
 
 -- ============================================================
 -- galeria_fotos: até 5 por negócio, adicionadas pós-cadastro

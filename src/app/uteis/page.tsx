@@ -32,8 +32,7 @@ export default function UteisPage() {
 
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-primary-500 text-lg font-bold">Úteis</h1>
+      <div className="flex items-center justify-end">
         <ViewToggle value={view} onChange={setView} />
       </div>
 

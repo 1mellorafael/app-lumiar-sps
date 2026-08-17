@@ -37,11 +37,13 @@ export function AccountSection({
       {loggedIn ? (
         <>
           {totalNegocios > 0 ? (
-            // "Cadastrar outro negócio" mora dentro dessa tela (Fase 3
-            // item 10, ainda não construída) — não compete aqui no Menu
-            <Button variant="ghost" className="justify-start" size="sm" disabled>
-              <Briefcase className="mr-2 size-4" />
-              Meus negócios ({totalNegocios})
+            // "Cadastrar outro negócio" mora dentro dessa tela — não
+            // compete aqui no Menu (decisão de 17/08)
+            <Button variant="ghost" className="justify-start" size="sm" asChild>
+              <Link href="/meus-negocios">
+                <Briefcase className="mr-2 size-4" />
+                Meus negócios ({totalNegocios})
+              </Link>
             </Button>
           ) : (
             <Button variant="ghost" className="justify-start" size="sm" asChild>

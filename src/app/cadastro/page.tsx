@@ -204,7 +204,7 @@ export default function CadastroPage() {
             name="telefone"
             value={formData.telefone}
             onChange={handleTelefoneChange}
-            placeholder="(24) 99999-9999"
+            placeholder="(22) 99999-9999"
             maxLength={18}
             aria-invalid={accountErrorField === 'telefone'}
             required

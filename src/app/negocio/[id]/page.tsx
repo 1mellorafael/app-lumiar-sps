@@ -1,10 +1,12 @@
 import Link from 'next/link'
-import { MapPin, Phone, Tag, Clock, Instagram, MessageCircle } from 'lucide-react'
-import { getNegocio, getCategoria } from '@/lib/mock-data'
+import { MapPin, Phone, Tag, Instagram, MessageCircle, Pencil } from 'lucide-react'
+import { getNegocio, getCategoria, getLocalizacao } from '@/lib/mock-data'
 import { whatsappHref } from '@/lib/whatsapp'
 import { createClient } from '@/lib/supabase/server'
 import { fotoSignedUrl } from '@/lib/supabase/signed-url'
 import { VoltarButton, NegocioActions } from '@/components/negocio-detalhe/negocio-actions'
+import { AdminActions } from '@/components/admin/admin-actions'
+import { MapEmbed } from '@/components/shared/map-embed'
 
 const AVATAR_COLORS = [
   'bg-primary-500',
@@ -34,14 +36,20 @@ type DadosNegocio = {
   id: string
   nomeNegocio: string
   categoriaNome: string
+  localizacaoNome: string | null
+  endereco: string | null
+  enderecoLat: number | null
+  enderecoLng: number | null
   descricao: string | null
   instagram: string | null
   whatsapp: string
-  horarioFuncionamento: string | null
   fotoPrincipalUrl: string | null
   fotoCapaUrl: string | null
+  fotoPrincipalPos: { x: number; y: number }
+  fotoCapaPos: { x: number; y: number }
   pendente: boolean
   souDono: boolean
+  souAdmin: boolean
 }
 
 async function buscarNegocioReal(id: string): Promise<DadosNegocio | null> {
@@ -50,13 +58,18 @@ async function buscarNegocioReal(id: string): Promise<DadosNegocio | null> {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { data: negocio } = await supabase
-    .from('negocios')
-    .select(
-      'id, profile_id, nome_negocio, categoria, descricao, instagram, telefone_contato, horario_funcionamento, foto_principal_url, foto_capa_url, status'
-    )
-    .eq('id', id)
-    .maybeSingle()
+  const [{ data: negocio }, { data: profile }] = await Promise.all([
+    supabase
+      .from('negocios')
+      .select(
+        'id, profile_id, nome_negocio, categorias, localizacoes, endereco, endereco_lat, endereco_lng, descricao, instagram, telefone_contato, foto_principal_url, foto_capa_url, foto_principal_pos_x, foto_principal_pos_y, foto_capa_pos_x, foto_capa_pos_y, status'
+      )
+      .eq('id', id)
+      .maybeSingle(),
+    user
+      ? supabase.from('profiles').select('is_admin').eq('id', user.id).single()
+      : Promise.resolve({ data: null }),
+  ])
 
   // RLS já barra pendente de quem não é dono nem admin — se voltou
   // linha, pode mostrar
@@ -69,16 +82,26 @@ async function buscarNegocioReal(id: string): Promise<DadosNegocio | null> {
 
   return {
     id: negocio.id,
-    nomeNegocio: negocio.nome_negocio || 'Negócio sem nome',
-    categoriaNome: getCategoria(negocio.categoria)?.nome ?? negocio.categoria,
+    nomeNegocio: negocio.nome_negocio,
+    categoriaNome: negocio.categorias
+      .map((c: string) => getCategoria(c)?.nome ?? c)
+      .join(', '),
+    localizacaoNome: negocio.localizacoes
+      .map((l: string) => getLocalizacao(l)?.nome ?? l)
+      .join(', '),
+    endereco: negocio.endereco,
+    enderecoLat: negocio.endereco_lat,
+    enderecoLng: negocio.endereco_lng,
     descricao: negocio.descricao,
     instagram: negocio.instagram,
     whatsapp: negocio.telefone_contato,
-    horarioFuncionamento: negocio.horario_funcionamento,
     fotoPrincipalUrl,
     fotoCapaUrl,
+    fotoPrincipalPos: { x: negocio.foto_principal_pos_x, y: negocio.foto_principal_pos_y },
+    fotoCapaPos: { x: negocio.foto_capa_pos_x, y: negocio.foto_capa_pos_y },
     pendente: negocio.status === 'pendente',
     souDono: user?.id === negocio.profile_id,
+    souAdmin: profile?.is_admin ?? false,
   }
 }
 
@@ -109,14 +132,20 @@ export default async function NegocioPage({
     id: mock!.id,
     nomeNegocio: mock!.nomeNegocio,
     categoriaNome: getCategoria(mock!.categoriaSlug)?.nome ?? mock!.categoriaSlug,
+    localizacaoNome: mock!.localizacao,
+    endereco: mock!.endereco ?? null,
+    enderecoLat: null,
+    enderecoLng: null,
     descricao: mock!.descricao,
     instagram: mock!.instagram ?? null,
     whatsapp: mock!.whatsapp,
-    horarioFuncionamento: null,
     fotoPrincipalUrl: null,
     fotoCapaUrl: null,
+    fotoPrincipalPos: { x: 50, y: 50 },
+    fotoCapaPos: { x: 50, y: 50 },
     pendente: false,
     souDono: false,
+    souAdmin: false,
   }
 
   return (
@@ -129,6 +158,10 @@ export default async function NegocioPage({
             ? 'Seu cadastro está em análise. Só você (e o admin) consegue ver esta página por enquanto — assim que for aprovado, fica visível pra todo mundo.'
             : 'Este cadastro ainda está pendente de aprovação — você está vendo como admin, não é público ainda.'}
         </div>
+      )}
+
+      {dados.pendente && dados.souAdmin && (
+        <AdminActions negocioId={dados.id} />
       )}
 
       {/* Foto composta: capa (opcional, fundo) + principal (círculo
@@ -144,6 +177,9 @@ export default async function NegocioPage({
               <img
                 src={dados.fotoCapaUrl}
                 alt=""
+                style={{
+                  objectPosition: `${dados.fotoCapaPos.x}% ${dados.fotoCapaPos.y}%`,
+                }}
                 className="size-full object-cover"
               />
             )}
@@ -156,6 +192,9 @@ export default async function NegocioPage({
               <img
                 src={dados.fotoPrincipalUrl}
                 alt=""
+                style={{
+                  objectPosition: `${dados.fotoPrincipalPos.x}% ${dados.fotoPrincipalPos.y}%`,
+                }}
                 className="size-full object-cover"
               />
             ) : (
@@ -174,28 +213,12 @@ export default async function NegocioPage({
         <h2 className="text-neutral-text text-sm font-semibold uppercase tracking-wide">
           Informações
         </h2>
-        {!real && mock?.endereco && (
+        {(dados.endereco || dados.localizacaoNome) && (
           <div className="text-card-foreground flex items-center gap-2 text-sm">
             <MapPin className="text-primary-500 size-4 shrink-0" />
-            {mock.endereco} — {mock.localizacao}
-          </div>
-        )}
-        {!real && mock?.horarios && mock.horarios.length > 0 && (
-          <div className="text-card-foreground flex items-start gap-2 text-sm">
-            <Clock className="text-primary-500 mt-0.5 size-4 shrink-0" />
-            <div className="flex flex-col gap-0.5">
-              {mock.horarios.map((h, i) => (
-                <span key={i}>
-                  {h.dias}: {h.abre} – {h.fecha}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-        {real && dados.horarioFuncionamento && (
-          <div className="text-card-foreground flex items-center gap-2 text-sm">
-            <Clock className="text-primary-500 size-4 shrink-0" />
-            {dados.horarioFuncionamento}
+            {dados.endereco
+              ? `${dados.endereco} — ${dados.localizacaoNome}`
+              : dados.localizacaoNome}
           </div>
         )}
         <div className="text-card-foreground flex items-center gap-2 text-sm">
@@ -206,6 +229,9 @@ export default async function NegocioPage({
           <Tag className="text-primary-500 size-4 shrink-0" />
           {dados.categoriaNome}
         </div>
+        {dados.enderecoLat != null && dados.enderecoLng != null && (
+          <MapEmbed lat={dados.enderecoLat} lng={dados.enderecoLng} />
+        )}
       </section>
 
       {dados.descricao && (
@@ -237,6 +263,16 @@ export default async function NegocioPage({
         <MessageCircle className="size-4" />
         Chamar no WhatsApp
       </a>
+
+      {dados.souDono && (
+        <Link
+          href={`/negocio/${dados.id}/editar`}
+          className="border-border text-neutral-text hover:bg-muted flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors"
+        >
+          <Pencil className="size-4" />
+          Editar negócio
+        </Link>
+      )}
 
       <NegocioActions nomeNegocio={dados.nomeNegocio} />
     </main>

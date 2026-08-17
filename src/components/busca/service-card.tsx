@@ -2,15 +2,14 @@
 
 import Link from 'next/link'
 import type { MouseEvent } from 'react'
-import { MessageCircle, MapPin, Clock } from 'lucide-react'
-import type { Negocio } from '@/lib/mock-data'
-import { getCategoria, localizacaoAbrev, horarioResumo } from '@/lib/mock-data'
+import { MessageCircle, MapPin } from 'lucide-react'
+import type { NegocioCard } from '@/lib/negocio-card'
+import { getCategoria } from '@/lib/mock-data'
 import type { ViewMode } from '@/components/shared/view-toggle'
 import { cn } from '@/lib/utils'
 import { whatsappHref } from '@/lib/whatsapp'
 
-// Cores de placeholder pro avatar — enquanto não existe foto real
-// (upload de foto chega na Fase 3), cicla por essas cores de marca
+// Cores de placeholder pro avatar — enquanto não há foto real
 const AVATAR_COLORS = [
   'bg-primary-500',
   'bg-secondary-500',
@@ -19,8 +18,9 @@ const AVATAR_COLORS = [
 ]
 
 function avatarColor(id: string) {
-  const index = Number(id) % AVATAR_COLORS.length
-  return AVATAR_COLORS[index]
+  // soma de char codes em vez de Number(id) — ids reais são UUID, não int
+  const soma = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
+  return AVATAR_COLORS[soma % AVATAR_COLORS.length]
 }
 
 function initials(nome: string) {
@@ -31,6 +31,12 @@ function initials(nome: string) {
     .join('')
     .toUpperCase()
 }
+
+// Efeito de cor no hover só faz sentido com mouse — em touch, :hover pode
+// "grudar" depois do toque em alguns navegadores, então o [@media(hover:hover)]
+// restringe o efeito a dispositivos que realmente têm hover
+const HOVER_TEXT =
+  '[@media(hover:hover)]:group-hover:text-primary-500 transition-colors'
 
 // Botão, não <a> — o card inteiro já é um Link (não pode aninhar <a> em <a>)
 function openWhatsapp(e: MouseEvent, numero: string, nomeNegocio: string) {
@@ -43,10 +49,54 @@ function openWhatsapp(e: MouseEvent, numero: string, nomeNegocio: string) {
   )
 }
 
+function categoriaLabel(slugs: string[]) {
+  return slugs
+    .map((s) => getCategoria(s)?.nome ?? s)
+    .join(', ')
+}
+
+function Avatar({
+  negocio,
+  className,
+  textClassName,
+}: {
+  negocio: NegocioCard
+  className: string
+  textClassName: string
+}) {
+  if (negocio.fotoPrincipalUrl) {
+    return (
+      <div className={cn('overflow-hidden', className)}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={negocio.fotoPrincipalUrl}
+          alt=""
+          style={{
+            objectPosition: `${negocio.fotoPrincipalPos?.x ?? 50}% ${negocio.fotoPrincipalPos?.y ?? 50}%`,
+          }}
+          className="size-full object-cover"
+        />
+      </div>
+    )
+  }
+  return (
+    <div
+      className={cn(
+        'flex items-center justify-center font-semibold text-white',
+        avatarColor(negocio.id),
+        className,
+        textClassName
+      )}
+    >
+      {initials(negocio.nomeNegocio)}
+    </div>
+  )
+}
+
 export type CardVariant = 'a' | 'b'
 
 type ServiceCardProps = {
-  negocio: Negocio
+  negocio: NegocioCard
   view: ViewMode
   variant?: CardVariant
   // true quando já se está dentro da categoria (repetir seria redundante)
@@ -62,27 +112,23 @@ export function ServiceCard({
   variant = 'a',
   hideCategoria = false,
 }: ServiceCardProps) {
-  const categoria = getCategoria(negocio.categoriaSlug)
-  const local = localizacaoAbrev(negocio.localizacao)
-  const horario = horarioResumo(negocio.horarios)
+  const categoria = categoriaLabel(negocio.categoriaSlugs)
+  const local = negocio.localizacaoLabel ?? null
 
   if (view === 'list') {
     return variant === 'a' ? (
       <Link
         href={`/negocio/${negocio.id}`}
-        className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex items-start gap-2 rounded-lg border p-2.5 transition-all duration-200 ease-decelerate"
+        className="group border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex items-start gap-2 rounded-lg border p-2.5 transition-all duration-200 ease-decelerate"
       >
-        <div
-          className={cn(
-            'flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white',
-            avatarColor(negocio.id)
-          )}
-        >
-          {initials(negocio.nomeNegocio)}
-        </div>
+        <Avatar
+          negocio={negocio}
+          className="size-9 shrink-0 rounded-full"
+          textClassName="text-xs"
+        />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-card-foreground text-sm font-semibold">
+            <p className={cn('text-card-foreground text-sm font-semibold', HOVER_TEXT)}>
               {negocio.nomeNegocio}
             </p>
             <button
@@ -97,17 +143,13 @@ export function ServiceCard({
             </button>
           </div>
           {!hideCategoria && (
-            <p className="text-muted-foreground text-xs">{categoria?.nome}</p>
+            <p className="text-muted-foreground text-xs">{categoria}</p>
           )}
           <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-            <span className="inline-flex items-center gap-0.5">
-              <MapPin className="size-3" />
-              {local}
-            </span>
-            {horario && (
+            {local && (
               <span className="inline-flex items-center gap-0.5">
-                <Clock className="size-3" />
-                {horario}
+                <MapPin className="size-3" />
+                {local}
               </span>
             )}
           </div>
@@ -116,38 +158,29 @@ export function ServiceCard({
     ) : (
       <Link
         href={`/negocio/${negocio.id}`}
-        className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex flex-col gap-1.5 rounded-lg border p-3 transition-all duration-200 ease-decelerate"
+        className="group border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex flex-col gap-1.5 rounded-lg border p-3 transition-all duration-200 ease-decelerate"
       >
         <div className="flex items-center gap-2">
-          <div
-            className={cn(
-              'flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white',
-              avatarColor(negocio.id)
-            )}
-          >
-            {initials(negocio.nomeNegocio)}
-          </div>
+          <Avatar
+            negocio={negocio}
+            className="size-10 shrink-0 rounded-full"
+            textClassName="text-sm"
+          />
           <div className="min-w-0 flex-1">
-            <p className="text-card-foreground text-sm font-semibold">
+            <p className={cn('text-card-foreground text-sm font-semibold', HOVER_TEXT)}>
               {negocio.nomeNegocio}
             </p>
             {!hideCategoria && (
-              <p className="text-muted-foreground text-xs">
-                {categoria?.nome}
-              </p>
+              <p className="text-muted-foreground text-xs">{categoria}</p>
             )}
           </div>
         </div>
         <div className="flex items-center justify-between">
           <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
-            <span className="inline-flex items-center gap-0.5">
-              <MapPin className="size-3" />
-              {local}
-            </span>
-            {horario && (
+            {local && (
               <span className="inline-flex items-center gap-0.5">
-                <Clock className="size-3" />
-                {horario}
+                <MapPin className="size-3" />
+                {local}
               </span>
             )}
           </div>
@@ -169,36 +202,29 @@ export function ServiceCard({
   return variant === 'a' ? (
     <Link
       href={`/negocio/${negocio.id}`}
-      className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex flex-col overflow-hidden rounded-lg border transition-all duration-200 ease-decelerate"
+      className="group border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex flex-col overflow-hidden rounded-lg border transition-all duration-200 ease-decelerate"
     >
       {/* Foto composta: capa (cor neutra, sem foto real ainda) + principal
           (círculo central) — seção 9 do CLAUDE.md */}
       <div className="bg-muted relative h-8">
-        <div
-          className={cn(
-            'border-card absolute left-1/2 top-3 flex size-10 -translate-x-1/2 items-center justify-center rounded-full border shadow-[0_2px_6px_rgb(0_0_0_/_0.15)] text-sm font-semibold text-white',
-            avatarColor(negocio.id)
-          )}
-        >
-          {initials(negocio.nomeNegocio)}
-        </div>
+        <Avatar
+          negocio={negocio}
+          className="border-card absolute left-1/2 top-3 size-10 -translate-x-1/2 rounded-full border shadow-[0_2px_6px_rgb(0_0_0_/_0.15)]"
+          textClassName="text-sm"
+        />
       </div>
       <div className="flex flex-col items-center gap-0.5 px-2 pb-2 pt-6 text-center">
-        <p className="text-card-foreground text-xs font-semibold">
+        <p className={cn('text-card-foreground text-xs font-semibold', HOVER_TEXT)}>
           {negocio.nomeNegocio}
         </p>
         {!hideCategoria && (
-          <p className="text-muted-foreground text-xs">{categoria?.nome}</p>
+          <p className="text-muted-foreground text-xs">{categoria}</p>
         )}
         <div className="text-muted-foreground flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-[11px]">
-          <span className="inline-flex items-center gap-0.5">
-            <MapPin className="size-3" />
-            {local}
-          </span>
-          {horario && (
+          {local && (
             <span className="inline-flex items-center gap-0.5">
-              <Clock className="size-3" />
-              {horario}
+              <MapPin className="size-3" />
+              {local}
             </span>
           )}
         </div>
@@ -217,38 +243,31 @@ export function ServiceCard({
   ) : (
     <Link
       href={`/negocio/${negocio.id}`}
-      className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex flex-col overflow-hidden rounded-lg border transition-all duration-200 ease-decelerate"
+      className="group border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex flex-col overflow-hidden rounded-lg border transition-all duration-200 ease-decelerate"
     >
       <div className="bg-muted relative h-20">
-        <div
-          className={cn(
-            'border-card absolute -bottom-6 left-3 flex size-14 items-center justify-center rounded-full border shadow-[0_2px_6px_rgb(0_0_0_/_0.15)] text-base font-semibold text-white',
-            avatarColor(negocio.id)
-          )}
-        >
-          {initials(negocio.nomeNegocio)}
-        </div>
+        <Avatar
+          negocio={negocio}
+          className="border-card absolute -bottom-6 left-3 size-14 rounded-full border shadow-[0_2px_6px_rgb(0_0_0_/_0.15)]"
+          textClassName="text-base"
+        />
       </div>
       <div className="flex flex-col gap-1.5 p-3 pt-8">
         <div className="flex items-start justify-between gap-2">
-          <p className="text-card-foreground text-base font-bold">
+          <p className={cn('text-card-foreground text-base font-bold', HOVER_TEXT)}>
             {negocio.nomeNegocio}
           </p>
           {!hideCategoria && (
             <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2 py-0.5 text-[11px]">
-              {categoria?.nome}
+              {categoria}
             </span>
           )}
         </div>
         <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
-          <span className="inline-flex items-center gap-0.5">
-            <MapPin className="size-3" />
-            {local}
-          </span>
-          {horario && (
+          {local && (
             <span className="inline-flex items-center gap-0.5">
-              <Clock className="size-3" />
-              {horario}
+              <MapPin className="size-3" />
+              {local}
             </span>
           )}
         </div>

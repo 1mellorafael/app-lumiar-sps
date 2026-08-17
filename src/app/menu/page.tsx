@@ -1,8 +1,6 @@
 import Link from 'next/link'
 import {
   Settings,
-  Share2,
-  Smartphone,
   MessageSquare,
   HelpCircle,
   FileText,
@@ -10,6 +8,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AccountSection } from '@/components/menu/account-section'
+import { AppSection } from '@/components/menu/app-section'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function MenuPage() {
@@ -32,8 +31,6 @@ export default async function MenuPage() {
 
   return (
     <main className="mx-auto flex max-w-md flex-col gap-2 p-4">
-      <h1 className="text-primary-500 mb-2 text-lg font-bold">Menu</h1>
-
       <AccountSection loggedIn={!!user} totalNegocios={totalNegocios} />
 
       {profile?.is_admin && (
@@ -48,21 +45,7 @@ export default async function MenuPage() {
         </section>
       )}
 
-      {/* Seção App */}
-      <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-3">
-        <div className="flex items-center gap-2">
-          <Smartphone className="text-primary-500 size-4" />
-          <h2 className="text-neutral-text text-sm font-semibold">App</h2>
-        </div>
-        <Button variant="ghost" className="justify-start" size="sm">
-          <Smartphone className="mr-2 size-4" />
-          Adicionar à tela inicial
-        </Button>
-        <Button variant="ghost" className="justify-start" size="sm">
-          <Share2 className="mr-2 size-4" />
-          Compartilhar
-        </Button>
-      </section>
+      <AppSection />
 
       {/* Seção Configurações */}
       <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-3">

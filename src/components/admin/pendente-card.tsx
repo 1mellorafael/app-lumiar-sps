@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Check, X, Tag, User, ExternalLink } from 'lucide-react'
+import { Check, X, Tag, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 type Pendente = {
@@ -11,6 +11,7 @@ type Pendente = {
   nomeNegocio: string
   categoriaNome: string
   fotoPrincipalUrl: string | null
+  fotoPrincipalPos: { x: number; y: number }
   criadoEm: string
   criadoPor: string
 }
@@ -53,14 +54,16 @@ export function PendenteCard({ pendente }: { pendente: Pendente }) {
             <img
               src={pendente.fotoPrincipalUrl}
               alt=""
+              style={{
+                objectPosition: `${pendente.fotoPrincipalPos.x}% ${pendente.fotoPrincipalPos.y}%`,
+              }}
               className="size-full object-cover"
             />
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-card-foreground group-hover:text-primary-500 flex items-center gap-1 truncate text-sm font-semibold transition-colors">
+          <p className="text-card-foreground [@media(hover:hover)]:group-hover:text-primary-500 truncate text-sm font-semibold transition-colors">
             {pendente.nomeNegocio}
-            <ExternalLink className="text-muted-foreground size-3 shrink-0" />
           </p>
           <div className="text-muted-foreground flex items-center gap-1 text-xs">
             <Tag className="size-3" />

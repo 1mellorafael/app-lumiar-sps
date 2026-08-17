@@ -40,10 +40,26 @@ export function getCategoria(slug: string): Categoria | undefined {
   return CATEGORIAS.find((c) => c.slug === slug)
 }
 
-export type HorarioBloco = {
-  dias: string // texto livre por enquanto — ex: "Seg-Sex", "Todos os dias"
-  abre: string // "09:00"
-  fecha: string // "18:00"
+export type LocalizacaoOption = { slug: string; nome: string }
+
+export const LOCALIZACOES: LocalizacaoOption[] = [
+  { slug: 'lumiar', nome: 'Lumiar' },
+  { slug: 'sao-pedro-da-serra', nome: 'São Pedro da Serra' },
+]
+
+export function getLocalizacao(slug: string): LocalizacaoOption | undefined {
+  return LOCALIZACOES.find((l) => l.slug === slug)
+}
+
+// Chip curto pra caber no card/lista — "São Pedro da Serra" não cabe
+function abrevLocalizacao(nome: string): string {
+  return nome === 'São Pedro da Serra' ? 'SPS' : nome
+}
+
+export function localizacoesAbrev(slugs: string[]): string {
+  return slugs
+    .map((s) => abrevLocalizacao(getLocalizacao(s)?.nome ?? s))
+    .join(', ')
 }
 
 export type Negocio = {
@@ -60,27 +76,12 @@ export type Negocio = {
   // divulgar (ex: "atendo só em domicílio" → nem preenche)
   localizacao: 'Lumiar' | 'São Pedro da Serra'
   endereco?: string
-  horarios?: HorarioBloco[]
   instagram?: string
 }
 
 // Chip curto pra caber no card/lista — "São Pedro da Serra" não cabe
 export function localizacaoAbrev(loc: Negocio['localizacao']): string {
   return loc === 'São Pedro da Serra' ? 'SPS' : 'Lumiar'
-}
-
-function formatHora(h: string): string {
-  const [hh, mm] = h.split(':')
-  return mm === '00' ? `${Number(hh)}h` : `${Number(hh)}h${mm}`
-}
-
-// Resumo de 1 linha pro card/lista — a página de detalhe mostra todos
-// os blocos, aqui só o primeiro (+N se tiver mais)
-export function horarioResumo(horarios?: HorarioBloco[]): string | null {
-  if (!horarios || horarios.length === 0) return null
-  const [primeiro, ...resto] = horarios
-  const base = `${primeiro.dias} ${formatHora(primeiro.abre)}-${formatHora(primeiro.fecha)}`
-  return resto.length > 0 ? `${base} +${resto.length}` : base
 }
 
 export function getNegocio(id: string): Negocio | undefined {
@@ -99,8 +100,6 @@ export const NEGOCIOS: Negocio[] = [
     whatsapp: '5521987654321',
     telefoneDisplay: '(21) 98765-4321',
     localizacao: 'Lumiar',
-    // Sem endereço — atende em movimento, não faz sentido divulgar local fixo
-    horarios: [{ dias: 'Todos os dias', abre: '08:00', fecha: '22:00' }],
     instagram: 'joao_moto',
   },
   {
@@ -123,7 +122,6 @@ export const NEGOCIOS: Negocio[] = [
     whatsapp: '5521987654323',
     telefoneDisplay: '(21) 98765-4323',
     localizacao: 'Lumiar',
-    horarios: [{ dias: 'Todos os dias', abre: '00:00', fecha: '23:59' }],
     instagram: 'carlao_mototaxi',
   },
   {
@@ -147,10 +145,6 @@ export const NEGOCIOS: Negocio[] = [
     telefoneDisplay: '(21) 98765-4325',
     localizacao: 'São Pedro da Serra',
     endereco: 'Rua das Flores, 123 - Centro',
-    horarios: [
-      { dias: 'Seg-Sex', abre: '09:00', fecha: '19:00' },
-      { dias: 'Sáb', abre: '09:00', fecha: '13:00' },
-    ],
     instagram: 'espacobelaana',
   },
   {
@@ -186,7 +180,6 @@ export const NEGOCIOS: Negocio[] = [
     telefoneDisplay: '(21) 98765-4328',
     localizacao: 'Lumiar',
     endereco: 'Rua Principal, 45',
-    horarios: [{ dias: 'Seg-Dom', abre: '07:00', fecha: '20:00' }],
   },
   {
     id: '9',
@@ -218,7 +211,6 @@ export const NEGOCIOS: Negocio[] = [
     whatsapp: '5521987654331',
     telefoneDisplay: '(21) 98765-4331',
     localizacao: 'São Pedro da Serra',
-    horarios: [{ dias: 'Ter e Qui', abre: '14:00', fecha: '20:00' }],
     instagram: 'camilarocha.psi',
   },
   {
@@ -262,7 +254,6 @@ export const NEGOCIOS: Negocio[] = [
     telefoneDisplay: '(21) 98765-4335',
     localizacao: 'São Pedro da Serra',
     endereco: 'Centro',
-    horarios: [{ dias: 'Seg-Sáb', abre: '08:30', fecha: '18:30' }],
     instagram: 'studiopatriciaestetica',
   },
 ]

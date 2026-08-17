@@ -1,8 +1,14 @@
 import { Briefcase, Tv, ArrowRight } from 'lucide-react'
 import { InstallCard } from '@/components/home/install-card'
 import { ShareAppCard } from '@/components/home/share-app-card'
+import { createClient } from '@/lib/supabase/server'
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
       <header>
@@ -17,15 +23,15 @@ export default function Home() {
           Anúncio fica até decisão de rede de ads (pendência aberta). */}
       <div className="grid grid-cols-2 gap-2">
         <a
-          href="/cadastro-negocio"
+          href={user ? '/cadastro-negocio' : '/cadastro'}
           className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col items-start gap-1 rounded-lg border p-3 transition-all duration-200 ease-decelerate"
         >
           <Briefcase className="text-primary-500 size-5" />
           <p className="text-card-foreground text-xs font-medium">
-            Tem um negócio?
+            {user ? 'Tem um negócio?' : 'Ainda não tem conta?'}
           </p>
           <span className="text-primary-500 inline-flex items-center gap-0.5 text-xs font-semibold">
-            Cadastre-se <ArrowRight className="size-3" />
+            {user ? 'Cadastre-se' : 'Criar conta'} <ArrowRight className="size-3" />
           </span>
         </a>
 
