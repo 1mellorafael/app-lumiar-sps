@@ -46,10 +46,7 @@ export function PendenteCard({ pendente }: { pendente: Pendente }) {
 
   return (
     <div className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-3">
-      <Link
-        href={`/servico/${pendente.id}`}
-        className="hover:bg-muted/50 -m-1 flex items-center gap-3 rounded-md p-1 transition-colors"
-      >
+      <Link href={`/servico/${pendente.id}`} className="group flex items-center gap-3">
         <div className="bg-muted size-12 shrink-0 overflow-hidden rounded-full">
           {pendente.fotoPrincipalUrl && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -61,7 +58,7 @@ export function PendenteCard({ pendente }: { pendente: Pendente }) {
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-card-foreground flex items-center gap-1 truncate text-sm font-semibold">
+          <p className="text-card-foreground group-hover:text-primary-500 flex items-center gap-1 truncate text-sm font-semibold transition-colors">
             {pendente.nomeServico}
             <ExternalLink className="text-muted-foreground size-3 shrink-0" />
           </p>

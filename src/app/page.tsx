@@ -1,16 +1,14 @@
 import { Briefcase, Tv, ArrowRight } from 'lucide-react'
-import { WeatherBadge } from '@/components/home/weather-badge'
 import { InstallCard } from '@/components/home/install-card'
 import { ShareAppCard } from '@/components/home/share-app-card'
 
 export default function Home() {
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
-      <header className="flex items-center justify-between">
+      <header>
         <h1 className="text-primary-500 text-lg font-bold">
           Lumiar/São Pedro da Serra
         </h1>
-        <WeatherBadge tempC={22} condition="ensolarado" />
       </header>
 
       {/* Grade compacta — 4 módulos fixos por política (não editáveis pelo

@@ -1,5 +1,13 @@
 import Link from 'next/link'
-import { Settings, Share2, Smartphone, MessageSquare, HelpCircle, FileText } from 'lucide-react'
+import {
+  Settings,
+  Share2,
+  Smartphone,
+  MessageSquare,
+  HelpCircle,
+  FileText,
+  ShieldCheck,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AccountSection } from '@/components/menu/account-section'
 import { createClient } from '@/lib/supabase/server'
@@ -18,11 +26,27 @@ export default async function MenuPage() {
     : { data: null }
   const totalServicos = servicosDoUsuario?.length ?? 0
 
+  const { data: profile } = user
+    ? await supabase.from('profiles').select('is_admin').eq('id', user.id).single()
+    : { data: null }
+
   return (
     <main className="mx-auto flex max-w-md flex-col gap-2 p-4">
       <h1 className="text-primary-500 mb-2 text-lg font-bold">Menu</h1>
 
       <AccountSection loggedIn={!!user} totalServicos={totalServicos} />
+
+      {profile?.is_admin && (
+        <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-3">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="text-primary-500 size-4" />
+            <h2 className="text-neutral-text text-sm font-semibold">Admin</h2>
+          </div>
+          <Button variant="ghost" className="justify-start" size="sm" asChild>
+            <Link href="/admin">Aprovar cadastros</Link>
+          </Button>
+        </section>
+      )}
 
       {/* Seção App */}
       <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-3">

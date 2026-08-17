@@ -218,24 +218,14 @@ arrastar pra abrir/fechar. Fica registrado como ideia de redesign de
 interação, não implementado ainda — é maior que um ajuste pontual,
 entra como feature própria quando houver espaço.
 
-### IDEIA CANDIDATA — Header/widget adaptativo por localização (não alocada)
+### DESCARTADO — Header/widget mudar sozinho por geolocalização
 
-Ideia de 17/08: nome no topo da Home ("Lumiar" vs "São Pedro da Serra")
-e o widget de clima (que já tem toggle manual, ver `WeeklyForecast`)
-poderiam vir pré-selecionados de acordo com a localização real de quem
-tá usando, com logo diferente por local. Avaliação de viabilidade:
-**dá pra fazer, não é viagem** — Geolocation API do navegador (pede
-permissão, compara distância até os dois pontos). Cuidados:
-- Pedir permissão de localização uma vez só, guardar a escolha
-  (localStorage), não repetir toda visita
-- Sempre manter override manual disponível (reaproveita o toggle
-  Lumiar/SPS já construído no clima) — geolocalização erra perto de
-  divisa e run em bateria/sinal ruim
-- Logo diferente por local precisa das duas artes prontas — hoje só
-  existe uma
-
-Não implementado ainda, fica como candidata de UI polish depois do V0
-básico estar rodando com gente de verdade.
+Ideia levantada em 17/08 (nome no topo e widget de clima trocando
+sozinhos via Geolocation API conforme localização real de quem usa) —
+avaliada como tecnicamente viável, mas **descartada pelo Rafa na mesma
+sessão**: não quer troca automática. Clima já saiu da Home (só fica na
+aba Úteis, com o toggle manual Lumiar/SPS que já existe). Registrado só
+pra não ressuscitar a ideia sem contexto depois.
 
 ### IDEIA CANDIDATA — Aba de Jogos (não alocada em fase ainda)
 

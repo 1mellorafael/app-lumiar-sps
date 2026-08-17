@@ -132,15 +132,19 @@ export default async function ServicoPage({
           central) — nome fica fora da moldura, abaixo — seção 9 do
           CLAUDE.md */}
       <div className="flex flex-col items-center">
-        <div className="bg-muted relative h-16 w-full overflow-hidden rounded-lg">
-          {dados.fotoCapaUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={dados.fotoCapaUrl}
-              alt=""
-              className="size-full object-cover"
-            />
-          )}
+        {/* overflow-hidden fica só na capa, não no wrapper — senão corta a
+            metade de baixo do avatar, que precisa transbordar por cima */}
+        <div className="relative h-16 w-full">
+          <div className="bg-muted size-full overflow-hidden rounded-lg">
+            {dados.fotoCapaUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={dados.fotoCapaUrl}
+                alt=""
+                className="size-full object-cover"
+              />
+            )}
+          </div>
           <div
             className={`border-background absolute left-1/2 top-8 flex size-16 -translate-x-1/2 items-center justify-center overflow-hidden rounded-full border shadow-[0_2px_6px_rgb(0_0_0_/_0.15)] text-lg font-semibold text-white ${avatarColor(dados.id)}`}
           >
