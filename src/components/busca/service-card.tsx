@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import type { MouseEvent } from 'react'
 import { MessageCircle, MapPin, Clock } from 'lucide-react'
-import type { Prestador } from '@/lib/mock-data'
+import type { Negocio } from '@/lib/mock-data'
 import { getCategoria, localizacaoAbrev, horarioResumo } from '@/lib/mock-data'
 import type { ViewMode } from '@/components/shared/view-toggle'
 import { cn } from '@/lib/utils'
@@ -33,11 +33,11 @@ function initials(nome: string) {
 }
 
 // Botão, não <a> — o card inteiro já é um Link (não pode aninhar <a> em <a>)
-function openWhatsapp(e: MouseEvent, numero: string, nomeServico: string) {
+function openWhatsapp(e: MouseEvent, numero: string, nomeNegocio: string) {
   e.preventDefault()
   e.stopPropagation()
   window.open(
-    whatsappHref(numero, nomeServico),
+    whatsappHref(numero, nomeNegocio),
     '_blank',
     'noopener,noreferrer'
   )
@@ -46,48 +46,51 @@ function openWhatsapp(e: MouseEvent, numero: string, nomeServico: string) {
 export type CardVariant = 'a' | 'b'
 
 type ServiceCardProps = {
-  prestador: Prestador
+  negocio: Negocio
   view: ViewMode
   variant?: CardVariant
   // true quando já se está dentro da categoria (repetir seria redundante)
   hideCategoria?: boolean
 }
 
+// Descrição completa fica só na página de detalhe (/negocio/[id]) — o
+// card serve pra escanear/decidir rápido, não pra ler tudo ali
+// (decisão de 17/08)
 export function ServiceCard({
-  prestador,
+  negocio,
   view,
   variant = 'a',
   hideCategoria = false,
 }: ServiceCardProps) {
-  const categoria = getCategoria(prestador.categoriaSlug)
-  const local = localizacaoAbrev(prestador.localizacao)
-  const horario = horarioResumo(prestador.horarios)
+  const categoria = getCategoria(negocio.categoriaSlug)
+  const local = localizacaoAbrev(negocio.localizacao)
+  const horario = horarioResumo(negocio.horarios)
 
   if (view === 'list') {
     return variant === 'a' ? (
       <Link
-        href={`/servico/${prestador.id}`}
+        href={`/negocio/${negocio.id}`}
         className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex items-start gap-2 rounded-lg border p-2.5 transition-all duration-200 ease-decelerate"
       >
         <div
           className={cn(
             'flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white',
-            avatarColor(prestador.id)
+            avatarColor(negocio.id)
           )}
         >
-          {initials(prestador.nomeServico)}
+          {initials(negocio.nomeNegocio)}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <p className="text-card-foreground text-sm font-semibold">
-              {prestador.nomeServico}
+              {negocio.nomeNegocio}
             </p>
             <button
               type="button"
               onClick={(e) =>
-                openWhatsapp(e, prestador.whatsapp, prestador.nomeServico)
+                openWhatsapp(e, negocio.whatsapp, negocio.nomeNegocio)
               }
-              aria-label={`Chamar ${prestador.nomeServico} no WhatsApp`}
+              aria-label={`Chamar ${negocio.nomeNegocio} no WhatsApp`}
               className="bg-whatsapp flex size-8 shrink-0 items-center justify-center rounded-full text-black shadow-[var(--shadow-card)] transition-all duration-150 ease-standard hover:opacity-90 active:scale-90"
             >
               <MessageCircle className="size-3.5" />
@@ -108,28 +111,25 @@ export function ServiceCard({
               </span>
             )}
           </div>
-          <p className="text-muted-foreground mt-0.5 text-xs">
-            {prestador.descricao}
-          </p>
         </div>
       </Link>
     ) : (
       <Link
-        href={`/servico/${prestador.id}`}
+        href={`/negocio/${negocio.id}`}
         className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex flex-col gap-1.5 rounded-lg border p-3 transition-all duration-200 ease-decelerate"
       >
         <div className="flex items-center gap-2">
           <div
             className={cn(
               'flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white',
-              avatarColor(prestador.id)
+              avatarColor(negocio.id)
             )}
           >
-            {initials(prestador.nomeServico)}
+            {initials(negocio.nomeNegocio)}
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-card-foreground text-sm font-semibold">
-              {prestador.nomeServico}
+              {negocio.nomeNegocio}
             </p>
             {!hideCategoria && (
               <p className="text-muted-foreground text-xs">
@@ -138,7 +138,6 @@ export function ServiceCard({
             )}
           </div>
         </div>
-        <p className="text-card-foreground text-sm">{prestador.descricao}</p>
         <div className="flex items-center justify-between">
           <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
             <span className="inline-flex items-center gap-0.5">
@@ -155,9 +154,9 @@ export function ServiceCard({
           <button
             type="button"
             onClick={(e) =>
-              openWhatsapp(e, prestador.whatsapp, prestador.nomeServico)
+              openWhatsapp(e, negocio.whatsapp, negocio.nomeNegocio)
             }
-            aria-label={`Chamar ${prestador.nomeServico} no WhatsApp`}
+            aria-label={`Chamar ${negocio.nomeNegocio} no WhatsApp`}
             className="bg-whatsapp flex size-8 shrink-0 items-center justify-center rounded-full text-black shadow-[var(--shadow-card)] transition-all duration-150 ease-standard hover:opacity-90 active:scale-90"
           >
             <MessageCircle className="size-3.5" />
@@ -169,7 +168,7 @@ export function ServiceCard({
 
   return variant === 'a' ? (
     <Link
-      href={`/servico/${prestador.id}`}
+      href={`/negocio/${negocio.id}`}
       className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex flex-col overflow-hidden rounded-lg border transition-all duration-200 ease-decelerate"
     >
       {/* Foto composta: capa (cor neutra, sem foto real ainda) + principal
@@ -178,15 +177,15 @@ export function ServiceCard({
         <div
           className={cn(
             'border-card absolute left-1/2 top-3 flex size-10 -translate-x-1/2 items-center justify-center rounded-full border shadow-[0_2px_6px_rgb(0_0_0_/_0.15)] text-sm font-semibold text-white',
-            avatarColor(prestador.id)
+            avatarColor(negocio.id)
           )}
         >
-          {initials(prestador.nomeServico)}
+          {initials(negocio.nomeNegocio)}
         </div>
       </div>
       <div className="flex flex-col items-center gap-0.5 px-2 pb-2 pt-6 text-center">
         <p className="text-card-foreground text-xs font-semibold">
-          {prestador.nomeServico}
+          {negocio.nomeNegocio}
         </p>
         {!hideCategoria && (
           <p className="text-muted-foreground text-xs">{categoria?.nome}</p>
@@ -203,11 +202,10 @@ export function ServiceCard({
             </span>
           )}
         </div>
-        <p className="text-muted-foreground text-xs">{prestador.descricao}</p>
         <button
           type="button"
           onClick={(e) =>
-            openWhatsapp(e, prestador.whatsapp, prestador.nomeServico)
+            openWhatsapp(e, negocio.whatsapp, negocio.nomeNegocio)
           }
           className="bg-whatsapp mt-1 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-black transition-all duration-150 ease-standard hover:opacity-90 active:scale-95"
         >
@@ -218,23 +216,23 @@ export function ServiceCard({
     </Link>
   ) : (
     <Link
-      href={`/servico/${prestador.id}`}
+      href={`/negocio/${negocio.id}`}
       className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex flex-col overflow-hidden rounded-lg border transition-all duration-200 ease-decelerate"
     >
       <div className="bg-muted relative h-20">
         <div
           className={cn(
             'border-card absolute -bottom-6 left-3 flex size-14 items-center justify-center rounded-full border shadow-[0_2px_6px_rgb(0_0_0_/_0.15)] text-base font-semibold text-white',
-            avatarColor(prestador.id)
+            avatarColor(negocio.id)
           )}
         >
-          {initials(prestador.nomeServico)}
+          {initials(negocio.nomeNegocio)}
         </div>
       </div>
       <div className="flex flex-col gap-1.5 p-3 pt-8">
         <div className="flex items-start justify-between gap-2">
           <p className="text-card-foreground text-base font-bold">
-            {prestador.nomeServico}
+            {negocio.nomeNegocio}
           </p>
           {!hideCategoria && (
             <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2 py-0.5 text-[11px]">
@@ -254,11 +252,10 @@ export function ServiceCard({
             </span>
           )}
         </div>
-        <p className="text-card-foreground text-sm">{prestador.descricao}</p>
         <button
           type="button"
           onClick={(e) =>
-            openWhatsapp(e, prestador.whatsapp, prestador.nomeServico)
+            openWhatsapp(e, negocio.whatsapp, negocio.nomeNegocio)
           }
           className="bg-whatsapp mt-1 inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-black transition-all duration-150 ease-standard hover:opacity-90 active:scale-95"
         >

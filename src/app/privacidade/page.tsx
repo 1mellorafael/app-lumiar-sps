@@ -27,8 +27,8 @@ export default function PrivacidadePage() {
         <section>
           <h2 className="font-semibold">1. Quais dados coletamos</h2>
           <p>
-            Pra navegar e buscar serviços, não coletamos nenhum dado — não
-            é preciso login. Pra cadastrar um serviço, pedimos apenas
+            Pra navegar e buscar negócios, não coletamos nenhum dado — não
+            é preciso login. Pra cadastrar um negócio, pedimos apenas
             nome, email, telefone e senha. Não coletamos CPF, endereço
             completo, nem data de nascimento.
           </p>
@@ -46,10 +46,10 @@ export default function PrivacidadePage() {
         <section>
           <h2 className="font-semibold">3. O que fica público</h2>
           <p>
-            Enquanto seu serviço está com status pendente, nenhuma
+            Enquanto seu negócio está com status pendente, nenhuma
             informação sua aparece publicamente — nem foto, nem nome, nem
             categoria. Depois de aprovado, ficam públicos apenas: foto
-            principal, foto de capa, nome do serviço, categoria,
+            principal, foto de capa, nome do negócio, categoria,
             descrição, Instagram e o botão de contato via WhatsApp. Email
             e senha nunca ficam públicos, mesmo depois de aprovado.
           </p>

@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { ServicoForm } from '@/components/cadastro-servico/form'
+import { NegocioForm } from '@/components/cadastro-negocio/form'
 
-export default async function CadastroServicoPage() {
+export default async function CadastroNegocioPage() {
   const supabase = await createClient()
   const {
     data: { user },
@@ -19,5 +19,5 @@ export default async function CadastroServicoPage() {
     .eq('id', user.id)
     .single()
 
-  return <ServicoForm telefoneConta={profile?.telefone ?? ''} />
+  return <NegocioForm telefoneConta={profile?.telefone ?? ''} />
 }

@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import {
-  prestadorSchema,
+  negocioSchema,
   FOTO_MAX_BYTES,
   FOTO_TIPOS_ACEITOS,
-} from '@/lib/validations/prestador'
+} from '@/lib/validations/negocio'
 import { createClient } from '@/lib/supabase/server'
 
 function extensaoPor(mime: string) {
@@ -40,12 +40,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Dados inválidos' }, { status: 400 })
   }
 
-  const parsed = prestadorSchema.safeParse({
-    nomeServico: form.get('nomeServico'),
+  const parsed = negocioSchema.safeParse({
+    nomeNegocio: form.get('nomeNegocio'),
     categoria: form.get('categoria'),
     descricao: form.get('descricao'),
     instagram: form.get('instagram'),
     telefoneContato: form.get('telefoneContato'),
+    horarioFuncionamento: form.get('horarioFuncionamento'),
   })
 
   if (!parsed.success) {
@@ -103,29 +104,37 @@ export async function POST(request: Request) {
     }
   }
 
-  const { nomeServico, categoria, descricao, instagram, telefoneContato } = parsed.data
+  const {
+    nomeNegocio,
+    categoria,
+    descricao,
+    instagram,
+    telefoneContato,
+    horarioFuncionamento,
+  } = parsed.data
 
-  const { data: prestador, error: insertError } = await supabase
-    .from('prestadores')
+  const { data: negocio, error: insertError } = await supabase
+    .from('negocios')
     .insert({
       profile_id: user.id,
-      nome_servico: nomeServico || null,
+      nome_negocio: nomeNegocio || null,
       categoria,
       descricao: descricao || null,
       instagram: instagram || null,
       telefone_contato: telefoneContato,
+      horario_funcionamento: horarioFuncionamento || null,
       foto_principal_url: caminhoPrincipal,
       foto_capa_url: caminhoCapa,
     })
     .select('id')
     .single()
 
-  if (insertError || !prestador) {
+  if (insertError || !negocio) {
     return NextResponse.json(
       { error: 'Não foi possível criar o cadastro. Tente novamente.' },
       { status: 500 }
     )
   }
 
-  return NextResponse.json({ id: prestador.id })
+  return NextResponse.json({ id: negocio.id })
 }

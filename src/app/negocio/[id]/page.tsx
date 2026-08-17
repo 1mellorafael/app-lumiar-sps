@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import { MapPin, Phone, Tag, Clock, Instagram, MessageCircle } from 'lucide-react'
-import { getPrestador, getCategoria } from '@/lib/mock-data'
+import { getNegocio, getCategoria } from '@/lib/mock-data'
 import { whatsappHref } from '@/lib/whatsapp'
 import { createClient } from '@/lib/supabase/server'
 import { fotoSignedUrl } from '@/lib/supabase/signed-url'
-import { VoltarButton, ServicoActions } from '@/components/servico/servico-actions'
+import { VoltarButton, NegocioActions } from '@/components/negocio-detalhe/negocio-actions'
 
 const AVATAR_COLORS = [
   'bg-primary-500',
@@ -30,69 +30,71 @@ function initials(nome: string) {
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-type DadosServico = {
+type DadosNegocio = {
   id: string
-  nomeServico: string
+  nomeNegocio: string
   categoriaNome: string
   descricao: string | null
   instagram: string | null
   whatsapp: string
+  horarioFuncionamento: string | null
   fotoPrincipalUrl: string | null
   fotoCapaUrl: string | null
   pendente: boolean
   souDono: boolean
 }
 
-async function buscarPrestadorReal(id: string): Promise<DadosServico | null> {
+async function buscarNegocioReal(id: string): Promise<DadosNegocio | null> {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { data: prestador } = await supabase
-    .from('prestadores')
+  const { data: negocio } = await supabase
+    .from('negocios')
     .select(
-      'id, profile_id, nome_servico, categoria, descricao, instagram, telefone_contato, foto_principal_url, foto_capa_url, status'
+      'id, profile_id, nome_negocio, categoria, descricao, instagram, telefone_contato, horario_funcionamento, foto_principal_url, foto_capa_url, status'
     )
     .eq('id', id)
     .maybeSingle()
 
   // RLS já barra pendente de quem não é dono nem admin — se voltou
   // linha, pode mostrar
-  if (!prestador) return null
+  if (!negocio) return null
 
   const [fotoPrincipalUrl, fotoCapaUrl] = await Promise.all([
-    fotoSignedUrl(prestador.foto_principal_url),
-    fotoSignedUrl(prestador.foto_capa_url),
+    fotoSignedUrl(negocio.foto_principal_url),
+    fotoSignedUrl(negocio.foto_capa_url),
   ])
 
   return {
-    id: prestador.id,
-    nomeServico: prestador.nome_servico || 'Serviço sem nome',
-    categoriaNome: getCategoria(prestador.categoria)?.nome ?? prestador.categoria,
-    descricao: prestador.descricao,
-    instagram: prestador.instagram,
-    whatsapp: prestador.telefone_contato,
+    id: negocio.id,
+    nomeNegocio: negocio.nome_negocio || 'Negócio sem nome',
+    categoriaNome: getCategoria(negocio.categoria)?.nome ?? negocio.categoria,
+    descricao: negocio.descricao,
+    instagram: negocio.instagram,
+    whatsapp: negocio.telefone_contato,
+    horarioFuncionamento: negocio.horario_funcionamento,
     fotoPrincipalUrl,
     fotoCapaUrl,
-    pendente: prestador.status === 'pendente',
-    souDono: user?.id === prestador.profile_id,
+    pendente: negocio.status === 'pendente',
+    souDono: user?.id === negocio.profile_id,
   }
 }
 
-export default async function ServicoPage({
+export default async function NegocioPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const real = UUID_RE.test(id) ? await buscarPrestadorReal(id) : null
-  const mock = !real ? getPrestador(id) : null
+  const real = UUID_RE.test(id) ? await buscarNegocioReal(id) : null
+  const mock = !real ? getNegocio(id) : null
 
   if (!real && !mock) {
     return (
       <main className="mx-auto flex max-w-md flex-col items-center gap-4 p-8 text-center">
-        <p className="text-muted-foreground text-sm">Serviço não encontrado.</p>
+        <p className="text-muted-foreground text-sm">Negócio não encontrado.</p>
         <Link
           href="/"
           className="text-primary-500 text-sm font-medium hover:underline"
@@ -103,13 +105,14 @@ export default async function ServicoPage({
     )
   }
 
-  const dados: DadosServico = real ?? {
+  const dados: DadosNegocio = real ?? {
     id: mock!.id,
-    nomeServico: mock!.nomeServico,
+    nomeNegocio: mock!.nomeNegocio,
     categoriaNome: getCategoria(mock!.categoriaSlug)?.nome ?? mock!.categoriaSlug,
     descricao: mock!.descricao,
     instagram: mock!.instagram ?? null,
     whatsapp: mock!.whatsapp,
+    horarioFuncionamento: null,
     fotoPrincipalUrl: null,
     fotoCapaUrl: null,
     pendente: false,
@@ -156,14 +159,14 @@ export default async function ServicoPage({
                 className="size-full object-cover"
               />
             ) : (
-              initials(dados.nomeServico)
+              initials(dados.nomeNegocio)
             )}
           </div>
         </div>
         {/* mt-12: a foto (size-16, top-8) transborda 32px abaixo da moldura
             (h-16) — precisa de margem maior que o normal pra não sobrepor */}
         <p className="text-card-foreground mt-12 text-lg font-bold">
-          {dados.nomeServico}
+          {dados.nomeNegocio}
         </p>
       </div>
 
@@ -187,6 +190,12 @@ export default async function ServicoPage({
                 </span>
               ))}
             </div>
+          </div>
+        )}
+        {real && dados.horarioFuncionamento && (
+          <div className="text-card-foreground flex items-center gap-2 text-sm">
+            <Clock className="text-primary-500 size-4 shrink-0" />
+            {dados.horarioFuncionamento}
           </div>
         )}
         <div className="text-card-foreground flex items-center gap-2 text-sm">
@@ -220,7 +229,7 @@ export default async function ServicoPage({
       )}
 
       <a
-        href={whatsappHref(dados.whatsapp, dados.nomeServico)}
+        href={whatsappHref(dados.whatsapp, dados.nomeNegocio)}
         target="_blank"
         rel="noopener noreferrer"
         className="bg-whatsapp inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-black transition-opacity ease-out hover:opacity-90"
@@ -229,7 +238,7 @@ export default async function ServicoPage({
         Chamar no WhatsApp
       </a>
 
-      <ServicoActions nomeServico={dados.nomeServico} />
+      <NegocioActions nomeNegocio={dados.nomeNegocio} />
     </main>
   )
 }

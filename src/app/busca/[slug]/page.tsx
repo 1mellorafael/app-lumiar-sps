@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react'
-import { getCategoria, PRESTADORES } from '@/lib/mock-data'
+import { getCategoria, NEGOCIOS } from '@/lib/mock-data'
 import { ViewToggle, type ViewMode } from '@/components/shared/view-toggle'
 import { ServiceCard, type CardVariant } from '@/components/busca/service-card'
 import { VariantToggle } from '@/components/busca/variant-toggle'
@@ -20,7 +20,7 @@ export default function BuscaCategoriaPage() {
   const [page, setPage] = useState(1)
 
   const resultados = useMemo(
-    () => PRESTADORES.filter((p) => p.categoriaSlug === params.slug),
+    () => NEGOCIOS.filter((n) => n.categoriaSlug === params.slug),
     [params.slug]
   )
 
@@ -83,7 +83,7 @@ export default function BuscaCategoriaPage() {
 
       {paginados.length === 0 ? (
         <p className="text-muted-foreground py-8 text-center text-sm">
-          Nenhum serviço encontrado nessa categoria ainda.
+          Nenhum negócio encontrado nessa categoria ainda.
         </p>
       ) : (
         <>
@@ -96,10 +96,10 @@ export default function BuscaCategoriaPage() {
                 : 'flex flex-col gap-2'
             }
           >
-            {paginados.map((prestador) => (
+            {paginados.map((negocio) => (
               <ServiceCard
-                key={prestador.id}
-                prestador={prestador}
+                key={negocio.id}
+                negocio={negocio}
                 view={view}
                 variant={view === 'cards' ? cardVariant : listVariant}
                 hideCategoria

@@ -10,10 +10,10 @@ import { Button } from '@/components/ui/button'
 // nunca aparecem nem pro próprio dono na tela de Perfil".
 export function AccountSection({
   loggedIn,
-  totalServicos,
+  totalNegocios,
 }: {
   loggedIn: boolean
-  totalServicos: number
+  totalNegocios: number
 }) {
   const router = useRouter()
   const [loggingOut, setLoggingOut] = useState(false)
@@ -36,18 +36,18 @@ export function AccountSection({
       </div>
       {loggedIn ? (
         <>
-          {totalServicos > 0 ? (
-            // "Cadastrar outro serviço" mora dentro dessa tela (Fase 3
+          {totalNegocios > 0 ? (
+            // "Cadastrar outro negócio" mora dentro dessa tela (Fase 3
             // item 10, ainda não construída) — não compete aqui no Menu
             <Button variant="ghost" className="justify-start" size="sm" disabled>
               <Briefcase className="mr-2 size-4" />
-              Meus serviços ({totalServicos})
+              Meus negócios ({totalNegocios})
             </Button>
           ) : (
             <Button variant="ghost" className="justify-start" size="sm" asChild>
-              <Link href="/cadastro-servico">
+              <Link href="/cadastro-negocio">
                 <PlusCircle className="mr-2 size-4" />
-                Cadastrar serviço
+                Cadastrar negócio
               </Link>
             </Button>
           )}

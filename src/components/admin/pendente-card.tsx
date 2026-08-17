@@ -3,15 +3,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Check, X, Phone, Tag, User, ExternalLink } from 'lucide-react'
+import { Check, X, Tag, User, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 type Pendente = {
   id: string
-  nomeServico: string
+  nomeNegocio: string
   categoriaNome: string
-  telefoneContato: string
-  descricao: string | null
   fotoPrincipalUrl: string | null
   criadoEm: string
   criadoPor: string
@@ -26,7 +24,7 @@ export function PendenteCard({ pendente }: { pendente: Pendente }) {
     setLoading(status)
     setErro(null)
     try {
-      const res = await fetch(`/api/admin/prestadores/${pendente.id}`, {
+      const res = await fetch(`/api/admin/negocios/${pendente.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
@@ -46,7 +44,9 @@ export function PendenteCard({ pendente }: { pendente: Pendente }) {
 
   return (
     <div className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] flex flex-col gap-2 rounded-lg border p-3 transition-all duration-200 ease-decelerate">
-      <Link href={`/servico/${pendente.id}`} className="group flex items-center gap-3">
+      {/* Telefone e descrição completa ficam só no clique — o card serve
+          pra escanear rápido uma fila de pendentes, não pra ler tudo ali */}
+      <Link href={`/negocio/${pendente.id}`} className="group flex items-center gap-3">
         <div className="bg-muted size-12 shrink-0 overflow-hidden rounded-full">
           {pendente.fotoPrincipalUrl && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -59,7 +59,7 @@ export function PendenteCard({ pendente }: { pendente: Pendente }) {
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-card-foreground group-hover:text-primary-500 flex items-center gap-1 truncate text-sm font-semibold transition-colors">
-            {pendente.nomeServico}
+            {pendente.nomeNegocio}
             <ExternalLink className="text-muted-foreground size-3 shrink-0" />
           </p>
           <div className="text-muted-foreground flex items-center gap-1 text-xs">
@@ -67,19 +67,11 @@ export function PendenteCard({ pendente }: { pendente: Pendente }) {
             {pendente.categoriaNome}
           </div>
           <div className="text-muted-foreground flex items-center gap-1 text-xs">
-            <Phone className="size-3" />
-            {pendente.telefoneContato}
-          </div>
-          <div className="text-muted-foreground flex items-center gap-1 text-xs">
             <User className="size-3" />
             Cadastrado por {pendente.criadoPor}
           </div>
         </div>
       </Link>
-
-      {pendente.descricao && (
-        <p className="text-card-foreground text-xs">{pendente.descricao}</p>
-      )}
 
       {erro && <p className="text-destructive text-xs">{erro}</p>}
 

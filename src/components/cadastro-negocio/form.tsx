@@ -15,19 +15,20 @@ const formatarTelefone = (value: string) => {
   return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`
 }
 
-export function ServicoForm({ telefoneConta }: { telefoneConta: string }) {
+export function NegocioForm({ telefoneConta }: { telefoneConta: string }) {
   const router = useRouter()
   const [formData, setFormData] = useState({
-    nomeServico: '',
+    nomeNegocio: '',
     categoria: '',
     descricao: '',
     instagram: '',
     telefoneContato: formatarTelefone(telefoneConta),
+    horarioFuncionamento: '',
   })
   const [fotoPrincipal, setFotoPrincipal] = useState<File | null>(null)
   const [fotoCapa, setFotoCapa] = useState<File | null>(null)
   const [termosPresta, setTermosPresta] = useState(false)
-  const [serviceError, setServiceError] = useState<string | null>(null)
+  const [negocioError, setNegocioError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   const handleInputChange = (
@@ -44,41 +45,42 @@ export function ServicoForm({ telefoneConta }: { telefoneConta: string }) {
     }))
   }
 
-  const handleServiceSubmit = async (e: React.FormEvent) => {
+  const handleNegocioSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setServiceError(null)
+    setNegocioError(null)
 
     if (!termosPresta) {
-      alert('Precisa aceitar os termos de prestador pra continuar')
+      alert('Precisa aceitar os termos pra continuar')
       return
     }
     if (!fotoPrincipal) {
-      setServiceError('Foto principal é obrigatória')
+      setNegocioError('Foto principal é obrigatória')
       return
     }
 
     setSubmitting(true)
     try {
       const body = new FormData()
-      body.set('nomeServico', formData.nomeServico)
+      body.set('nomeNegocio', formData.nomeNegocio)
       body.set('categoria', formData.categoria)
       body.set('descricao', formData.descricao)
       body.set('instagram', formData.instagram)
       body.set('telefoneContato', formData.telefoneContato)
+      body.set('horarioFuncionamento', formData.horarioFuncionamento)
       body.set('fotoPrincipal', fotoPrincipal)
       if (fotoCapa) body.set('fotoCapa', fotoCapa)
 
-      const res = await fetch('/api/prestadores', { method: 'POST', body })
+      const res = await fetch('/api/negocios', { method: 'POST', body })
       const data = await res.json()
 
       if (!res.ok) {
-        setServiceError(data.error ?? 'Não foi possível criar o cadastro.')
+        setNegocioError(data.error ?? 'Não foi possível criar o cadastro.')
         return
       }
 
-      router.push(`/servico/${data.id}`)
+      router.push(`/negocio/${data.id}`)
     } catch {
-      setServiceError('Erro de conexão. Tente novamente.')
+      setNegocioError('Erro de conexão. Tente novamente.')
     } finally {
       setSubmitting(false)
     }
@@ -97,14 +99,14 @@ export function ServicoForm({ telefoneConta }: { telefoneConta: string }) {
 
       <div>
         <h1 className="text-primary-500 text-lg font-bold">
-          Cadastrar Serviço
+          Cadastrar Negócio
         </h1>
         <p className="text-muted-foreground text-sm">
           Fica pendente até um admin aprovar
         </p>
       </div>
 
-      <form onSubmit={handleServiceSubmit} className="flex flex-col gap-3">
+      <form onSubmit={handleNegocioSubmit} className="flex flex-col gap-3">
         {/* Foto em duas camadas: capa (opcional, fundo) + principal
             (obrigatória, círculo central) — CLAUDE.md seção 9. Botões de
             trocar foto ficam perto, nunca sobrepostos na foto. */}
@@ -158,22 +160,22 @@ export function ServicoForm({ telefoneConta }: { telefoneConta: string }) {
               />
             </label>
           </div>
-          {serviceError && (
-            <p className="text-destructive text-xs">{serviceError}</p>
+          {negocioError && (
+            <p className="text-destructive text-xs">{negocioError}</p>
           )}
         </div>
 
         <div>
           <label
-            htmlFor="nomeServico"
+            htmlFor="nomeNegocio"
             className="text-neutral-text block text-sm font-medium"
           >
-            Nome do Serviço <span className="text-muted-foreground">(opcional)</span>
+            Nome do Negócio <span className="text-muted-foreground">(opcional)</span>
           </label>
           <Input
-            id="nomeServico"
-            name="nomeServico"
-            value={formData.nomeServico}
+            id="nomeNegocio"
+            name="nomeNegocio"
+            value={formData.nomeNegocio}
             onChange={handleInputChange}
             placeholder="Ex: João Manutenção"
           />
@@ -208,7 +210,7 @@ export function ServicoForm({ telefoneConta }: { telefoneConta: string }) {
             htmlFor="telefoneContato"
             className="text-neutral-text block text-sm font-medium"
           >
-            Telefone de contato do serviço
+            Telefone de contato do negócio
           </label>
           <Input
             id="telefoneContato"
@@ -227,6 +229,23 @@ export function ServicoForm({ telefoneConta }: { telefoneConta: string }) {
 
         <div>
           <label
+            htmlFor="horarioFuncionamento"
+            className="text-neutral-text block text-sm font-medium"
+          >
+            Horário de funcionamento{' '}
+            <span className="text-muted-foreground">(opcional)</span>
+          </label>
+          <Input
+            id="horarioFuncionamento"
+            name="horarioFuncionamento"
+            value={formData.horarioFuncionamento}
+            onChange={handleInputChange}
+            placeholder="Ex: Seg-Sex, 8h-18h"
+          />
+        </div>
+
+        <div>
+          <label
             htmlFor="descricao"
             className="text-neutral-text block text-sm font-medium"
           >
@@ -237,7 +256,7 @@ export function ServicoForm({ telefoneConta }: { telefoneConta: string }) {
             name="descricao"
             value={formData.descricao}
             onChange={handleInputChange}
-            placeholder="Descreva brevemente o seu serviço..."
+            placeholder="Descreva brevemente o seu negócio..."
             className="border-border bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm"
             rows={3}
           />
@@ -276,7 +295,7 @@ export function ServicoForm({ telefoneConta }: { telefoneConta: string }) {
               href="/termos"
               className="text-primary-500 underline hover:no-underline"
             >
-              Termos de Prestador
+              Termos de Uso pra Negócios
             </Link>
           </label>
         </div>

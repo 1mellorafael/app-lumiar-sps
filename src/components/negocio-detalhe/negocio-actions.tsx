@@ -19,7 +19,7 @@ export function VoltarButton() {
   )
 }
 
-export function ServicoActions({ nomeServico }: { nomeServico: string }) {
+export function NegocioActions({ nomeNegocio }: { nomeNegocio: string }) {
   const [copiado, setCopiado] = useState<'sucesso' | 'erro' | null>(null)
 
   async function copiarLink() {
@@ -35,7 +35,7 @@ export function ServicoActions({ nomeServico }: { nomeServico: string }) {
   async function compartilhar() {
     if (navigator.share) {
       try {
-        await navigator.share({ title: nomeServico, url: window.location.href })
+        await navigator.share({ title: nomeNegocio, url: window.location.href })
       } catch (e) {
         if ((e as Error).name !== 'AbortError') {
           await copiarLink()

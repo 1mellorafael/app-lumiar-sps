@@ -11,9 +11,9 @@ import {
   PASSWORD_STRENGTH_LABEL,
 } from '@/lib/password-strength'
 
-// Cadastro de CONTA só — cadastro de serviço é uma etapa separada
-// (/cadastro-servico), não amarrada aqui. Conta serve pra qualquer
-// morador, não só pra quem presta serviço.
+// Cadastro de CONTA só — cadastro de negócio é uma etapa separada
+// (/cadastro-negocio), não amarrada aqui. Conta serve pra qualquer
+// morador, não só pra quem tem negócio.
 export default function CadastroPage() {
   const [formData, setFormData] = useState({
     nome: '',
@@ -118,7 +118,7 @@ export default function CadastroPage() {
         </div>
         <div className="flex w-full flex-col gap-2">
           <Button asChild className="w-full">
-            <Link href="/cadastro-servico">Cadastrar meu serviço</Link>
+            <Link href="/cadastro-negocio">Cadastrar meu negócio</Link>
           </Button>
           <Button asChild variant="outline" className="w-full">
             <Link href="/menu">Ir pro Menu</Link>
@@ -142,7 +142,7 @@ export default function CadastroPage() {
       <div>
         <h1 className="text-primary-500 text-lg font-bold">Criar Conta</h1>
         <p className="text-muted-foreground text-sm">
-          Pra prestar serviço, sugerir algo ou participar da comunidade
+          Pra ter um negócio, sugerir algo ou participar da comunidade
         </p>
       </div>
 

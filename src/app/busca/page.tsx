@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useRef, useEffect } from 'react'
 import { Search, X, ChevronLeft, ChevronRight } from 'lucide-react'
-import { CATEGORIAS, PRESTADORES } from '@/lib/mock-data'
+import { CATEGORIAS, NEGOCIOS } from '@/lib/mock-data'
 import { normalizeSearch } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { ViewToggle, type ViewMode } from '@/components/shared/view-toggle'
@@ -42,10 +42,10 @@ export default function BuscaPage() {
   const resultados = useMemo(() => {
     if (!query) return []
     const q = normalizeSearch(query)
-    return PRESTADORES.filter(
-      (p) =>
-        normalizeSearch(p.nomeServico).includes(q) ||
-        normalizeSearch(p.descricao).includes(q)
+    return NEGOCIOS.filter(
+      (n) =>
+        normalizeSearch(n.nomeNegocio).includes(q) ||
+        normalizeSearch(n.descricao).includes(q)
     )
   }, [query])
 
@@ -75,7 +75,7 @@ export default function BuscaPage() {
               if (e.key === 'Enter') inputRef.current?.blur()
             }}
             enterKeyHint="search"
-            placeholder="Buscar por nome ou serviço..."
+            placeholder="Buscar por nome ou negócio..."
             className="pl-8 pr-8"
           />
           {query && (
@@ -116,7 +116,7 @@ export default function BuscaPage() {
 
           {paginados.length === 0 ? (
             <p className="text-muted-foreground py-8 text-center text-sm">
-              Nenhum serviço encontrado.
+              Nenhum negócio encontrado.
             </p>
           ) : (
             <>
@@ -129,10 +129,10 @@ export default function BuscaPage() {
                     : 'flex flex-col gap-2'
                 }
               >
-                {paginados.map((prestador) => (
+                {paginados.map((negocio) => (
                   <ServiceCard
-                    key={prestador.id}
-                    prestador={prestador}
+                    key={negocio.id}
+                    negocio={negocio}
                     view={view}
                     variant={view === 'cards' ? cardVariant : listVariant}
                   />

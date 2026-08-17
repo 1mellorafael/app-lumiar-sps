@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { statusPrestadorSchema } from '@/lib/validations/admin'
+import { statusNegocioSchema } from '@/lib/validations/admin'
 import { createClient } from '@/lib/supabase/server'
 
 export async function PATCH(
@@ -29,16 +29,16 @@ export async function PATCH(
   }
 
   const body = await request.json().catch(() => null)
-  const parsed = statusPrestadorSchema.safeParse(body)
+  const parsed = statusNegocioSchema.safeParse(body)
 
   if (!parsed.success) {
     return NextResponse.json({ error: 'Dados inválidos' }, { status: 400 })
   }
 
   // whitelist explícita: admin só muda status, nunca outros campos do
-  // prestador — isso continua sendo papel do dono (CLAUDE.md item 8)
+  // negócio — isso continua sendo papel do dono (CLAUDE.md item 8)
   const { error } = await supabase
-    .from('prestadores')
+    .from('negocios')
     .update({ status: parsed.data.status })
     .eq('id', id)
 

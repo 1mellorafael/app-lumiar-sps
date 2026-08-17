@@ -13,10 +13,16 @@ precisar de mais detalhe do que está aqui.
 
 ## 1. O que é o projeto
 
-App web (PWA) que conecta prestadores de serviço a clientes em Lumiar e
+App web (PWA) que conecta negócios locais a clientes em Lumiar e
 São Pedro da Serra (distritos de Nova Friburgo, RJ), substituindo grupos
-de WhatsApp caóticos. Gratuito pro prestador, sem comissão. Navegável sem
-login; login só é exigido pra cadastrar um serviço.
+de WhatsApp caóticos. Gratuito pro negócio, sem comissão. Navegável sem
+login; login só é exigido pra cadastrar um negócio.
+
+**Nomenclatura (decisão de 17/08):** o app chama de "negócio", não
+"prestador" — mesma terminologia do Nextdoor ("Business"), sem distinguir
+por porte. Tabela no banco: `negocios`. Rotas: `/cadastro-negocio`,
+`/negocio/[id]`. Documentos mais antigos neste repo podem citar
+"prestador"/"serviço" — trate como sinônimo histórico do mesmo conceito.
 
 ---
 
@@ -120,7 +126,7 @@ Custo mensal do MVP: R$ 0 (free tiers).
 ### Dentro do V0
 
 - Navegação livre, sem login
-- Cadastro de Prestador de Serviço (login só exigido aqui)
+- Cadastro de Negócio (login só exigido aqui)
 - Categorias: Motoboy, Faxina, Mototáxi, Uber, Estética, Adestramento,
   Hospedagem Pet, Lojas, Babá, Educação, Psicólogo, Artes
 - Botão de WhatsApp em cada perfil
@@ -133,7 +139,7 @@ Custo mensal do MVP: R$ 0 (free tiers).
 
 ### Fora do V0 (adiado, não cancelado — ver `docs/06_VISAO_LONGO_PRAZO.md`)
 
-- Negócio/CNPJ, badge automático, galeria de negócio
+- Verificação por CNPJ, badge automático (negócio verificado)
 - Avaliações/rating
 - Feed de notícias/eventos (substituído pelo widget de Clima)
 - Status "disponível agora" / online-offline
@@ -170,23 +176,24 @@ Senha + Confirmar Senha ← medidor de força, precisam bater
   serviço" (vai pra /cadastro-servico) ou "Ir pro Menu"
 ```
 
-### `/cadastro-servico` — Cadastrar Serviço (exige login; quem não tem
+### `/cadastro-negocio` — Cadastrar Negócio (exige login; quem não tem
 conta é mandado pro login, que linka pra `/cadastro`)
 
 ```
 Foto Principal (obrigatória — centro do card)
 Foto de Capa (opcional — fundo atrás da principal)
 Categoria (dropdown)
-Nome do Serviço (opcional)   ← auto-capitaliza
-Telefone de contato do serviço ← campo próprio, pode ser diferente do
+Nome do Negócio (opcional)   ← auto-capitaliza
+Telefone de contato do negócio ← campo próprio, pode ser diferente do
   telefone da conta (pré-preenchido com ele, mas editável — ver seção
   "Cadastro por terceiro" em docs/06)
+Horário de funcionamento (opcional) ← texto livre
 Descrição (opcional)         ← auto-capitaliza
 Instagram (opcional)
-☑️ Termos de Prestador
+☑️ Termos de Uso pra Negócios
 
 → Status PENDENTE
-→ Cai na tela do próprio serviço (não no formulário) — galeria de fotos
+→ Cai na tela do próprio negócio (não no formulário) — galeria de fotos
   (até 5) é adicionada lá, não durante o cadastro
 ```
 
@@ -198,15 +205,16 @@ Ver `docs/03_ARQUITETURA_TECNICA.md` pro schema SQL completo. Resumo:
 
 - `profiles` — dados extras do usuário (auth/senha ficam no `auth.users`
   nativo do Supabase, nunca reimplementar hash de senha)
-- `prestadores` — cada serviço (1 profile pode ter vários), com
+- `negocios` — cada negócio (1 profile pode ter vários), com
   `foto_principal_url` (obrigatória) + `foto_capa_url` (opcional)
-- `galeria_fotos` — até 5 por prestador, adicionadas pós-cadastro
+- `galeria_fotos` — até 5 por negócio, adicionadas pós-cadastro
 - `categorias` — seed com a lista da seção 6
 - `sugestoes` — formulário de sugestão
 
-Sem tabela de avaliação/rating (fora do V0). Sem tabela de negócio/CNPJ
-(fora do V0). Extensões futuras entram via migration nova, nunca
-reescrevendo o que já existe.
+Sem tabela de avaliação/rating (fora do V0). Sem verificação por CNPJ/
+documento (fora do V0 — ver seção 14, badge de negócio verificado é fase
+futura opcional, não bloqueia o cadastro básico). Extensões futuras
+entram via migration nova, nunca reescrevendo o que já existe.
 
 ---
 
@@ -289,8 +297,8 @@ visita), e Menu/Perfil.
 - Não implementar rating/avaliação (fora do V0)
 - Não implementar feed de notícias completo (só o widget de Clima)
 - Não implementar status online/offline
-- Não implementar Negócio/CNPJ
-- Não expor nenhum campo de um cadastro/serviço PENDENTE publicamente,
+- Não implementar verificação por CNPJ/badge automático
+- Não expor nenhum campo de um cadastro/negócio PENDENTE publicamente,
   mesmo os que seriam públicos depois de aprovado
 - Não reimplementar hash de senha manualmente — usar Supabase Auth nativo
 - Não usar `service_role key` no frontend

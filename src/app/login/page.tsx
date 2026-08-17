@@ -55,7 +55,7 @@ export default function LoginPage() {
       <div>
         <h1 className="text-primary-500 text-lg font-bold">Entrar</h1>
         <p className="text-muted-foreground text-sm">
-          Acesse sua conta pra gerenciar seu serviço
+          Acesse sua conta pra gerenciar seu negócio
         </p>
       </div>
 

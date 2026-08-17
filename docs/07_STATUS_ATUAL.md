@@ -1,7 +1,19 @@
 # 📊 STATUS ATUAL — APP DE LUMIAR
 
-**Última atualização:** 17/08/2026 (Fase 3 — Cadastro de Serviço)
-**Fase:** Implementação — Fase 2 (Auth) e Fase 3 (cadastro de serviço real) completas. Fase 5 (Admin) é o próximo passo antes do lançamento (precisa existir pra aprovar os pendentes)
+**Última atualização:** 17/08/2026 (Fase 5 — Admin + rename pra "Negócio")
+**Fase:** Implementação — Fase 2 (Auth), Fase 3 (cadastro de negócio real) e Fase 5 mínima (Admin) completas. Próximo passo: Fase 3 item 10 (editar negócio, galeria) e Fase 4 (Perfil/Menu completo)
+
+## ⚠️ Rename de terminologia (17/08): "prestador" → "negócio"
+
+Decisão do dia: app usa "negócio" em vez de "prestador/serviço" — mesma
+terminologia do Nextdoor ("Business"). Tabela `prestadores` virou
+`negocios` (migration `0010`), rotas `/cadastro-negocio` e
+`/negocio/[id]`. **Documentos escritos antes de 17/08 neste repo ainda
+citam "prestador"/"serviço" em partes históricas — são o mesmo conceito
+com nome antigo, não reescrevi retroativamente todo o histórico.** Único
+nome interno que ficou como estava de propósito: o bucket de Storage
+(`prestador-fotos`) — renomear exigiria mover cada arquivo já salvo, sem
+ganho real (usuário nunca vê esse nome).
 
 ---
 
@@ -9,25 +21,27 @@
 
 | Rota/Tela | Arquivo | Estado |
 |---|---|---|
-| Home | `src/app/page.tsx` | ✅ Grade de módulos, clima compacto |
-| Busca/Categorias | `src/app/busca/page.tsx` + `[slug]` | ✅ Grid + toggle Cards/Lista, busca normalizada (sem acento/maiúscula), dispensa teclado ao rolar/Enter/botão limpar. Ainda lê de `mock-data.ts`, não do banco real |
-| Detalhe do Serviço | `src/app/servico/[id]/page.tsx` | ✅ Server Component — se o id é UUID, busca `prestadores` real (RLS: pendente só o dono vê) com foto via URL assinada; senão cai no mock (compat com Busca/Categorias, que ainda não migraram) |
-| Cadastro (UI + Auth + Serviço) | `src/app/cadastro/page.tsx` | ✅ Passo 1 grava conta real via Supabase Auth (`/api/auth/cadastro`). Passo 2 grava serviço real via `/api/prestadores` (`multipart/form-data`): upload de foto principal (obrigatória) + capa (opcional) pro Storage privado, telefone de contato próprio (separado do telefone da conta), categoria validada contra a lista canônica. Cai na tela do próprio serviço, `status: pendente` |
+| Home | `src/app/page.tsx` | ✅ Grade de módulos. Clima removido da Home (fica só em Úteis) |
+| Busca/Categorias | `src/app/busca/page.tsx` + `[slug]` | ✅ Grid + toggle Cards/Lista, busca normalizada (sem acento/maiúscula), dispensa teclado ao rolar/Enter/botão limpar. Cards sem descrição (só no detalhe). Ainda lê de `mock-data.ts`, não do banco real |
+| Detalhe do Negócio | `src/app/negocio/[id]/page.tsx` | ✅ Server Component — se o id é UUID, busca `negocios` real (RLS: pendente só dono/admin vê) com foto via URL assinada; senão cai no mock (compat com Busca/Categorias, que ainda não migraram) |
+| Cadastro de conta | `src/app/cadastro/page.tsx` | ✅ Só cria a conta via Supabase Auth (`/api/auth/cadastro`) — **não** força cadastro de negócio em seguida, tela de sucesso oferece "Cadastrar meu negócio" ou "Ir pro Menu" |
+| Cadastro de negócio | `src/app/cadastro-negocio/page.tsx` | ✅ Tela própria, exige login (manda pro `/login` senão). Upload de foto principal (obrigatória) + capa (opcional), telefone de contato próprio, horário de funcionamento (opcional, texto livre), categoria validada. Cai na tela do próprio negócio, `status: pendente` |
+| Admin | `src/app/admin/page.tsx` | ✅ Lista pendentes, aprova/rejeita. Card mostra só o essencial pra escanear rápido (foto, nome, categoria, quem cadastrou) — telefone/descrição só no clique. Link só aparece no Menu pra quem é `is_admin` |
 | Login | `src/app/login/page.tsx` | ✅ Login real via `/api/auth/login` |
-| Menu | `src/app/menu/page.tsx` | ✅ Reflete sessão real (Server Component), botão Sair funcional, "Meus serviços" ainda placeholder (Fase 4) |
-| Úteis | `src/app/uteis/page.tsx` | ✅ Clima (semana completa), ônibus, telefones — dados ilustrativos, não vêm de fonte real ainda |
+| Menu | `src/app/menu/page.tsx` | ✅ 3 estados reais: deslogado (Fazer login + Criar conta), logado sem negócio (Cadastrar negócio), logado com negócio (Meus negócios, contador) |
+| Úteis | `src/app/uteis/page.tsx` | ✅ Clima com toggle Lumiar/SPS (dados ainda ilustrativos), ônibus, telefones |
 | Termos / Privacidade | `src/app/termos/page.tsx`, `privacidade/page.tsx` | ✅ Texto placeholder publicado (a própria página já avisa "versão preliminar, revisão jurídica antes do lançamento") |
 | PWA | manifest + ícones | ✅ Instalação funcional (Android 1-clique, iOS passo a passo) |
-| Motion/toque | `globals.css` + 9 componentes | ✅ Tokens Material Design 3 (`ease-standard`, `ease-decelerate`), feedback de toque consistente em todos os cards/botões/nav |
+| Motion/toque | `globals.css` + componentes | ✅ Todo card segue o mesmo sistema de sombra/toque (regra formal no CLAUDE.md §9 desde 17/08) |
 
 ## O que NÃO está construído ainda
 
-- **Admin Dashboard** — aprovação de serviço pendente não existe ainda (Fase 5). **Bloqueia o lançamento**: sem isso, todo cadastro fica pendente pra sempre, ninguém aparece na Busca
-- **Galeria de fotos, editar serviço** — Fase 3 item 10 ("tela pós-cadastro modo dono"), ainda não construído. Hoje dá pra criar o serviço, não pra editar depois
+- **Galeria de fotos, editar negócio** — Fase 3 item 10 ("tela pós-cadastro modo dono"), ainda não construído. Hoje dá pra criar o negócio, não pra editar depois
 - **Busca/Categorias ainda em mock** — só o cadastro e a página de detalhe leem do banco real; listagem/filtro por categoria continua em `mock-data.ts`
 - **i18n** — só português, toggle de idioma ainda não funcional
-- **Comunidade** (Colunas, Carona, Corrida, Alerta, Pede Aí, Selo) — Fase 8, não iniciada
+- **Comunidade** (Colunas, Carona, Corrida, Alerta, Pede Aí, Selo) — Fase 8, não iniciada. Ordem revisada em 17/08 (ver `11_PLANO_IMPLEMENTACAO.md`) pra priorizar Alerta (retenção) logo após o Admin
 - **SMTP customizado (Resend)** — Auth ainda usa o provedor de email padrão do Supabase, com rate limit agressivo (poucos emails/hora). Precisa configurar antes do lançamento (pendência já registrada no `08_PENDENCIAS_ABERTAS.md`)
+- **Admin "criar perfil manualmente"** — item do plano original da Fase 5, não construído ainda (não bloqueia, é conveniência)
 
 ## Correção feita em 16/08 — Fase 2, Auth
 
@@ -73,19 +87,19 @@ problema real depois do lançamento, reavaliar.
 
 ## Próximas etapas (em ordem)
 
-1. **Fase 5 — Admin Dashboard**: aprovação manual — bloqueia o lançamento, sem isso nenhum cadastro sai de pendente
-2. **Fase 3, item 10 — Tela pós-cadastro (modo dono)**: editar serviço, galeria de fotos (hoje só dá pra criar, não editar)
-3. **Fase 4 — Perfil/Menu**: "Meus Serviços" de verdade (hoje é placeholder desabilitado)
-4. Validação com prestadores reais continua pendente (falar com 5-10 prestadores) — não é bloqueio técnico, é validação de produto
+1. **Fase 3, item 10 — Tela pós-cadastro (modo dono)**: editar negócio, galeria de fotos (hoje só dá pra criar, não editar)
+2. **Fase 4 — Perfil/Menu**: "Meus Negócios" de verdade (hoje é placeholder desabilitado quando já tem ≥1)
+3. **Fase 8, item B — Morador account**: pré-requisito do Alerta (item C), pra quem só quer reportar sem ser dono de negócio
+4. Validação com negócios reais continua pendente (falar com 5-10 donos) — não é bloqueio técnico, é validação de produto
 
-## Teste ponta a ponta (Fase 2 + Fase 3) — feito em 17/08
+## Teste ponta a ponta (Fase 2 + 3 + 5) — feito em 17/08
 
 Happy-path completo testado de verdade: cadastro de conta (sem gate de
-confirmação de email, decisão acima) → login → Passo 2 com upload de
-foto real → prestador criado com `status: pendente` → RLS bloqueia
-visitante não-dono (confirmado: "Serviço não encontrado" pra quem não é
-dono) → dono vê a própria página com banner de "em análise" → foto
-carrega via URL assinada. Dados de teste removidos do banco depois.
+confirmação de email, decisão acima) → login → cadastro de negócio com
+upload de foto real → `status: pendente` → RLS bloqueia visitante
+não-dono/não-admin → dono vê a própria página com banner de "em
+análise" → admin aprova pelo dashboard → status vira `ativo`. Dados de
+teste removidos do banco depois de cada rodada.
 
 ## Pendências que ainda precisam de decisão sua
 

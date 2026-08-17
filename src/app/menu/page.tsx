@@ -18,13 +18,13 @@ export default async function MenuPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // "Cadastrar serviço" só faz sentido pra quem ainda não tem nenhum —
+  // "Cadastrar negócio" só faz sentido pra quem ainda não tem nenhum —
   // uma vez que tem, a ação de adicionar mais um vive dentro de "Meus
-  // Serviços", não como item concorrente no Menu principal
-  const { data: servicosDoUsuario } = user
-    ? await supabase.from('prestadores').select('id').eq('profile_id', user.id)
+  // Negócios", não como item concorrente no Menu principal
+  const { data: negociosDoUsuario } = user
+    ? await supabase.from('negocios').select('id').eq('profile_id', user.id)
     : { data: null }
-  const totalServicos = servicosDoUsuario?.length ?? 0
+  const totalNegocios = negociosDoUsuario?.length ?? 0
 
   const { data: profile } = user
     ? await supabase.from('profiles').select('is_admin').eq('id', user.id).single()
@@ -34,7 +34,7 @@ export default async function MenuPage() {
     <main className="mx-auto flex max-w-md flex-col gap-2 p-4">
       <h1 className="text-primary-500 mb-2 text-lg font-bold">Menu</h1>
 
-      <AccountSection loggedIn={!!user} totalServicos={totalServicos} />
+      <AccountSection loggedIn={!!user} totalNegocios={totalNegocios} />
 
       {profile?.is_admin && (
         <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-3">

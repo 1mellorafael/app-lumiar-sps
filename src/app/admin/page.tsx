@@ -22,38 +22,37 @@ export default async function AdminPage() {
 
   if (!profile?.is_admin) redirect('/')
 
-  const { data: prestadoresRaw } = await supabase
-    .from('prestadores')
+  const { data: negociosRaw } = await supabase
+    .from('negocios')
     .select(
-      'id, nome_servico, categoria, descricao, telefone_contato, foto_principal_url, created_at, profiles(nome)'
+      'id, nome_negocio, categoria, foto_principal_url, created_at, profiles(nome)'
     )
     .eq('status', 'pendente')
     .order('created_at', { ascending: true })
 
-  // profile_id → profiles é N:1 (cada prestador tem 1 dono), então o
+  // profile_id → profiles é N:1 (cada negócio tem 1 dono), então o
   // embed vem como objeto — o tipo inferido pelo client (sem schema
   // gerado) assume array por segurança, mas em runtime é singular
-  const prestadores = prestadoresRaw as unknown as Array<{
+  const negocios = negociosRaw as unknown as Array<{
     id: string
-    nome_servico: string | null
+    nome_negocio: string | null
     categoria: string
-    descricao: string | null
-    telefone_contato: string
     foto_principal_url: string | null
     created_at: string
     profiles: { nome: string } | null
   }> | null
 
+  // Telefone e descrição completa ficam só no clique (/negocio/[id]) —
+  // o card serve pra escanear rápido uma fila de pendentes, não pra ler
+  // tudo ali (decisão de 17/08)
   const pendentes = await Promise.all(
-    (prestadores ?? []).map(async (p) => ({
-      id: p.id,
-      nomeServico: p.nome_servico || 'Serviço sem nome',
-      categoriaNome: getCategoria(p.categoria)?.nome ?? p.categoria,
-      telefoneContato: p.telefone_contato,
-      descricao: p.descricao,
-      fotoPrincipalUrl: await fotoSignedUrl(p.foto_principal_url),
-      criadoEm: p.created_at,
-      criadoPor: p.profiles?.nome ?? 'Desconhecido',
+    (negocios ?? []).map(async (n) => ({
+      id: n.id,
+      nomeNegocio: n.nome_negocio || 'Negócio sem nome',
+      categoriaNome: getCategoria(n.categoria)?.nome ?? n.categoria,
+      fotoPrincipalUrl: await fotoSignedUrl(n.foto_principal_url),
+      criadoEm: n.created_at,
+      criadoPor: n.profiles?.nome ?? 'Desconhecido',
     }))
   )
 
@@ -78,8 +77,8 @@ export default async function AdminPage() {
       </div>
 
       <div className="flex flex-col gap-3">
-        {pendentes.map((p) => (
-          <PendenteCard key={p.id} pendente={p} />
+        {pendentes.map((n) => (
+          <PendenteCard key={n.id} pendente={n} />
         ))}
       </div>
     </main>

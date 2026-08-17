@@ -72,7 +72,7 @@ export default function UteisPage() {
           itens equivalentes (nome + número), então é a única que responde
           ao toggle Cards/Lista de verdade: lista agrupada por categoria,
           ou grade compacta de contatos (mesmo padrão visual dos cards de
-          prestador). Se Úteis ganhar mais seções tipo-coleção no futuro
+          negócio). Se Úteis ganhar mais seções tipo-coleção no futuro
           (Alerta, Eventos), vale reavaliar se o toggle deve virar global
           de novo em vez de só desta seção. */}
       <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-4">

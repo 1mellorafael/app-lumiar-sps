@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 export const metadata: Metadata = {
   title: 'App de Lumiar',
   description:
-    'Conecta prestadores de serviço a clientes em Lumiar e São Pedro da Serra',
+    'Conecta negócios locais a clientes em Lumiar e São Pedro da Serra',
   manifest: '/manifest.json',
   icons: {
     icon: [

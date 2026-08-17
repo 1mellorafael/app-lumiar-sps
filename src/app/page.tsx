@@ -17,12 +17,12 @@ export default function Home() {
           Anúncio fica até decisão de rede de ads (pendência aberta). */}
       <div className="grid grid-cols-2 gap-2">
         <a
-          href="/cadastro-servico"
+          href="/cadastro-negocio"
           className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col items-start gap-1 rounded-lg border p-3 transition-all duration-200 ease-decelerate"
         >
           <Briefcase className="text-primary-500 size-5" />
           <p className="text-card-foreground text-xs font-medium">
-            Presta serviço?
+            Tem um negócio?
           </p>
           <span className="text-primary-500 inline-flex items-center gap-0.5 text-xs font-semibold">
             Cadastre-se <ArrowRight className="size-3" />

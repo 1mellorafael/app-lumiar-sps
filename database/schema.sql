@@ -73,41 +73,48 @@ create policy "profiles_select_admin"
 -- não por insert direto do cliente — ver seção de trigger abaixo
 
 -- ============================================================
--- prestadores: cada serviço (1 profile pode ter vários)
+-- negocios: cada negócio cadastrado (1 profile pode ter vários)
 -- ============================================================
-create table prestadores (
+-- Nome "negócio" (não "prestador") por decisão de 17/08 — mesma
+-- terminologia do Nextdoor ("Business"), sem distinção de porte. Deles
+-- verificação com documento é opcional (badge), não bloqueia o cadastro
+-- básico — mesma filosofia do cadastro leve já usada aqui.
+create table negocios (
   id uuid primary key default gen_random_uuid(),
   profile_id uuid not null references profiles(id) on delete cascade,
-  nome_servico varchar(255),
+  nome_negocio varchar(255),
   categoria varchar(100) not null,
   descricao text,
   foto_principal_url varchar(500) not null,
   foto_capa_url varchar(500),
   instagram varchar(255),
-  -- telefone do SERVIÇO, separado do telefone da conta (profiles.telefone)
+  -- telefone do NEGÓCIO, separado do telefone da conta (profiles.telefone)
   -- — quem cadastra e quem atende podem ser pessoas diferentes (ver docs/06,
   -- "Cadastro por terceiro")
   telefone_contato varchar(20) not null,
+  -- opcional — texto livre por enquanto (ex: "Seg-Sex, 8h-18h"), não
+  -- estruturado por dia/horário ainda
+  horario_funcionamento varchar(255),
   status varchar(20) not null default 'pendente', -- pendente | ativo | rejeitado
   created_at timestamptz not null default now()
 );
 
-create index prestadores_profile_id_idx on prestadores (profile_id);
-create index prestadores_status_idx on prestadores (status);
+create index negocios_profile_id_idx on negocios (profile_id);
+create index negocios_status_idx on negocios (status);
 
-alter table prestadores enable row level security;
+alter table negocios enable row level security;
 
--- público (deslogado) só vê prestadores com status ativo (regra de
+-- público (deslogado) só vê negócios com status ativo (regra de
 -- sensibilidade: pendente é 100% privado, nenhum campo vaza)
-create policy "prestadores_select_anon"
-  on prestadores for select
+create policy "negocios_select_anon"
+  on negocios for select
   to anon
   using (status = 'ativo');
 
 -- authenticated vê ativos (público) OU os próprios, independente do
 -- status — policy única pra evitar multiple permissive policies
-create policy "prestadores_select_authenticated"
-  on prestadores for select
+create policy "negocios_select_authenticated"
+  on negocios for select
   to authenticated
   using (
     status = 'ativo'
@@ -116,51 +123,51 @@ create policy "prestadores_select_authenticated"
   );
 
 -- dono cria só pra si mesmo
-create policy "prestadores_insert_own"
-  on prestadores for insert
+create policy "negocios_insert_own"
+  on negocios for insert
   to authenticated
   with check ((select auth.uid()) = profile_id);
 
 -- dono edita só os próprios; "status" não entra no whitelist de campos
 -- editáveis pelo cliente — isso é reforçado na API route (Zod schema),
 -- não só aqui
-create policy "prestadores_update_own"
-  on prestadores for update
+create policy "negocios_update_own"
+  on negocios for update
   to authenticated
   using ((select auth.uid()) = profile_id)
   with check ((select auth.uid()) = profile_id);
 
 -- admin muda só o status (aprovar/rejeitar) — editar os outros campos
 -- continua sendo papel do dono, não do admin
-create policy "prestadores_update_status_admin"
-  on prestadores for update
+create policy "negocios_update_status_admin"
+  on negocios for update
   to authenticated
   using (public.is_admin())
   with check (public.is_admin());
 
 -- ============================================================
--- galeria_fotos: até 5 por prestador, adicionadas pós-cadastro
+-- galeria_fotos: até 5 por negócio, adicionadas pós-cadastro
 -- ============================================================
 create table galeria_fotos (
   id uuid primary key default gen_random_uuid(),
-  prestador_id uuid not null references prestadores(id) on delete cascade,
+  negocio_id uuid not null references negocios(id) on delete cascade,
   foto_url varchar(500) not null,
   ordem int not null default 0
 );
 
-create index galeria_fotos_prestador_id_idx on galeria_fotos (prestador_id);
+create index galeria_fotos_negocio_id_idx on galeria_fotos (negocio_id);
 
 alter table galeria_fotos enable row level security;
 
--- galeria segue a visibilidade do prestador dono (ativo = público)
+-- galeria segue a visibilidade do negócio dono (ativo = público)
 create policy "galeria_select_anon"
   on galeria_fotos for select
   to anon
   using (
     exists (
-      select 1 from prestadores
-      where prestadores.id = galeria_fotos.prestador_id
-        and prestadores.status = 'ativo'
+      select 1 from negocios
+      where negocios.id = galeria_fotos.negocio_id
+        and negocios.status = 'ativo'
     )
   );
 
@@ -169,11 +176,11 @@ create policy "galeria_select_authenticated"
   to authenticated
   using (
     exists (
-      select 1 from prestadores
-      where prestadores.id = galeria_fotos.prestador_id
+      select 1 from negocios
+      where negocios.id = galeria_fotos.negocio_id
         and (
-          prestadores.status = 'ativo'
-          or prestadores.profile_id = (select auth.uid())
+          negocios.status = 'ativo'
+          or negocios.profile_id = (select auth.uid())
         )
     )
   );
@@ -183,9 +190,9 @@ create policy "galeria_insert_own"
   to authenticated
   with check (
     exists (
-      select 1 from prestadores
-      where prestadores.id = galeria_fotos.prestador_id
-        and prestadores.profile_id = (select auth.uid())
+      select 1 from negocios
+      where negocios.id = galeria_fotos.negocio_id
+        and negocios.profile_id = (select auth.uid())
     )
   );
 
@@ -194,9 +201,9 @@ create policy "galeria_delete_own"
   to authenticated
   using (
     exists (
-      select 1 from prestadores
-      where prestadores.id = galeria_fotos.prestador_id
-        and prestadores.profile_id = (select auth.uid())
+      select 1 from negocios
+      where negocios.id = galeria_fotos.negocio_id
+        and negocios.profile_id = (select auth.uid())
     )
   );
 
@@ -291,12 +298,12 @@ create trigger on_auth_user_created
 -- ============================================================
 grant select, update on public.profiles to authenticated;
 -- admin client (service_role) usa isso na checagem de duplicidade de
--- telefone em /api/prestadores — service_role não tem privilégio
+-- telefone em /api/negocios — service_role não tem privilégio
 -- implícito, só o que for concedido explicitamente
 grant select on public.profiles to service_role;
 
-grant select on public.prestadores to anon;
-grant select, insert, update on public.prestadores to authenticated;
+grant select on public.negocios to anon;
+grant select, insert, update on public.negocios to authenticated;
 
 grant select on public.galeria_fotos to anon;
 grant select, insert, delete on public.galeria_fotos to authenticated;
@@ -304,17 +311,22 @@ grant select, insert, delete on public.galeria_fotos to authenticated;
 grant select on public.categorias to anon, authenticated;
 
 -- ============================================================
--- Storage: bucket de fotos de prestador
+-- Storage: bucket de fotos de negócio
 -- ============================================================
 -- Privado — nenhuma foto é acessível por URL direta. Fotos de status
 -- ativo são servidas via URL assinada, gerada pelo backend (service_role,
 -- bypassa RLS) depois de checar status/dono — pendente fica genuinamente
 -- inacessível, não só "difícil de adivinhar" (CLAUDE.md seção 3).
+--
+-- Nome do bucket ("prestador-fotos") ficou como estava mesmo após o
+-- rename pra "negócio" — é um identificador interno, nunca aparece pro
+-- usuário, e renomear exigiria recriar o bucket e mover/re-subir cada
+-- arquivo existente. Sem ganho real, só risco.
 insert into storage.buckets (id, name, public)
 values ('prestador-fotos', 'prestador-fotos', false)
 on conflict (id) do nothing;
 
--- cada prestador só sobe foto na própria pasta: prestador-fotos/{auth.uid()}/...
+-- cada negócio só sobe foto na própria pasta: prestador-fotos/{auth.uid()}/...
 create policy "prestador_fotos_insert_own"
   on storage.objects for insert
   to authenticated
