@@ -1,27 +1,13 @@
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { PageHeader } from '@/components/shared/page-header'
 
 export default function PrivacidadePage() {
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
-      <Link
-        href="/menu"
-        aria-label="Voltar"
-        className="text-neutral-text hover:text-primary-500 flex w-fit items-center gap-1 text-sm font-medium"
-      >
-        <ArrowLeft className="size-4" />
-        Voltar
-      </Link>
-
-      <div>
-        <h1 className="text-primary-500 text-lg font-bold">
-          Política de Privacidade
-        </h1>
-        <p className="text-muted-foreground text-xs">
-          Versão preliminar — texto final revisado com apoio jurídico antes
-          do lançamento público (ver seção 13 do CLAUDE.md do projeto).
-        </p>
-      </div>
+      <PageHeader title="Política de Privacidade" backHref="/menu" />
+      <p className="text-muted-foreground text-center text-xs">
+        Versão preliminar — texto final revisado com apoio jurídico antes do
+        lançamento público (ver seção 13 do CLAUDE.md do projeto).
+      </p>
 
       <div className="text-neutral-text flex flex-col gap-4 text-sm leading-relaxed">
         <section>

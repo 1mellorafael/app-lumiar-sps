@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CATEGORIAS, LOCALIZACOES } from '@/lib/mock-data'
 import { PhotoCropField } from '@/components/cadastro-negocio/photo-crop-field'
 import { AddressAutocomplete } from '@/components/cadastro-negocio/address-autocomplete'
 import { MapEmbed } from '@/components/shared/map-embed'
+import { PageHeader } from '@/components/shared/page-header'
 import { formatarTelefone } from '@/lib/utils'
 
 export type NegocioExistente = {
@@ -157,25 +157,15 @@ export function NegocioForm({
 
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
-      <Link
-        href={editando ? `/negocio/${negocioExistente.id}` : '/menu'}
-        aria-label="Voltar"
-        className="text-neutral-text hover:text-primary-500 flex w-fit items-center gap-1 text-sm font-medium"
-      >
-        <ArrowLeft className="size-4" />
-        Voltar
-      </Link>
-
-      <div>
-        <h1 className="text-primary-500 text-lg font-bold">
-          {editando ? 'Editar Negócio' : 'Cadastrar Negócio'}
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          {editando
-            ? 'As mudanças ficam visíveis na hora'
-            : 'Fica pendente até um admin aprovar'}
-        </p>
-      </div>
+      <PageHeader
+        title={editando ? 'Editar Negócio' : 'Cadastrar Negócio'}
+        backHref={editando ? `/negocio/${negocioExistente.id}` : '/menu'}
+      />
+      <p className="text-muted-foreground text-center text-sm">
+        {editando
+          ? 'As mudanças ficam visíveis na hora'
+          : 'Fica pendente até um admin aprovar'}
+      </p>
 
       <form onSubmit={handleNegocioSubmit} className="flex flex-col gap-3">
         {/* Foto em duas camadas: capa (opcional, banner) + principal
@@ -198,9 +188,12 @@ export function NegocioForm({
             trocarLabel="Trocar capa"
             icon="imagem"
             shape="rect"
-            aspect={6}
+            // Precisa bater com a faixa de verdade em negocio/[id]/page.tsx
+            // (hero h-44, largura cheia) — senão o navegador corta o
+            // recorte já feito de novo pra caber, perdendo pedaço da foto
+            aspect={2.3}
             initialUrl={negocioExistente?.fotoCapaUrl}
-            previewClassName="h-10 w-48"
+            previewClassName="h-14 w-32"
             onFileChange={setFotoCapa}
           />
         </div>

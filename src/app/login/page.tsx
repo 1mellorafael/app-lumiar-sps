@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PageHeader } from '@/components/shared/page-header'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -43,22 +43,10 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
-      <button
-        type="button"
-        onClick={() => router.back()}
-        aria-label="Voltar"
-        className="text-neutral-text hover:text-primary-500 flex w-fit items-center gap-1 text-sm font-medium"
-      >
-        <ArrowLeft className="size-4" />
-        Voltar
-      </button>
-
-      <div>
-        <h1 className="text-primary-500 text-lg font-bold">Entrar</h1>
-        <p className="text-muted-foreground text-sm">
-          Acesse sua conta pra gerenciar seu negócio
-        </p>
-      </div>
+      <PageHeader title="Entrar" />
+      <p className="text-muted-foreground text-center text-sm">
+        Acesse sua conta pra gerenciar seu negócio
+      </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <div>

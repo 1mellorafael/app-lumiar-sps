@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, PlusCircle } from 'lucide-react'
+import { PlusCircle } from 'lucide-react'
 import { getCategoria } from '@/lib/mock-data'
 import { createClient } from '@/lib/supabase/server'
 import { fotoSignedUrl } from '@/lib/supabase/signed-url'
 import { Button } from '@/components/ui/button'
+import { PageHeader } from '@/components/shared/page-header'
 
 const STATUS_LABEL: Record<string, string> = {
   pendente: 'Pendente',
@@ -49,17 +50,9 @@ export default async function MeusNegociosPage() {
 
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
-      <Link
-        href="/menu"
-        aria-label="Voltar"
-        className="text-neutral-text hover:text-primary-500 flex w-fit items-center gap-1 text-sm font-medium"
-      >
-        <ArrowLeft className="size-4" />
-        Voltar
-      </Link>
+      <PageHeader title="Meus Negócios" backHref="/menu" />
 
-      <div className="flex items-center justify-between">
-        <h1 className="text-primary-500 text-lg font-bold">Meus Negócios</h1>
+      <div className="flex justify-end">
         <Button size="sm" asChild>
           <Link href="/cadastro-negocio">
             <PlusCircle className="mr-1.5 size-4" />

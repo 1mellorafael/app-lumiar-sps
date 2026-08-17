@@ -238,15 +238,25 @@ ESPAÇAMENTO: múltiplos de 8px
 - **Foto em duas camadas:** capa (opcional, fundo) + principal
   (obrigatória, círculo central) — sem capa, mostra cor neutra de fundo
 - **Tela de detalhe do negócio (decisão de 17/08, revisa a versão
-  anterior deste documento):** a capa ocupa a tela cheia do topo até o
-  avatar transbordar por baixo dela (referência: apps de delivery tipo
-  iFood), com o botão de voltar flutuando só como seta (sem texto) sobre
-  a própria foto — não reserva mais uma linha de página só pra ele. O
-  nome fica logo abaixo do avatar, mas ganha fundo próprio (pílula com
-  `shadow-[var(--shadow-card)]`) por estar próximo da capa — não é texto
-  solto direto em cima da foto. Esse layout vale só pra tela de detalhe;
-  nos cards de listagem (`service-card.tsx`) o nome continua como texto
-  separado, abaixo da moldura de foto, sem sobreposição nenhuma.
+  anterior deste documento):** a capa ocupa a tela cheia do topo,
+  encostando direto no primeiro card (sem gap) — o avatar fica
+  centralizado, mais pra dentro da capa do que transbordando embaixo
+  dela, com o botão de voltar flutuando só como seta (sem texto) sobre
+  a própria foto. O nome não fica mais na capa — mora dentro do
+  primeiro card ("Informações"), alinhado à esquerda, junto com a
+  categoria (como tag pequena) e a descrição ("Sobre", sem o rótulo
+  escrito). Endereço e telefone ficam num segundo card, separado. Os
+  cards desse card "sangram" até a borda da tela nas laterais — só têm
+  acabamento (borda + sombra) em cima/embaixo, não fecham dos lados.
+  Esse layout vale só pra tela de detalhe; nos cards de listagem
+  (`service-card.tsx`) o nome continua como texto separado, abaixo da
+  moldura de foto, sem sobreposição nenhuma.
+- **Cabeçalho de página interna (decisão de 17/08):** toda tela com
+  título usa `PageHeader` (`src/components/shared/page-header.tsx`) —
+  seta de voltar só ícone (sem "Voltar" escrito) à esquerda + título
+  centralizado, nunca o padrão antigo de link "← Voltar" em texto
+  seguido de `<h1>` solto. Ações extra (toggle, botão de ação) vão numa
+  linha própria abaixo do header, não espremidas do lado do título.
 - Botões de trocar foto ficam **perto** da foto, nunca sobrepostos nela
 - **Todo card usa o mesmo sistema de sombra e feedback de toque**, sem
   exceção — inclusive telas internas/admin, não só as públicas:

@@ -25,5 +25,11 @@ export const loginSchema = z.object({
   senha: z.string().min(1, 'Senha obrigatória'),
 })
 
+export const perfilSchema = z.object({
+  nome: z.string().trim().min(2, 'Nome muito curto').max(255),
+  telefone: telefoneSchema,
+})
+
 export type CadastroInput = z.infer<typeof cadastroSchema>
 export type LoginInput = z.infer<typeof loginSchema>
+export type PerfilInput = z.infer<typeof perfilSchema>

@@ -5,20 +5,6 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Link2, Share2, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export function VoltarButton() {
-  const router = useRouter()
-  return (
-    <button
-      onClick={() => router.back()}
-      aria-label="Voltar"
-      className="text-neutral-text hover:text-primary-500 flex w-fit items-center gap-1 text-sm font-medium"
-    >
-      <ArrowLeft className="size-4" />
-      Voltar
-    </button>
-  )
-}
-
 // Só a seta, flutuando sobre a foto de capa — sem texto "Voltar" porque
 // aqui não sobra espaço de página nenhum reservado só pra ela (referência:
 // apps de delivery, seta sobre a própria imagem)

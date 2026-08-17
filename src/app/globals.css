@@ -2,6 +2,19 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
+/* App é majoritariamente acessado por touch (mobile-first) — sem essa
+   guarda, todo hover: do Tailwind vira :hover puro, que em touch "gruda"
+   depois do toque (o estado de hover só some no próximo toque em outro
+   lugar). (hover: hover) só é verdadeiro em dispositivo com mouse/trackpad
+   de verdade; feedback de toque continua vindo do active:, que não muda. */
+@custom-variant hover {
+  @media (hover: hover) {
+    &:hover {
+      @slot;
+    }
+  }
+}
+
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 

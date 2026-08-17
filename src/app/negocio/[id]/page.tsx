@@ -189,7 +189,7 @@ export default async function NegocioPage({
             embaixo — o nome não fica mais aqui, foi pro card de Informações */}
         <div className="absolute left-1/2 bottom-2 -translate-x-1/2 translate-y-1/4">
           <div
-            className={`border-background flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 shadow-[0_2px_6px_rgb(0_0_0_/_0.15)] text-lg font-semibold text-white ${avatarColor(dados.id)}`}
+            className={`border-background flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 shadow-[0_2px_6px_rgb(0_0_0_/_0.15)] text-lg font-semibold text-white ${avatarColor(dados.id)}`}
           >
             {dados.fotoPrincipalUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -236,12 +236,7 @@ export default async function NegocioPage({
             {dados.categoriaNome}
           </span>
           {dados.descricao && (
-            <>
-              <h2 className="text-neutral-text pt-2 text-sm font-semibold uppercase tracking-wide">
-                Sobre
-              </h2>
-              <p className="text-card-foreground text-sm">{dados.descricao}</p>
-            </>
+            <p className="text-card-foreground pt-2 text-sm">{dados.descricao}</p>
           )}
         </section>
 
@@ -268,7 +263,7 @@ export default async function NegocioPage({
             href={`https://instagram.com/${dados.instagram}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="border-border/70 bg-card text-card-foreground shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] flex items-center gap-2 border-y px-4 py-4 text-sm font-medium transition-all duration-200 ease-out"
+            className="border-border/70 bg-card text-card-foreground shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.98] flex items-center gap-2 border-y px-4 py-4 text-sm font-medium transition-all duration-200 ease-decelerate"
           >
             <Instagram className="text-primary-500 size-4" />@{dados.instagram}
           </a>
@@ -278,7 +273,7 @@ export default async function NegocioPage({
           href={whatsappHref(dados.whatsapp, dados.nomeNegocio)}
           target="_blank"
           rel="noopener noreferrer"
-          className="bg-whatsapp mx-4 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-black transition-opacity ease-out hover:opacity-90"
+          className="bg-whatsapp active:scale-[0.98] active:translate-y-px mx-4 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-black transition-all duration-150 ease-standard hover:opacity-90"
         >
           <MessageCircle className="size-4" />
           Chamar no WhatsApp
@@ -287,7 +282,7 @@ export default async function NegocioPage({
         {dados.souDono && (
           <Link
             href={`/negocio/${dados.id}/editar`}
-            className="border-border text-neutral-text hover:bg-muted mx-4 flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors"
+            className="border-border text-neutral-text hover:bg-muted active:scale-[0.98] active:translate-y-px mx-4 flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-all duration-150 ease-standard"
           >
             <Pencil className="size-4" />
             Editar negócio

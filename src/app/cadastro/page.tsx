@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { ArrowLeft, Check } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PageHeader } from '@/components/shared/page-header'
 import { capitalizeWords, formatarTelefone } from '@/lib/utils'
 import {
   getPasswordStrength,
@@ -16,7 +16,6 @@ import {
 // (/cadastro-negocio), não amarrada aqui. Conta serve pra qualquer
 // morador, não só pra quem tem negócio.
 export default function CadastroPage() {
-  const router = useRouter()
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
@@ -124,22 +123,10 @@ export default function CadastroPage() {
 
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
-      <button
-        type="button"
-        onClick={() => router.back()}
-        aria-label="Voltar"
-        className="text-neutral-text hover:text-primary-500 flex w-fit items-center gap-1 text-sm font-medium"
-      >
-        <ArrowLeft className="size-4" />
-        Voltar
-      </button>
-
-      <div>
-        <h1 className="text-primary-500 text-lg font-bold">Criar Conta</h1>
-        <p className="text-muted-foreground text-sm">
-          Pra ter um negócio, sugerir algo ou participar da comunidade
-        </p>
-      </div>
+      <PageHeader title="Criar Conta" />
+      <p className="text-muted-foreground text-center text-sm">
+        Pra ter um negócio, sugerir algo ou participar da comunidade
+      </p>
 
       <form onSubmit={handleAccountSubmit} className="flex flex-col gap-3">
         <div>

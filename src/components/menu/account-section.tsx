@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { LogIn, LogOut, Briefcase, PlusCircle } from 'lucide-react'
+import { LogIn, LogOut, Briefcase, PlusCircle, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 // Nunca recebe/exibe email — CLAUDE.md seção 10: "Dados privados (email)
@@ -31,11 +31,23 @@ export function AccountSection({
   return (
     <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-3">
       <div className="flex items-center gap-2">
-        <LogIn className="text-primary-500 size-4" />
-        <h2 className="text-neutral-text text-sm font-semibold">Conta</h2>
+        {loggedIn ? (
+          <User className="text-primary-500 size-4" />
+        ) : (
+          <LogIn className="text-primary-500 size-4" />
+        )}
+        <h2 className="text-neutral-text text-sm font-semibold">
+          {loggedIn ? 'Meu Perfil' : 'Conta'}
+        </h2>
       </div>
       {loggedIn ? (
         <>
+          <Button variant="ghost" className="justify-start" size="sm" asChild>
+            <Link href="/perfil">
+              <User className="mr-2 size-4" />
+              Meus dados
+            </Link>
+          </Button>
           {totalNegocios > 0 ? (
             // "Cadastrar outro negócio" mora dentro dessa tela — não
             // compete aqui no Menu (decisão de 17/08)

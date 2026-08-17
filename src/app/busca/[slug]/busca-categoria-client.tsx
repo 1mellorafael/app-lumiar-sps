@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { getCategoria } from '@/lib/mock-data'
 import type { NegocioCard } from '@/lib/negocio-card'
 import { ViewToggle, type ViewMode } from '@/components/shared/view-toggle'
 import { ServiceCard, type CardVariant } from '@/components/busca/service-card'
 import { VariantToggle } from '@/components/busca/variant-toggle'
+import { PageHeader } from '@/components/shared/page-header'
 
 const PAGE_SIZE = 10
 
@@ -54,20 +55,17 @@ export function BuscaCategoriaClient({
 
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
-      <Link
-        href="/busca"
-        aria-label="Voltar"
-        className="text-neutral-text hover:text-primary-500 flex w-fit items-center gap-1 text-sm font-medium"
-      >
-        <ArrowLeft className="size-4" />
-        Voltar
-      </Link>
+      <PageHeader
+        title={
+          <>
+            <categoria.icon className="size-5" />
+            {categoria.nome}
+          </>
+        }
+        backHref="/busca"
+      />
 
-      <div className="flex items-center justify-between">
-        <h1 className="text-primary-500 flex items-center gap-2 text-lg font-bold">
-          <categoria.icon className="size-5" />
-          {categoria.nome}
-        </h1>
+      <div className="flex justify-end">
         <ViewToggle value={view} onChange={setView} />
       </div>
 
