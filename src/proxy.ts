@@ -38,12 +38,20 @@ export async function proxy(request: NextRequest) {
   // usuário é deslogado silenciosamente mesmo sem ter clicado em Sair.
   // Padrão oficial do @supabase/ssr: getUser() aqui reescreve o cookie de
   // sessão quando o token é renovado, propagado pra request e response.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  // Esse middleware agora roda em toda rota (antes rodava só em login/
+  // cadastro) — sem essa guarda, a env var faltando derruba o site
+  // inteiro em vez de só desativar o refresh de sessão.
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return NextResponse.next({ request })
+  }
+
   let response = NextResponse.next({ request })
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  try {
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll()
@@ -58,10 +66,14 @@ export async function proxy(request: NextRequest) {
           )
         },
       },
-    }
-  )
+    })
 
-  await supabase.auth.getUser()
+    await supabase.auth.getUser()
+  } catch {
+    // Middleware roda em toda rota — qualquer falha aqui (Supabase fora
+    // do ar, etc.) nunca pode derrubar a navegação normal do site.
+    return NextResponse.next({ request })
+  }
 
   return response
 }
