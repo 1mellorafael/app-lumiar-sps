@@ -48,7 +48,6 @@ export default function UteisPage() {
           <h2 className="text-neutral-text font-semibold">Previsão da semana</h2>
         </div>
         <WeeklyForecast />
-        <p className="text-muted-foreground text-xs">Lumiar, São Pedro da Serra</p>
       </section>
 
       {/* Ônibus — cada linha carrega vários horários (texto longo), não
