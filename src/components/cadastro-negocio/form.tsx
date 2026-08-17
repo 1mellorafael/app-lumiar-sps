@@ -204,9 +204,9 @@ export function NegocioForm({
             trocarLabel="Trocar capa"
             icon="imagem"
             shape="rect"
-            aspect={2.5}
+            aspect={6}
             initialUrl={negocioExistente?.fotoCapaUrl}
-            previewClassName="h-24 w-32"
+            previewClassName="h-10 w-48"
             onFileChange={setFotoCapa}
           />
         </div>
