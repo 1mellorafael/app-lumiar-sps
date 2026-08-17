@@ -30,7 +30,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Navegação principal"
-      className="border-border bg-card fixed inset-x-0 bottom-0 z-50 border-t"
+      className="border-border bg-card fixed inset-x-0 bottom-0 z-50 border-t pb-[env(safe-area-inset-bottom)]"
     >
       <div className="mx-auto flex max-w-md items-stretch justify-around">
         {ITEMS.map((item) => {

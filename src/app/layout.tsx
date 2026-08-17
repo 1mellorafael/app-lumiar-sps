@@ -28,6 +28,10 @@ export const metadata: Metadata = {
 
 export const viewport = {
   themeColor: '#0F6E5C',
+  // Sem isso, env(safe-area-inset-*) sempre retorna 0 no Safari — a barra
+  // de baixo fica sem folga nenhuma pro home indicator do iPhone, o que
+  // pode deixar a última aba (Menu) embaixo da área de gesto do sistema
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({
@@ -38,7 +42,9 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={inter.variable}>
       <body>
-        <div className="pb-16">{children}</div>
+        <div className="pb-[calc(4rem+env(safe-area-inset-bottom))]">
+          {children}
+        </div>
         <BottomNav />
         <Analytics />
         <SpeedInsights />
