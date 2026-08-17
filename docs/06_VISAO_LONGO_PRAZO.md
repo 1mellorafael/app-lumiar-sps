@@ -273,6 +273,25 @@ reduziria o alcance do prestador, que é o oposto do que o app deveria
 fazer por ele.
 ```
 
+**Reconfirmado em 17/08** (Rafa cogitou de novo, ao pensar em código de
+convite pra controlar a Wave 1/2): reforça o mesmo raciocínio, com um
+argumento novo — o app já é útil pra quem NÃO mora aqui (alguém num bar
+interessado, telefones úteis, ver quem tá aberto agora), o que é
+essencialmente uma prévia gratuita da futura Fase Turismo sem custo de
+implementação. Fechar a navegação atrás de login mataria exatamente o
+caso de uso que faz distribuição via QR code físico (seção "Ponto de
+contato físico" em `12_ESTRATEGIA_LANCAMENTO_MARKETING.md`) funcionar —
+quem escaneia quer o resultado na hora, não quer criar conta pra achar
+um telefone.
+
+**Em aberto, não decidido:** código de convite obrigatório só pro
+CADASTRO de prestador (não pra navegação) durante a Wave 1/2, pra
+controlar quem consegue criar página de serviço sem depender só do
+Admin Dashboard (Fase 5) existir. Ainda não é urgente — sem Fase 5, todo
+cadastro fica pendente e nunca vira público sozinho, então não tem risco
+real em deixar aberto por enquanto. Revisitar quando for divulgar o link
+mais amplamente, antes da Fase 5 estar pronta.
+
 ---
 
 ## 📞 GRUPOS FECHADOS — ideia futura, não V0
