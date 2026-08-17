@@ -43,8 +43,8 @@ export function WeeklyForecast() {
             key={dia.dia}
             className={
               hoje
-                ? 'bg-primary-500 flex shrink-0 flex-col items-center gap-1 rounded-lg px-3 py-2'
-                : 'border-border/70 bg-card flex shrink-0 flex-col items-center gap-1 rounded-lg border px-3 py-2'
+                ? 'bg-primary-500 flex w-16 shrink-0 flex-col items-center gap-1 rounded-lg px-2 py-2'
+                : 'border-border/70 bg-card flex w-16 shrink-0 flex-col items-center gap-1 rounded-lg border px-2 py-2'
             }
           >
             <span
