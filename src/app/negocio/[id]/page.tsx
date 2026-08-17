@@ -171,7 +171,7 @@ export default async function NegocioPage({
           17/08, substitui o layout anterior (capa em faixa curta, nome
           sempre fora da moldura) — CLAUDE.md seção 9 atualizada. */}
       <div className="relative">
-        <div className="bg-muted relative h-56 w-full overflow-hidden">
+        <div className="bg-muted relative h-44 w-full overflow-hidden">
           {dados.fotoCapaUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -185,34 +185,32 @@ export default async function NegocioPage({
           )}
         </div>
         <FloatingBackButton />
-        <div
-          className={`border-background absolute bottom-0 left-1/2 flex size-24 -translate-x-1/2 translate-y-1/2 items-center justify-center overflow-hidden rounded-full border-4 shadow-[0_2px_6px_rgb(0_0_0_/_0.15)] text-xl font-semibold text-white ${avatarColor(dados.id)}`}
-        >
-          {dados.fotoPrincipalUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={dados.fotoPrincipalUrl}
-              alt=""
-              style={{
-                objectPosition: `${dados.fotoPrincipalPos.x}% ${dados.fotoPrincipalPos.y}%`,
-              }}
-              className="size-full object-cover"
-            />
-          ) : (
-            initials(dados.nomeNegocio)
-          )}
+        {/* Avatar centralizado, mais pra dentro da capa do que transbordando
+            embaixo — o nome não fica mais aqui, foi pro card de Informações */}
+        <div className="absolute left-1/2 bottom-2 -translate-x-1/2 translate-y-1/4">
+          <div
+            className={`border-background flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 shadow-[0_2px_6px_rgb(0_0_0_/_0.15)] text-lg font-semibold text-white ${avatarColor(dados.id)}`}
+          >
+            {dados.fotoPrincipalUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={dados.fotoPrincipalUrl}
+                alt=""
+                style={{
+                  objectPosition: `${dados.fotoPrincipalPos.x}% ${dados.fotoPrincipalPos.y}%`,
+                }}
+                className="size-full object-cover"
+              />
+            ) : (
+              initials(dados.nomeNegocio)
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 p-4 pt-14">
-        {/* Nome ganha fundo próprio (pílula) — não fica só solto em cima
-            da capa, mesmo com o avatar transbordando bem perto dela */}
-        <p className="text-card-foreground bg-card shadow-[var(--shadow-card)] mx-auto rounded-full px-4 py-1.5 text-center text-lg font-bold">
-          {dados.nomeNegocio}
-        </p>
-
+      <div className="flex flex-col gap-4 pb-4">
         {dados.pendente && (
-          <div className="border-secondary-500 bg-secondary-500/10 text-secondary-700 rounded-lg border px-3 py-2 text-sm">
+          <div className="border-secondary-500 bg-secondary-500/10 text-secondary-700 mx-4 rounded-lg border px-3 py-2 text-sm">
             {dados.souDono
               ? 'Seu cadastro está em análise. Só você (e o admin) consegue ver esta página por enquanto — assim que for aprovado, fica visível pra todo mundo.'
               : 'Este cadastro ainda está pendente de aprovação — você está vendo como admin, não é público ainda.'}
@@ -220,75 +218,85 @@ export default async function NegocioPage({
         )}
 
         {dados.pendente && dados.souAdmin && (
-          <AdminActions negocioId={dados.id} />
-        )}
-
-      <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-4">
-        <h2 className="text-neutral-text text-sm font-semibold uppercase tracking-wide">
-          Informações
-        </h2>
-        {(dados.endereco || dados.localizacaoNome) && (
-          <div className="text-card-foreground flex items-center gap-2 text-sm">
-            <MapPin className="text-primary-500 size-4 shrink-0" />
-            {dados.endereco
-              ? `${dados.endereco} — ${dados.localizacaoNome}`
-              : dados.localizacaoNome}
+          <div className="mx-4">
+            <AdminActions negocioId={dados.id} />
           </div>
         )}
-        <div className="text-card-foreground flex items-center gap-2 text-sm">
-          <Phone className="text-primary-500 size-4 shrink-0" />
-          {dados.telefoneDisplay}
-        </div>
-        <div className="text-card-foreground flex items-center gap-2 text-sm">
-          <Tag className="text-primary-500 size-4 shrink-0" />
-          {dados.categoriaNome}
-        </div>
-        {dados.enderecoLat != null && dados.enderecoLng != null && (
-          <MapEmbed lat={dados.enderecoLat} lng={dados.enderecoLng} />
-        )}
-      </section>
 
-      {dados.descricao && (
-        <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-4">
-          <h2 className="text-neutral-text text-sm font-semibold uppercase tracking-wide">
-            Sobre
-          </h2>
-          <p className="text-card-foreground text-sm">{dados.descricao}</p>
+        {/* Cards "sangram" até a borda da tela — só em cima/embaixo têm
+            acabamento de card (borda + sombra), dos lados eles vazam.
+            O de cima (Informações) fica logo abaixo do avatar/nome de
+            propósito, quase encostando (decisão de 17/08). */}
+        <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 border-y px-4 pt-4 pb-4">
+          <h1 className="text-card-foreground text-lg font-bold">
+            {dados.nomeNegocio}
+          </h1>
+          <span className="bg-primary-500/10 text-primary-700 inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
+            <Tag className="size-3 shrink-0" />
+            {dados.categoriaNome}
+          </span>
+          {dados.descricao && (
+            <>
+              <h2 className="text-neutral-text pt-2 text-sm font-semibold uppercase tracking-wide">
+                Sobre
+              </h2>
+              <p className="text-card-foreground text-sm">{dados.descricao}</p>
+            </>
+          )}
         </section>
-      )}
 
-      {dados.instagram && (
+        <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 border-y px-4 py-4">
+          {(dados.endereco || dados.localizacaoNome) && (
+            <div className="text-card-foreground flex items-center gap-2 text-sm">
+              <MapPin className="text-primary-500 size-4 shrink-0" />
+              {dados.endereco
+                ? `${dados.endereco} — ${dados.localizacaoNome}`
+                : dados.localizacaoNome}
+            </div>
+          )}
+          <div className="text-card-foreground flex items-center gap-2 text-sm">
+            <Phone className="text-primary-500 size-4 shrink-0" />
+            {dados.telefoneDisplay}
+          </div>
+          {dados.enderecoLat != null && dados.enderecoLng != null && (
+            <MapEmbed lat={dados.enderecoLat} lng={dados.enderecoLng} />
+          )}
+        </section>
+
+        {dados.instagram && (
+          <a
+            href={`https://instagram.com/${dados.instagram}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border-border/70 bg-card text-card-foreground shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] flex items-center gap-2 border-y px-4 py-4 text-sm font-medium transition-all duration-200 ease-out"
+          >
+            <Instagram className="text-primary-500 size-4" />@{dados.instagram}
+          </a>
+        )}
+
         <a
-          href={`https://instagram.com/${dados.instagram}`}
+          href={whatsappHref(dados.whatsapp, dados.nomeNegocio)}
           target="_blank"
           rel="noopener noreferrer"
-          className="border-border/70 bg-card text-card-foreground shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] flex items-center gap-2 rounded-lg border p-4 text-sm font-medium transition-all duration-200 ease-out"
+          className="bg-whatsapp mx-4 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-black transition-opacity ease-out hover:opacity-90"
         >
-          <Instagram className="text-primary-500 size-4" />@{dados.instagram}
+          <MessageCircle className="size-4" />
+          Chamar no WhatsApp
         </a>
-      )}
 
-      <a
-        href={whatsappHref(dados.whatsapp, dados.nomeNegocio)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="bg-whatsapp inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-black transition-opacity ease-out hover:opacity-90"
-      >
-        <MessageCircle className="size-4" />
-        Chamar no WhatsApp
-      </a>
+        {dados.souDono && (
+          <Link
+            href={`/negocio/${dados.id}/editar`}
+            className="border-border text-neutral-text hover:bg-muted mx-4 flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors"
+          >
+            <Pencil className="size-4" />
+            Editar negócio
+          </Link>
+        )}
 
-      {dados.souDono && (
-        <Link
-          href={`/negocio/${dados.id}/editar`}
-          className="border-border text-neutral-text hover:bg-muted flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors"
-        >
-          <Pencil className="size-4" />
-          Editar negócio
-        </Link>
-      )}
-
-      <NegocioActions nomeNegocio={dados.nomeNegocio} />
+        <div className="mx-4">
+          <NegocioActions nomeNegocio={dados.nomeNegocio} />
+        </div>
       </div>
     </main>
   )
