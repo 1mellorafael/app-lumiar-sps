@@ -365,6 +365,286 @@ genérica do mundo no meio do conteúdo local (Patch tentou, os leitores
 rejeitaram).
 ```
 
+## 💰 MODELO DE MONETIZAÇÃO — pesquisa e decisão de 16/08
+
+```
+Pergunta do Rafa: pra monetizar (vender módulo pra negócio/governo/etc
+pagar pra estar na plataforma), o app precisa primeiro ter base de
+usuários grande — construir confiança/densidade local primeiro, depois
+vender acesso pra quem quer alcançar essa base. É assim que a Nextdoor
+faz?
+
+Resposta: sim, é exatamente o modelo Nextdoor — mas existem dois
+modelos de referência com trade-offs bem diferentes, e o que já está
+decidido neste roadmap (Comunidade antes de Turismo, seção acima) já
+se parece mais com o segundo do que com o primeiro.
+```
+
+### Dois modelos de referência
+
+```
+NEXTDOOR (EUA, capital de risco, expansão agressiva bairro a bairro)
+├─ Monetização: anúncio local (deals patrocinados) + Nextdoor Public
+│  Agency (prefeitura/defesa civil/polícia pagam por canal verificado
+│  de comunicação direta com moradores) + anúncio nacional em escala
+├─ Tem feed algorítmico (não é cronológico puro) — ranqueia por
+│  proximidade, engajamento, recência, tipo de conteúdo, parecido com
+│  o feed do Facebook. Existe desde ~2018 pra aumentar tempo de uso e
+│  ter mais inventário de anúncio.
+└─ Ponto fraco real: mesmo com ~100M de usuários, a Nextdoor nunca foi
+   consistentemente lucrativa — monetização por usuário em rede
+   hiperlocal é baixa, e o feed algorítmico amplificou problema sério
+   de moderação (perfil racial em denúncias de "pessoa suspeita" —
+   por isso a decisão já tomada aqui de ter moderação humana na
+   denúncia de Alerta, seção Fase Comunidade acima).
+
+FRONT PORCH FORUM (Vermont, EUA, permanece pequeno de propósito)
+├─ Monetização: "underwriters" locais — negócio paga patrocínio fixo,
+   não leilão de anúncio disputado
+├─ Sem feed algorítmico — é essencialmente um digest diário por
+   região, ordem simples
+├─ Não tenta virar rede nacional — aceita o teto de população da
+│  região que atende
+└─ Lucrativo, sem capital de risco, exatamente por não perseguir
+   escala tipo Nextdoor
+```
+
+### Por que o modelo daqui puxa mais pro Front Porch Forum
+
+```
+Lumiar + São Pedro da Serra é um mercado finito — não vira rede
+nacional sozinho. Faz mais sentido tratar escala como "replicar o
+pacote pra outras cidades pequenas" (ver seção Reusabilidade acima,
+Jornal/Colunas e o precedente "Daily Neighbor") do que "crescer essa
+mesma instância até virar Nextdoor".
+
+Sobre feed algorítmico especificamente: NÃO faz sentido agora nem no
+médio prazo. Com poucas centenas/milhares de usuários, ordem
+cronológica + curadoria (Colunas, Selo) já resolve — algoritmo de
+relevância só compensa o custo de manutenção e risco de moderação
+quando o volume de conteúdo é grande demais pra cronológico ser
+legível. Só reconsiderar se/quando o volume de posts comunitários
+virar ruído de verdade.
+```
+
+### Sobre "a prefeitura não poderia só criar um canal de graça?"
+
+```
+Pode, e provavelmente é exatamente isso que acontece primeiro: o papel
+de "curador de alertas" (Fase Comunidade, item Alerta acima) já cobre
+isso sem custo nenhum — alguém (voluntário, ou a própria prefeitura
+usando uma conta comum) confirma/ajusta o alerta manualmente. Não tem
+motivo pra cobrar da prefeitura de Nova Friburgo por um distrito rural
+pequeno; o orçamento disponível provavelmente nem justificaria a
+venda.
+
+Onde a venda de verdade apareceria: não em "cobrar a prefeitura local
+pra postar", mas em "empacotar Alerta + Colunas + Selo como produto e
+licenciar pra OUTRAS prefeituras/cidades pequenas" — aí sim vira SaaS
+B2G de verdade, e só faz sentido depois que o pacote já roda de forma
+confiável e replicável em Lumiar/SPS (mesma lógica já registrada na
+seção Reusabilidade sobre Jornal/Colunas). Local = grátis pra sempre,
+como ferramenta de confiança. Escala = produto vendável pra outros
+lugares, não pra este.
+```
+
+---
+
+## 🗺️ MAPA DE FASES — do lançamento até "parecido com Nextdoor"
+
+```
+Visão consolidada de ordem de implementação + quando cada coisa vira
+monetizável, juntando o plano de implementação técnico
+(11_PLANO_IMPLEMENTACAO.md) com este documento de visão. Detalhe
+completo em formato visual entregue ao Rafa em 16/08 (fora do repo,
+artifact de sessão) — resumo aqui pra não se perder:
+
+1. V0 — Diretório aberto (Fase 0-1 do plano técnico): busca, cadastro
+   leve, WhatsApp, Úteis, PWA. 100% grátis, sem algoritmo, sem anúncio.
+2. Lançamento em 3 waves (fechadíssimo → aberto → público) — já
+   detalhado na seção "Estratégia de Lançamento Gradual" acima.
+3. Comunidade (Fase Comunidade acima): Morador account, Colunas,
+   Carona, Corrida, Alerta (curadoria voluntária, grátis), Selo.
+   Ainda sem monetização — é a fase que constrói confiança.
+4. Estrutura genérica de post comunitário → Pede Aí genérico, Pet
+   Perdido — mais retenção, ainda grátis.
+5. Vendedores/Marketplace leve (Fase 3 deste doc) — primeira
+   aproximação de comércio, ainda sem processar pagamento.
+6. Turismo (Fase 4 deste doc) — primeiro módulo pensado pra tráfego de
+   fora; aqui entra a primeira monetização real: negócio paga por
+   destaque/posição, nunca o morador.
+7. Ponto de decisão "replicar ou centralizar": se Colunas/Alerta/Selo
+   provaram valor em Lumiar/SPS, considerar empacotar pra outras
+   cidades pequenas (SaaS B2G leve) em vez de tentar crescer só essa
+   instância — é o que mais se parece com escala real de negócio, sem
+   copiar a rota de capital de risco da Nextdoor.
+8. Feed algorítmico — só entra em pauta se o volume de conteúdo
+   comunitário virar ruído real em ordem cronológica. Não está
+   planejado, é só um ponto de reavaliação futura.
+```
+
+---
+
+## 🧭 REFINAMENTO DE FOCO — sessão de 16/08 (pós-monetização)
+
+```
+Depois de mapear o caminho até monetização, o Rafa voltou pro que
+importa primeiro: a necessidade real e imediata é uma central de
+contatos de prestador, resolvendo o caos do grupo de WhatsApp. Tudo
+que não é isso espera a base de prestador crescer.
+```
+
+### Lumiar e São Pedro da Serra juntos desde o início (não separar)
+
+```
+Pergunta: vale fechar só pra Lumiar e abrir São Pedro da Serra depois,
+ou lançar os dois juntos desde a Wave 1?
+
+Decisão: juntos, sem split geográfico no produto. Duas razões:
+1. Prestador (motoboy, mototáxi, faxina) tipicamente atende os dois
+   lados — restringir a visibilidade a só um distrito tira alcance
+   de quem já atenderia o outro sem custo nenhum.
+2. Carona (item 3 da Fase Comunidade) depende do mesmo corredor de
+   quem desce pra Nova Friburgo/Rio — carona "só de Lumiar" nasce
+   capenga.
+
+Risco real a monitorar (não é motivo pra separar, é motivo pra agir):
+se a Wave 1 ficar 100% concentrada em Lumiar por causa de rede pessoal
+mais forte lá, alguém de SPS que abrir o app e não achar nada de lá
+pode achar "não é pra mim" — mesmo o app se chamando dos dois. Puxar
+convite pessoal de SPS o quanto antes é o que evita isso, não separar
+o produto.
+```
+
+### Foco do MVP: serviço primeiro, o resto entra por necessidade comprovada
+
+```
+Ordem de prioridade dentro do V0/Fase 1, já validada por sinais reais
+que o Rafa já observa na comunidade:
+├─ Central de contatos de prestador é a dor #1 (resolve o caos do
+│  grupo de WhatsApp) — é o que já está sendo construído
+├─ "Quentinha no horário de almoço" — demanda real observada, já tinha
+│  sido registrada como ideia de Menu do Dia numa sessão anterior;
+│  esta sessão confirma de forma independente que é real
+├─ Carona — demanda constante, já é item 3 da Fase Comunidade
+└─ Cursos/workshops — CORREÇÃO da leitura inicial desta sessão: não é
+   só "categoria Educação cobre isso". A ideia do Rafa é mais
+   específica — um prestador já listado numa categoria (educador,
+   marceneiro, etc.) pode também publicar uma oferta pontual, tipo
+   propaganda de um curso ou workshop específico, além do perfil fixo
+   dele. Isso é conteúdo autoral do prestador, geralmente com prazo
+   (evento datado) — mais parecido com Colunas (item 20 da Fase 8,
+   prestador publica conteúdo, reusa a própria conta) do que com o
+   campo de categoria. Quando a Fase 8 chegar em Colunas, vale
+   desenhar já pensando nos dois tipos de post: "dica" (evergreen) e
+   "oferta/evento" (datado, tipo curso/workshop) — mesma mecânica de
+   autoria, tipos de conteúdo diferentes.
+
+Meta explícita da Wave 1/2: conseguir que praticamente todo prestador
+de Lumiar se cadastre antes de abrir mais funcionalidade — densidade
+de prestador é o que faz a central de contatos valer a pena usar.
+```
+
+### Sinal de demanda — medir o que é mais procurado por horário
+
+```
+Ideia nova desta sessão: instrumentar busca/categoria com timestamp
+pra enxergar padrão de demanda por horário (ex: comida/quentinha
+pico no horário de almoço, carona pico no fim de tarde). Dois usos
+possíveis, não excludentes:
+├─ Interno (admin): prioriza o que construir a seguir com dado real,
+│  em vez de achismo — complementa os insights que o Rafa já traz
+│  observando os grupos de WhatsApp da comunidade diretamente
+└─ Público (futuro, não V0): widget "mais procurado agora" na Home,
+   só faz sentido depois de ter volume de busca real pra não mostrar
+   dado vazio/enganoso
+
+Caminho técnico natural quando for implementar: Vercel Analytics
+(já está no stack, `@vercel/analytics`) cobre eventos customizados
+sem precisar de infra nova — não é decisão a tomar agora, só registro
+de que o caminho já existe sem custo extra de ferramenta.
+```
+
+### "Serviços abertos agora" — reabre parcialmente uma exclusão do CLAUDE.md
+
+```
+CLAUDE.md seção 6 marca "status disponível agora / online-offline"
+como Fora do V0. A ideia do Rafa (mostrar na Home quem está aberto
+agora) é parecida, mas tecnicamente mais simples e não precisa
+reabrir aquilo:
+
+├─ Versão excluída (continua excluída): prestador alterna um toggle
+│  online/offline manualmente — exige manutenção ativa, informação
+│  fica velha se ele esquecer de mexer
+└─ Versão candidata (NOVA, ainda não implementada): prestador declara
+   um horário de funcionamento uma vez no cadastro; a Home calcula
+   "aberto agora" comparando com o relógio — zero manutenção depois
+   de cadastrado
+
+Status: registrado como candidato, NÃO entra na Fase 3 atual (cadastro
+de serviço real) ainda — decisão explícita do Rafa de só registrar por
+enquanto. Quando for pra frente, falta decidir formato (horário fixo
+por dia da semana? exceção de feriado?) antes de virar campo de
+cadastro de verdade.
+```
+
+### Cadastro por terceiro — decisão de 16/08 (pra Fase 3)
+
+```
+Pergunta do Rafa: e quem não tem celular ou não sabe usar (ex: um
+fretista, um jardineiro)? Alguém que conhece essa pessoa devia poder
+cadastrar por ela? Ela vira dona da página sem ser dona do serviço?
+Quem cadastra fica responsável, ou delega? Auto-criação sem consentimento
+está descartada pelo Rafa (concordo — quebraria confiança rápido numa
+comunidade pequena).
+```
+
+**Descoberta que muda o desenho:** `prestadores` (schema.sql) hoje **não
+tem campo de telefone próprio** — o único telefone que existe é
+`profiles.telefone`, de quem fez login. Do jeito que está, o botão de
+WhatsApp mostraria o número de quem se cadastrou, não necessariamente o
+do prestador de verdade. Isso precisa de campo de contato próprio em
+`prestadores`, independente de quem é o dono da conta — verdade
+**qualquer que seja** o modelo de permissão escolhido abaixo.
+
+**Modelo escolhido:** reaproveitar o fluxo PENDENTE → APROVADO que já
+existe (regra de sensibilidade, CLAUDE.md seção 3), em vez de inventar
+mecanismo novo:
+
+```
+1. Quem conhece o prestador cadastra a página — vira o profile_id
+   dono/responsável tecnicamente, mas nasce PENDENTE como qualquer
+   outro cadastro
+2. Telefone de contato do serviço é campo PRÓPRIO em prestadores,
+   separado do telefone de quem cadastrou (profiles.telefone)
+3. A aprovação (admin, Fase 5) é o checkpoint de consentimento real —
+   confirmar com a pessoa de verdade antes de aprovar. Não é processo
+   novo, é o mesmo approval que já ia existir, só com esse cuidado a mais
+4. Flag `cadastrado_por_terceiro` (boolean) sinaliza esses casos pro
+   admin dar atenção extra na aprovação; no futuro pode virar aviso
+   transparente no perfil público ("página gerenciada por [nome]")
+5. Não precisa de fluxo de "reivindicar perfil" agora — se o prestador
+   quiser assumir a própria página depois, é só o admin trocar o
+   profile_id manualmente. Não é porta fechada, só não é V0.
+```
+
+**Impacto técnico a aplicar quando a Fase 3 começar de verdade:**
+adicionar campo de telefone de contato em `prestadores` (schema.sql +
+nova migration, nunca editando migrations antigas) e o flag
+`cadastrado_por_terceiro`. Não implementado ainda — só registrado.
+
+### Pede Aí — nome e filtros
+
+```
+Confirmado: o nome "Pede Aí" é provisório (Rafa já sinalizou trocar).
+Estrutura genérica de post comunitário (tipo: carona | pede_ai |
+pet_perdido | alerta, já descrita na Fase Comunidade acima) já prevê
+filtro por tipo — bate com a ideia de "filtro por pet, carona, etc."
+Sem mudança de arquitetura, só reforça o que já estava desenhado.
+```
+
+---
+
 ## 🎯 O QUE ISSO MUDA NO QUE JÁ FOI DECIDIDO
 
 ```
