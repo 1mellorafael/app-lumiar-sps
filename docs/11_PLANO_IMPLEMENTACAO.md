@@ -230,6 +230,13 @@ C. Alerta comunitário + Push (fundidos numa fase só — era item 24 e 21
    - Fonte oficial (CEMADEN chuva, INPE queimadas) fica como incremento
      POSTERIOR, não bloqueia esta fase — quando entrar, só confirma/
      reforça o que a comunidade já reporta
+   - Ideia de 17/08 pra versão futura (não no primeiro corte): mapa
+     mostrando os eventos ativos geograficamente, marcar usando
+     localização atual do celular — reforça ainda mais a analogia com
+     Waze. Fica pra incremento posterior dentro desta mesma fase, depois
+     que o reporte por texto simples já estiver rodando — geolocalização
+     no mapa é mais trabalho de UI/permissão de localização, não deve
+     bloquear a primeira versão funcional
    → commit: "feat(alerta): reporte comunitário com push, override do admin"
 
 D. Colunas/Dicas (era item 20) — primeiro gancho de conteúdo, já nasce
