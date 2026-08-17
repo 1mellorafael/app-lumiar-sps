@@ -25,7 +25,7 @@
 create table profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   nome varchar(255) not null,
-  telefone varchar(20) not null,
+  telefone varchar(20) not null unique,
   is_admin boolean not null default false, -- nunca setável pelo cliente
   created_at timestamptz not null default now()
 );
@@ -59,6 +59,10 @@ create table prestadores (
   foto_principal_url varchar(500) not null,
   foto_capa_url varchar(500),
   instagram varchar(255),
+  -- telefone do SERVIÇO, separado do telefone da conta (profiles.telefone)
+  -- — quem cadastra e quem atende podem ser pessoas diferentes (ver docs/06,
+  -- "Cadastro por terceiro")
+  telefone_contato varchar(20) not null,
   status varchar(20) not null default 'pendente', -- pendente | ativo | rejeitado
   created_at timestamptz not null default now()
 );
@@ -249,6 +253,10 @@ create trigger on_auth_user_created
 -- policy de RLS acima já permite, nunca mais que isso.
 -- ============================================================
 grant select, update on public.profiles to authenticated;
+-- admin client (service_role) usa isso na checagem de duplicidade de
+-- telefone em /api/prestadores — service_role não tem privilégio
+-- implícito, só o que for concedido explicitamente
+grant select on public.profiles to service_role;
 
 grant select on public.prestadores to anon;
 grant select, insert, update on public.prestadores to authenticated;
@@ -257,6 +265,34 @@ grant select on public.galeria_fotos to anon;
 grant select, insert, delete on public.galeria_fotos to authenticated;
 
 grant select on public.categorias to anon, authenticated;
+
+-- ============================================================
+-- Storage: bucket de fotos de prestador
+-- ============================================================
+-- Privado — nenhuma foto é acessível por URL direta. Fotos de status
+-- ativo são servidas via URL assinada, gerada pelo backend (service_role,
+-- bypassa RLS) depois de checar status/dono — pendente fica genuinamente
+-- inacessível, não só "difícil de adivinhar" (CLAUDE.md seção 3).
+insert into storage.buckets (id, name, public)
+values ('prestador-fotos', 'prestador-fotos', false)
+on conflict (id) do nothing;
+
+-- cada prestador só sobe foto na própria pasta: prestador-fotos/{auth.uid()}/...
+create policy "prestador_fotos_insert_own"
+  on storage.objects for insert
+  to authenticated
+  with check (
+    bucket_id = 'prestador-fotos'
+    and (storage.foldername(name))[1] = (select auth.uid()::text)
+  );
+
+create policy "prestador_fotos_update_own"
+  on storage.objects for update
+  to authenticated
+  using (
+    bucket_id = 'prestador-fotos'
+    and (storage.foldername(name))[1] = (select auth.uid()::text)
+  );
 
 grant insert on public.sugestoes to anon, authenticated;
 grant select on public.sugestoes to authenticated;

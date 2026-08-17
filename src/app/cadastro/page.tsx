@@ -1,17 +1,20 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Camera, ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { capitalizeWords } from '@/lib/utils'
+import { CATEGORIAS } from '@/lib/mock-data'
 import {
   getPasswordStrength,
   PASSWORD_STRENGTH_LABEL,
 } from '@/lib/password-strength'
 
 export default function CadastroPage() {
+  const router = useRouter()
   const [step, setStep] = useState<'account' | 'service'>('account')
   const [formData, setFormData] = useState({
     nome: '',
@@ -23,13 +26,17 @@ export default function CadastroPage() {
     categoria: '',
     descricao: '',
     instagram: '',
+    telefoneContato: '',
   })
+  const [fotoPrincipal, setFotoPrincipal] = useState<File | null>(null)
+  const [fotoCapa, setFotoCapa] = useState<File | null>(null)
   const [termos, setTermos] = useState(false)
   const [termosPresta, setTermosPresta] = useState(false)
   const [accountError, setAccountError] = useState<string | null>(null)
   const [accountErrorField, setAccountErrorField] = useState<string | null>(
     null
   )
+  const [serviceError, setServiceError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   const handleInputChange = (
@@ -60,10 +67,10 @@ export default function CadastroPage() {
   }
 
   const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatarTelefone(e.target.value)
+    const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
-      telefone: formatted,
+      [name]: formatarTelefone(value),
     }))
   }
 
@@ -106,6 +113,10 @@ export default function CadastroPage() {
         return
       }
 
+      // Telefone de contato do serviço é campo próprio (pode ser diferente
+      // de quem cadastrou — ver docs/06, "Cadastro por terceiro"), mas
+      // pré-preenche com o telefone da conta por conveniência no caso comum
+      setFormData((prev) => ({ ...prev, telefoneContato: prev.telefone }))
       setStep('service')
     } catch {
       setAccountError('Erro de conexão. Tente novamente.')
@@ -114,13 +125,44 @@ export default function CadastroPage() {
     }
   }
 
-  const handleServiceSubmit = (e: React.FormEvent) => {
+  const handleServiceSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setServiceError(null)
+
     if (!termosPresta) {
       alert('Precisa aceitar os termos de prestador pra continuar')
       return
     }
-    alert('Cadastro enviado! Em breve você receberá um email de confirmação.')
+    if (!fotoPrincipal) {
+      setServiceError('Foto principal é obrigatória')
+      return
+    }
+
+    setSubmitting(true)
+    try {
+      const body = new FormData()
+      body.set('nomeServico', formData.nomeServico)
+      body.set('categoria', formData.categoria)
+      body.set('descricao', formData.descricao)
+      body.set('instagram', formData.instagram)
+      body.set('telefoneContato', formData.telefoneContato)
+      body.set('fotoPrincipal', fotoPrincipal)
+      if (fotoCapa) body.set('fotoCapa', fotoCapa)
+
+      const res = await fetch('/api/prestadores', { method: 'POST', body })
+      const data = await res.json()
+
+      if (!res.ok) {
+        setServiceError(data.error ?? 'Não foi possível criar o cadastro.')
+        return
+      }
+
+      router.push(`/servico/${data.id}`)
+    } catch {
+      setServiceError('Erro de conexão. Tente novamente.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (step === 'account') {
@@ -342,6 +384,60 @@ export default function CadastroPage() {
       </div>
 
       <form onSubmit={handleServiceSubmit} className="flex flex-col gap-3">
+        {/* Foto em duas camadas: capa (opcional, fundo) + principal
+            (obrigatória, círculo central) — CLAUDE.md seção 9. Botões de
+            trocar foto ficam perto, nunca sobrepostos na foto. */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="bg-muted relative h-20 w-full overflow-hidden rounded-lg">
+            {fotoCapa && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={URL.createObjectURL(fotoCapa)}
+                alt=""
+                className="size-full object-cover"
+              />
+            )}
+            <div className="border-background bg-muted absolute left-1/2 top-10 flex size-20 -translate-x-1/2 items-center justify-center overflow-hidden rounded-full border-2 shadow-[0_2px_6px_rgb(0_0_0_/_0.15)]">
+              {fotoPrincipal ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={URL.createObjectURL(fotoPrincipal)}
+                  alt=""
+                  className="size-full object-cover"
+                />
+              ) : (
+                <span className="text-muted-foreground text-xs">Foto</span>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-10 flex gap-2">
+            <label className="border-border text-neutral-text hover:bg-muted flex cursor-pointer items-center gap-1 rounded-md border px-3 py-1.5 text-xs font-medium">
+              <Camera className="size-3.5" />
+              {fotoPrincipal ? 'Trocar foto principal' : 'Foto principal *'}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={(e) => setFotoPrincipal(e.target.files?.[0] ?? null)}
+              />
+            </label>
+            <label className="border-border text-neutral-text hover:bg-muted flex cursor-pointer items-center gap-1 rounded-md border px-3 py-1.5 text-xs font-medium">
+              <ImagePlus className="size-3.5" />
+              {fotoCapa ? 'Trocar capa' : 'Foto de capa'}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={(e) => setFotoCapa(e.target.files?.[0] ?? null)}
+              />
+            </label>
+          </div>
+          {serviceError && (
+            <p className="text-destructive text-xs">{serviceError}</p>
+          )}
+        </div>
+
         <div>
           <label
             htmlFor="nomeServico"
@@ -374,19 +470,34 @@ export default function CadastroPage() {
             required
           >
             <option value="">Selecione uma categoria...</option>
-            <option value="motoboy">Motoboy</option>
-            <option value="faxina">Faxina</option>
-            <option value="mototaxi">Mototáxi</option>
-            <option value="uber">Uber</option>
-            <option value="estetica">Estética</option>
-            <option value="adestramento">Adestramento</option>
-            <option value="hospedagem-pet">Hospedagem Pet</option>
-            <option value="lojas">Lojas</option>
-            <option value="baba">Babá</option>
-            <option value="educacao">Educação</option>
-            <option value="psicologo">Psicólogo</option>
-            <option value="artes">Artes</option>
+            {CATEGORIAS.map((c) => (
+              <option key={c.slug} value={c.slug}>
+                {c.nome}
+              </option>
+            ))}
           </select>
+        </div>
+
+        <div>
+          <label
+            htmlFor="telefoneContato"
+            className="text-neutral-text block text-sm font-medium"
+          >
+            Telefone de contato do serviço
+          </label>
+          <Input
+            id="telefoneContato"
+            name="telefoneContato"
+            value={formData.telefoneContato}
+            onChange={handleTelefoneChange}
+            placeholder="(24) 99999-9999"
+            maxLength={18}
+            required
+          />
+          <p className="text-muted-foreground mt-1 text-xs">
+            Quem clicar em WhatsApp fala com este número — pode ser diferente
+            do telefone da sua conta.
+          </p>
         </div>
 
         <div>
@@ -445,8 +556,8 @@ export default function CadastroPage() {
           </label>
         </div>
 
-        <Button type="submit" className="w-full">
-          Cadastrar
+        <Button type="submit" className="w-full" disabled={submitting}>
+          {submitting ? 'Enviando...' : 'Cadastrar'}
         </Button>
       </form>
     </main>
