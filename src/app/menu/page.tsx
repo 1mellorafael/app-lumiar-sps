@@ -14,7 +14,7 @@ export default async function MenuPage() {
     <main className="mx-auto flex max-w-md flex-col gap-2 p-4">
       <h1 className="text-primary-500 mb-2 text-lg font-bold">Menu</h1>
 
-      <AccountSection email={user?.email ?? null} />
+      <AccountSection loggedIn={!!user} />
 
       {/* Seção App */}
       <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-3">

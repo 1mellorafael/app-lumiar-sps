@@ -20,8 +20,9 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             )
           } catch {
-            // setAll chamado de um Server Component — ignora, o middleware
-            // já cuida de refresh de sessão nesse caso
+            // setAll chamado de um Server Component (não pode escrever
+            // cookie) — ignora aqui, quem escreve o cookie renovado é o
+            // proxy.ts (roda antes, em toda rota) via seu próprio getUser()
           }
         },
       },

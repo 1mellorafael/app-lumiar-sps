@@ -3,10 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { LogIn, LogOut } from 'lucide-react'
+import { LogIn, LogOut, Briefcase } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export function AccountSection({ email }: { email: string | null }) {
+// Nunca recebe/exibe email — CLAUDE.md seção 10: "Dados privados (email)
+// nunca aparecem nem pro próprio dono na tela de Perfil".
+export function AccountSection({ loggedIn }: { loggedIn: boolean }) {
   const router = useRouter()
   const [loggingOut, setLoggingOut] = useState(false)
 
@@ -26,9 +28,12 @@ export function AccountSection({ email }: { email: string | null }) {
         <LogIn className="text-primary-500 size-4" />
         <h2 className="text-neutral-text text-sm font-semibold">Conta</h2>
       </div>
-      {email ? (
+      {loggedIn ? (
         <>
-          <p className="text-muted-foreground px-2 text-xs">{email}</p>
+          <Button variant="ghost" className="justify-start" size="sm" disabled>
+            <Briefcase className="mr-2 size-4" />
+            Meus serviços (em breve)
+          </Button>
           <Button
             variant="ghost"
             className="justify-start"

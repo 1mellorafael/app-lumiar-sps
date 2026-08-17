@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cadastroSchema } from '@/lib/validations/auth'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null)
@@ -17,14 +18,25 @@ export async function POST(request: Request) {
   const supabase = await createClient()
 
   // Duplicidade de telefone não é coberta pelo Auth nativo (só cobre
-  // email) — checa via function SECURITY DEFINER que só devolve um
-  // boolean, sem precisar do service_role key pra isso.
-  const { data: telefoneExiste } = await supabase.rpc(
-    'telefone_ja_cadastrado',
-    { p_telefone: telefone }
-  )
+  // email) — checa via admin client (service_role, só roda no backend,
+  // nunca exposto ao browser). Uma RPC pública equivalente já foi tentada
+  // e removida (migration 0004): mesmo só devolvendo um boolean, ela virava
+  // um oráculo de enumeração de telefone chamável direto por qualquer um.
+  const admin = createAdminClient()
+  const { data: telefoneExistente, error: telefoneCheckError } = await admin
+    .from('profiles')
+    .select('id')
+    .eq('telefone', telefone)
+    .maybeSingle()
 
-  if (telefoneExiste) {
+  if (telefoneCheckError) {
+    return NextResponse.json(
+      { error: 'Não foi possível verificar o telefone. Tente novamente.' },
+      { status: 500 }
+    )
+  }
+
+  if (telefoneExistente) {
     return NextResponse.json(
       { error: 'Este telefone já está cadastrado. Faça login.', field: 'telefone' },
       { status: 409 }
@@ -43,6 +55,15 @@ export async function POST(request: Request) {
     if (error.message.toLowerCase().includes('already registered')) {
       return NextResponse.json(
         { error: 'Este email já está cadastrado. Faça login.', field: 'email' },
+        { status: 409 }
+      )
+    }
+    // Corrida entre a checagem acima e este signUp (dois cadastros quase
+    // simultâneos com o mesmo telefone): a constraint unique do banco
+    // barra o segundo, e o erro chega aqui em vez de na checagem.
+    if (error.message.toLowerCase().includes('profiles_telefone_key')) {
+      return NextResponse.json(
+        { error: 'Este telefone já está cadastrado. Faça login.', field: 'telefone' },
         { status: 409 }
       )
     }

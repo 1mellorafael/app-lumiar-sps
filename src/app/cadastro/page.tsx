@@ -40,8 +40,15 @@ export default function CadastroPage() {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'nome' ? capitalizeWords(value) : value,
+      [name]: value,
     }))
+  }
+
+  // Capitaliza só ao sair do campo, não a cada tecla — em campo controlado,
+  // capitalizar durante a digitação jogava o cursor pro fim do texto e
+  // desfazia maiúscula intencional no meio do nome (ex: "McDonald")
+  const handleNomeBlur = () => {
+    setFormData((prev) => ({ ...prev, nome: capitalizeWords(prev.nome) }))
   }
 
   const formatarTelefone = (value: string) => {
@@ -88,6 +95,7 @@ export default function CadastroPage() {
           email: formData.email,
           telefone: formData.telefone,
           senha: formData.senha,
+          confirmaSenha: formData.confirmaSenha,
         }),
       })
       const data = await res.json()
@@ -147,6 +155,7 @@ export default function CadastroPage() {
               name="nome"
               value={formData.nome}
               onChange={handleInputChange}
+              onBlur={handleNomeBlur}
               placeholder="João Silva"
               required
             />
