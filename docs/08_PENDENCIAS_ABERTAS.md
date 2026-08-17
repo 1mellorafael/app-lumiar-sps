@@ -32,17 +32,6 @@ Texto placeholder já publicado (`src/app/termos/page.tsx` e
 própria página. Falta a revisão jurídica antes do lançamento público —
 não é mais "escrever do zero", é "validar o que já existe".
 
-### 4b. Google Places/Maps — billing não habilitado
-
-Autocomplete de endereço e mapa embed (`AddressAutocomplete`, `MapEmbed`,
-implementados em 17/08) já estão no código, mas a API key atual
-(`NEXT_PUBLIC_GOOGLE_PLACES_API_KEY`) retorna `BillingNotEnabledMapError`
-— o projeto no Google Cloud Console precisa de uma conta de faturamento
-vinculada pra Places API responder, mesmo dentro do uso coberto pelo free
-tier. Sem isso, degrada bem: campo de endereço continua funcionando como
-texto livre, só sem sugestão/mapa. Resolver em
-console.cloud.google.com/project/_/billing/enable, depois testar de novo.
-
 ### 4. ⚠️ LGPD — dados de menores (recomendo consulta jurídica)
 
 Como cadastro de menores agora é permitido (fica pendente, não bloqueado),
@@ -52,6 +41,13 @@ pra resolver só com documentação de produto — recomendo consulta jurídica
 específica sobre esse ponto antes do lançamento.
 
 ---
+
+## ✅ Resolvidas em 17/08/2026
+
+- **Autocomplete de endereço e mapa:** trocado de Google Places/Maps pra
+  Nominatim + embed do OpenStreetMap — gratuito, sem API key, sem
+  billing. Decisão explícita: não pagar a conta de faturamento do
+  Google Cloud só pra habilitar a Places API.
 
 ## ✅ Resolvidas em 14/08/2026
 

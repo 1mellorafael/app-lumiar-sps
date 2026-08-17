@@ -47,7 +47,6 @@
     "zod": "^3.23.0"
   },
   "devDependencies": {
-    "@types/google.maps": "^3.65.5",
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.3.1",
     "prettier": "^3.0.0",

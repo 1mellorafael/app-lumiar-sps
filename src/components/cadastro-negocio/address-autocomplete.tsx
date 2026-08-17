@@ -1,13 +1,18 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Input } from '@/components/ui/input'
-import { loadGoogleMaps } from '@/lib/google-maps-loader'
 
 type PlaceSelecionado = {
   endereco: string
   lat: number
   lng: number
+}
+
+type NominatimResult = {
+  display_name: string
+  lat: string
+  lon: string
 }
 
 type AddressAutocompleteProps = {
@@ -16,60 +21,104 @@ type AddressAutocompleteProps = {
   onPlaceSelected: (place: PlaceSelecionado) => void
 }
 
-// Autocomplete do Google sobre um input comum — sem key configurada, o
-// script nunca carrega e o campo continua funcionando normal, como texto
-// livre (sem sugestão e sem mapa)
+const DEBOUNCE_MS = 400
+
+// Autocomplete via Nominatim (OpenStreetMap) — gratuito, sem API key nem
+// billing. Uso respeitoso da policy pública: debounce de 400ms (bem
+// abaixo do limite de 1 req/s deles) e cancela a busca anterior a cada
+// nova letra digitada.
 export function AddressAutocomplete({
   value,
   onChange,
   onPlaceSelected,
 }: AddressAutocompleteProps) {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const onChangeRef = useRef(onChange)
-  const onPlaceSelectedRef = useRef(onPlaceSelected)
+  const [sugestoes, setSugestoes] = useState<NominatimResult[]>([])
+  const [aberto, setAberto] = useState(false)
+  const [buscando, setBuscando] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const abortRef = useRef<AbortController | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    onChangeRef.current = onChange
-    onPlaceSelectedRef.current = onPlaceSelected
-  }, [onChange, onPlaceSelected])
-
-  useEffect(() => {
-    let listener: google.maps.MapsEventListener | undefined
-    let cancelado = false
-
-    loadGoogleMaps()
-      .then(() => {
-        if (cancelado || !inputRef.current) return
-        const autocomplete = new google.maps.places.Autocomplete(inputRef.current, {
-          fields: ['formatted_address', 'geometry'],
-          componentRestrictions: { country: 'br' },
-        })
-        listener = autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace()
-          const lat = place.geometry?.location?.lat()
-          const lng = place.geometry?.location?.lng()
-          if (place.formatted_address && lat != null && lng != null) {
-            onChangeRef.current(place.formatted_address)
-            onPlaceSelectedRef.current({ endereco: place.formatted_address, lat, lng })
-          }
-        })
-      })
-      .catch(() => {
-        // sem key ou falha de rede — segue como texto livre
-      })
-
-    return () => {
-      cancelado = true
-      listener?.remove()
+    const handleClickFora = (e: MouseEvent) => {
+      if (!containerRef.current?.contains(e.target as Node)) setAberto(false)
     }
+    document.addEventListener('mousedown', handleClickFora)
+    return () => document.removeEventListener('mousedown', handleClickFora)
   }, [])
 
+  const buscar = (query: string) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    abortRef.current?.abort()
+
+    if (query.trim().length < 3) {
+      setSugestoes([])
+      return
+    }
+
+    timeoutRef.current = setTimeout(async () => {
+      const controller = new AbortController()
+      abortRef.current = controller
+      setBuscando(true)
+      try {
+        const url = new URL('https://nominatim.openstreetmap.org/search')
+        url.searchParams.set('q', query)
+        url.searchParams.set('format', 'json')
+        url.searchParams.set('countrycodes', 'br')
+        url.searchParams.set('limit', '5')
+        const res = await fetch(url, { signal: controller.signal })
+        const data: NominatimResult[] = await res.json()
+        setSugestoes(data)
+        setAberto(true)
+      } catch {
+        // busca cancelada (nova letra digitada) ou falha de rede — segue
+        // como texto livre, sem sugestão
+      } finally {
+        setBuscando(false)
+      }
+    }, DEBOUNCE_MS)
+  }
+
+  const selecionar = (item: NominatimResult) => {
+    onChange(item.display_name)
+    onPlaceSelected({
+      endereco: item.display_name,
+      lat: Number(item.lat),
+      lng: Number(item.lon),
+    })
+    setSugestoes([])
+    setAberto(false)
+  }
+
   return (
-    <Input
-      ref={inputRef}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder="Opcional — comece a digitar o endereço..."
-    />
+    <div ref={containerRef} className="relative">
+      <Input
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value)
+          buscar(e.target.value)
+        }}
+        onFocus={() => sugestoes.length > 0 && setAberto(true)}
+        placeholder="Opcional — comece a digitar o endereço..."
+      />
+      {aberto && sugestoes.length > 0 && (
+        <ul className="border-border bg-card absolute z-10 mt-1 w-full overflow-hidden rounded-md border shadow-[var(--shadow-card-hover)]">
+          {sugestoes.map((item, i) => (
+            <li key={i}>
+              <button
+                type="button"
+                onClick={() => selecionar(item)}
+                className="hover:bg-muted w-full px-3 py-2 text-left text-xs"
+              >
+                {item.display_name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {buscando && (
+        <p className="text-muted-foreground mt-1 text-xs">Buscando...</p>
+      )}
+    </div>
   )
 }

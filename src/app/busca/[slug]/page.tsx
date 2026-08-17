@@ -3,6 +3,10 @@ import { mockToCard } from '@/lib/negocio-card'
 import { getNegociosAtivos } from '@/lib/negocios'
 import { BuscaCategoriaClient } from './busca-categoria-client'
 
+// Mesmo motivo do /busca: sem isso, o Next tenta pré-renderar no build,
+// onde as env vars do Supabase não existem, e quebra o deploy
+export const dynamic = 'force-dynamic'
+
 export default async function BuscaCategoriaPage({
   params,
 }: {

@@ -1,20 +1,21 @@
 /** @type {import('next').NextConfig} */
 
-// CSP permite: scripts/estilos próprios + Google Places Autocomplete,
-// conexão com Supabase e Google Geocoding/Places. Ajustar aqui se um
-// serviço novo (Resend, Sentry etc.) precisar de domínio liberado.
+// CSP permite: scripts/estilos próprios, conexão com Supabase e Nominatim
+// (busca de endereço, OpenStreetMap — gratuito, sem key), embed de mapa
+// do OpenStreetMap. Ajustar aqui se um serviço novo (Resend, Sentry etc.)
+// precisar de domínio liberado.
 // 'unsafe-eval' só entra em dev — o React precisa disso pra hot reload e
 // stack traces, mas nunca é adicionado no build de produção.
 const isDev = process.env.NODE_ENV !== 'production'
 
 const contentSecurityPolicy = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ''} https://maps.googleapis.com;
+  script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ''};
   style-src 'self' 'unsafe-inline';
   img-src 'self' data: blob: https:;
   font-src 'self' data:;
-  connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com;
-  frame-src 'self' https://www.google.com;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co https://nominatim.openstreetmap.org;
+  frame-src 'self' https://www.openstreetmap.org;
   frame-ancestors 'none';
   base-uri 'self';
   form-action 'self';
