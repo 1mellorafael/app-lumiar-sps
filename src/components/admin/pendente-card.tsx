@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Check, X, Phone, Tag } from 'lucide-react'
+import Link from 'next/link'
+import { Check, X, Phone, Tag, User, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 type Pendente = {
@@ -13,6 +14,7 @@ type Pendente = {
   descricao: string | null
   fotoPrincipalUrl: string | null
   criadoEm: string
+  criadoPor: string
 }
 
 export function PendenteCard({ pendente }: { pendente: Pendente }) {
@@ -44,7 +46,10 @@ export function PendenteCard({ pendente }: { pendente: Pendente }) {
 
   return (
     <div className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-3">
-      <div className="flex items-center gap-3">
+      <Link
+        href={`/servico/${pendente.id}`}
+        className="hover:bg-muted/50 -m-1 flex items-center gap-3 rounded-md p-1 transition-colors"
+      >
         <div className="bg-muted size-12 shrink-0 overflow-hidden rounded-full">
           {pendente.fotoPrincipalUrl && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -56,8 +61,9 @@ export function PendenteCard({ pendente }: { pendente: Pendente }) {
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-card-foreground truncate text-sm font-semibold">
+          <p className="text-card-foreground flex items-center gap-1 truncate text-sm font-semibold">
             {pendente.nomeServico}
+            <ExternalLink className="text-muted-foreground size-3 shrink-0" />
           </p>
           <div className="text-muted-foreground flex items-center gap-1 text-xs">
             <Tag className="size-3" />
@@ -67,8 +73,12 @@ export function PendenteCard({ pendente }: { pendente: Pendente }) {
             <Phone className="size-3" />
             {pendente.telefoneContato}
           </div>
+          <div className="text-muted-foreground flex items-center gap-1 text-xs">
+            <User className="size-3" />
+            Cadastrado por {pendente.criadoPor}
+          </div>
         </div>
-      </div>
+      </Link>
 
       {pendente.descricao && (
         <p className="text-card-foreground text-xs">{pendente.descricao}</p>

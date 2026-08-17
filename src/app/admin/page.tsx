@@ -20,13 +20,27 @@ export default async function AdminPage() {
 
   if (!profile?.is_admin) redirect('/')
 
-  const { data: prestadores } = await supabase
+  const { data: prestadoresRaw } = await supabase
     .from('prestadores')
     .select(
-      'id, nome_servico, categoria, descricao, telefone_contato, foto_principal_url, created_at'
+      'id, nome_servico, categoria, descricao, telefone_contato, foto_principal_url, created_at, profiles(nome)'
     )
     .eq('status', 'pendente')
     .order('created_at', { ascending: true })
+
+  // profile_id → profiles é N:1 (cada prestador tem 1 dono), então o
+  // embed vem como objeto — o tipo inferido pelo client (sem schema
+  // gerado) assume array por segurança, mas em runtime é singular
+  const prestadores = prestadoresRaw as unknown as Array<{
+    id: string
+    nome_servico: string | null
+    categoria: string
+    descricao: string | null
+    telefone_contato: string
+    foto_principal_url: string | null
+    created_at: string
+    profiles: { nome: string } | null
+  }> | null
 
   const pendentes = await Promise.all(
     (prestadores ?? []).map(async (p) => ({
@@ -37,6 +51,7 @@ export default async function AdminPage() {
       descricao: p.descricao,
       fotoPrincipalUrl: await fotoSignedUrl(p.foto_principal_url),
       criadoEm: p.created_at,
+      criadoPor: p.profiles?.nome ?? 'Desconhecido',
     }))
   )
 

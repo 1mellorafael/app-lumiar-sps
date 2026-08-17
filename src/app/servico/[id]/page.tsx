@@ -40,19 +40,25 @@ type DadosServico = {
   fotoPrincipalUrl: string | null
   fotoCapaUrl: string | null
   pendente: boolean
+  souDono: boolean
 }
 
 async function buscarPrestadorReal(id: string): Promise<DadosServico | null> {
   const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   const { data: prestador } = await supabase
     .from('prestadores')
     .select(
-      'id, nome_servico, categoria, descricao, instagram, telefone_contato, foto_principal_url, foto_capa_url, status'
+      'id, profile_id, nome_servico, categoria, descricao, instagram, telefone_contato, foto_principal_url, foto_capa_url, status'
     )
     .eq('id', id)
     .maybeSingle()
 
-  // RLS já barra pendente de quem não é dono — se voltou linha, pode mostrar
+  // RLS já barra pendente de quem não é dono nem admin — se voltou
+  // linha, pode mostrar
   if (!prestador) return null
 
   const [fotoPrincipalUrl, fotoCapaUrl] = await Promise.all([
@@ -70,6 +76,7 @@ async function buscarPrestadorReal(id: string): Promise<DadosServico | null> {
     fotoPrincipalUrl,
     fotoCapaUrl,
     pendente: prestador.status === 'pendente',
+    souDono: user?.id === prestador.profile_id,
   }
 }
 
@@ -106,6 +113,7 @@ export default async function ServicoPage({
     fotoPrincipalUrl: null,
     fotoCapaUrl: null,
     pendente: false,
+    souDono: false,
   }
 
   return (
@@ -114,8 +122,9 @@ export default async function ServicoPage({
 
       {dados.pendente && (
         <div className="border-secondary-500 bg-secondary-500/10 text-secondary-700 rounded-lg border px-3 py-2 text-sm">
-          Seu cadastro está em análise. Só você consegue ver esta página por
-          enquanto — assim que for aprovado, fica visível pra todo mundo.
+          {dados.souDono
+            ? 'Seu cadastro está em análise. Só você (e o admin) consegue ver esta página por enquanto — assim que for aprovado, fica visível pra todo mundo.'
+            : 'Este cadastro ainda está pendente de aprovação — você está vendo como admin, não é público ainda.'}
         </div>
       )}
 

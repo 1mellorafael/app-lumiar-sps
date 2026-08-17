@@ -8,7 +8,13 @@ import { Button } from '@/components/ui/button'
 
 // Nunca recebe/exibe email — CLAUDE.md seção 10: "Dados privados (email)
 // nunca aparecem nem pro próprio dono na tela de Perfil".
-export function AccountSection({ loggedIn }: { loggedIn: boolean }) {
+export function AccountSection({
+  loggedIn,
+  totalServicos,
+}: {
+  loggedIn: boolean
+  totalServicos: number
+}) {
   const router = useRouter()
   const [loggingOut, setLoggingOut] = useState(false)
 
@@ -30,16 +36,21 @@ export function AccountSection({ loggedIn }: { loggedIn: boolean }) {
       </div>
       {loggedIn ? (
         <>
-          <Button variant="ghost" className="justify-start" size="sm" asChild>
-            <Link href="/cadastro-servico">
-              <PlusCircle className="mr-2 size-4" />
-              Cadastrar serviço
-            </Link>
-          </Button>
-          <Button variant="ghost" className="justify-start" size="sm" disabled>
-            <Briefcase className="mr-2 size-4" />
-            Meus serviços (em breve)
-          </Button>
+          {totalServicos > 0 ? (
+            // "Cadastrar outro serviço" mora dentro dessa tela (Fase 3
+            // item 10, ainda não construída) — não compete aqui no Menu
+            <Button variant="ghost" className="justify-start" size="sm" disabled>
+              <Briefcase className="mr-2 size-4" />
+              Meus serviços ({totalServicos})
+            </Button>
+          ) : (
+            <Button variant="ghost" className="justify-start" size="sm" asChild>
+              <Link href="/cadastro-servico">
+                <PlusCircle className="mr-2 size-4" />
+                Cadastrar serviço
+              </Link>
+            </Button>
+          )}
           <Button
             variant="ghost"
             className="justify-start"
@@ -52,9 +63,14 @@ export function AccountSection({ loggedIn }: { loggedIn: boolean }) {
           </Button>
         </>
       ) : (
-        <Button variant="ghost" className="justify-start" size="sm" asChild>
-          <Link href="/login">Fazer login</Link>
-        </Button>
+        <>
+          <Button variant="ghost" className="justify-start" size="sm" asChild>
+            <Link href="/login">Fazer login</Link>
+          </Button>
+          <Button variant="ghost" className="justify-start" size="sm" asChild>
+            <Link href="/cadastro">Criar conta</Link>
+          </Button>
+        </>
       )}
     </section>
   )

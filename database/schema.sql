@@ -44,6 +44,31 @@ create policy "profiles_update_own"
   using ((select auth.uid()) = id)
   with check ((select auth.uid()) = id);
 
+-- Checagem de admin via function SECURITY DEFINER, não via
+-- "exists(select ... from profiles where is_admin)" inline — essa
+-- segunda forma causa recursão infinita numa policy de profiles, porque
+-- a subquery reavalia RLS de profiles de novo (que inclui essa mesma
+-- policy). A function roda como o dono dela, ignora RLS internamente.
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select coalesce((select is_admin from profiles where id = auth.uid()), false);
+$$;
+
+revoke execute on function public.is_admin() from public;
+grant execute on function public.is_admin() to authenticated;
+
+-- admin vê qualquer profile — precisa saber quem criou um cadastro
+-- pendente pra ter accountability na aprovação
+create policy "profiles_select_admin"
+  on profiles for select
+  to authenticated
+  using (public.is_admin());
+
 -- criação do profile acontece via trigger no signup (auth.users),
 -- não por insert direto do cliente — ver seção de trigger abaixo
 
@@ -87,10 +112,7 @@ create policy "prestadores_select_authenticated"
   using (
     status = 'ativo'
     or profile_id = (select auth.uid())
-    or exists (
-      select 1 from profiles p
-      where p.id = (select auth.uid()) and p.is_admin
-    )
+    or public.is_admin()
   );
 
 -- dono cria só pra si mesmo
@@ -113,18 +135,8 @@ create policy "prestadores_update_own"
 create policy "prestadores_update_status_admin"
   on prestadores for update
   to authenticated
-  using (
-    exists (
-      select 1 from profiles p
-      where p.id = (select auth.uid()) and p.is_admin
-    )
-  )
-  with check (
-    exists (
-      select 1 from profiles p
-      where p.id = (select auth.uid()) and p.is_admin
-    )
-  );
+  using (public.is_admin())
+  with check (public.is_admin());
 
 -- ============================================================
 -- galeria_fotos: até 5 por prestador, adicionadas pós-cadastro
