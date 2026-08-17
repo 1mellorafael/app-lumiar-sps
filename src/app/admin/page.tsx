@@ -36,13 +36,24 @@ export default async function AdminPage() {
 
   if (!profile?.is_admin) redirect('/')
 
-  const { data: negociosRaw } = await supabase
-    .from('negocios')
-    .select(
-      'id, nome_negocio, categorias, foto_principal_url, foto_principal_pos_x, foto_principal_pos_y, created_at, profiles(nome)'
-    )
-    .eq('status', 'pendente')
-    .order('created_at', { ascending: true })
+  // negocios e edicoes não dependem uma da outra — rodar em paralelo
+  // corta 2 round-trips pro Supabase (~90ms cada) pra 1
+  const [{ data: negociosRaw }, { data: edicoesRaw }] = await Promise.all([
+    supabase
+      .from('negocios')
+      .select(
+        'id, nome_negocio, categorias, foto_principal_url, foto_principal_pos_x, foto_principal_pos_y, created_at, profiles(nome)'
+      )
+      .eq('status', 'pendente')
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('negocio_edicoes')
+      .select(
+        'id, negocio_id, campos_alterados, nivel_alerta, editado_em, negocios(nome_negocio)'
+      )
+      .order('editado_em', { ascending: false })
+      .limit(20),
+  ])
 
   // profile_id → profiles é N:1 (cada negócio tem 1 dono), então o
   // embed vem como objeto — o tipo inferido pelo client (sem schema
@@ -74,12 +85,6 @@ export default async function AdminPage() {
       criadoPor: n.profiles?.nome ?? 'Desconhecido',
     }))
   )
-
-  const { data: edicoesRaw } = await supabase
-    .from('negocio_edicoes')
-    .select('id, negocio_id, campos_alterados, nivel_alerta, editado_em, negocios(nome_negocio)')
-    .order('editado_em', { ascending: false })
-    .limit(20)
 
   // negocio_id → negocios é N:1, embed vem como objeto (mesmo caso do
   // profiles acima)

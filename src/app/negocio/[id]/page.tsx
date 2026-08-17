@@ -54,11 +54,16 @@ type DadosNegocio = {
 
 async function buscarNegocioReal(id: string): Promise<DadosNegocio | null> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
 
-  const [{ data: negocio }, { data: profile }] = await Promise.all([
+  // getUser() e a query do negócio não dependem uma da outra — rodar em
+  // paralelo corta um round-trip pro Supabase (~90ms)
+  const [
+    {
+      data: { user },
+    },
+    { data: negocio },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
     supabase
       .from('negocios')
       .select(
@@ -66,14 +71,20 @@ async function buscarNegocioReal(id: string): Promise<DadosNegocio | null> {
       )
       .eq('id', id)
       .maybeSingle(),
-    user
-      ? supabase.from('profiles').select('is_admin').eq('id', user.id).single()
-      : Promise.resolve({ data: null }),
   ])
 
   // RLS já barra pendente de quem não é dono nem admin — se voltou
   // linha, pode mostrar
   if (!negocio) return null
+
+  // souAdmin só importa quando pendente (mostra o AdminActions) — pula
+  // mais um round-trip pro Supabase na visita comum de um negócio ativo
+  const profile =
+    negocio.status === 'pendente' && user
+      ? (
+          await supabase.from('profiles').select('is_admin').eq('id', user.id).single()
+        ).data
+      : null
 
   const [fotoPrincipalUrl, fotoCapaUrl] = await Promise.all([
     fotoSignedUrl(negocio.foto_principal_url),
