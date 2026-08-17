@@ -1,19 +1,10 @@
-import 'server-only'
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
 
-// Client admin com service_role key — bypassa RLS.
-// 'server-only' faz o build falhar se isso for importado num Client Component.
-// Usar SÓ em rotas admin (ex: aprovar/rejeitar prestador), nunca em endpoint
-// público.
+// Admin client — usa service_role key, roda só no backend.
+// Nunca expor pra cliente; usar só em API routes com server-only.
 export function createAdminClient() {
-  return createSupabaseClient(
+  return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    }
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 }
