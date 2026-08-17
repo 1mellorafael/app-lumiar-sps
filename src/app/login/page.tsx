@@ -108,7 +108,7 @@ export default function LoginPage() {
             href="/cadastro"
             className="text-primary-500 underline hover:no-underline"
           >
-            Cadastrar Serviço
+            Criar conta
           </Link>
         </p>
       </form>

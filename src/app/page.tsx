@@ -19,7 +19,7 @@ export default function Home() {
           Anúncio fica até decisão de rede de ads (pendência aberta). */}
       <div className="grid grid-cols-2 gap-2">
         <a
-          href="/cadastro"
+          href="/cadastro-servico"
           className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.97] flex flex-col items-start gap-1 rounded-lg border p-3 transition-all duration-200 ease-decelerate"
         >
           <Briefcase className="text-primary-500 size-5" />

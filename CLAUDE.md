@@ -143,7 +143,17 @@ Custo mensal do MVP: R$ 0 (free tiers).
 
 ## 7. Fluxo de cadastro
 
-### Passo 1 — Sua Conta (só ao clicar "Cadastrar Serviço")
+**Decisão de 17/08 (revisa a versão original deste documento):** conta
+pessoal (`/cadastro`) e cadastro de serviço (`/cadastro-servico`) são
+duas telas **separadas**, não um wizard de "Passo 1 de 2" / "Passo 2 de
+2". Motivo: conta serve pra qualquer morador (Alerta, sugestão, futuro
+Comunidade), não só pra quem presta serviço — forçar quem só quer criar
+conta a passar pela tela de serviço é fricção sem propósito. Depois de
+criar a conta, a pessoa escolhe explicitamente "Cadastrar meu serviço"
+ou "Ir pro Menu", em vez de cair automaticamente no formulário de
+serviço.
+
+### `/cadastro` — Criar Conta
 
 ```
 Nome                    ← auto-capitaliza
@@ -156,15 +166,21 @@ Senha + Confirmar Senha ← medidor de força, precisam bater
     Cadastros fora da região podem ser removidos sem aviso prévio."
 
 → Email/telefone já existentes: erro inline, sugere login
+→ Sucesso: tela de confirmação com dois botões — "Cadastrar meu
+  serviço" (vai pra /cadastro-servico) ou "Ir pro Menu"
 ```
 
-### Passo 2 — Seu Serviço (direto na sequência)
+### `/cadastro-servico` — Cadastrar Serviço (exige login; quem não tem
+conta é mandado pro login, que linka pra `/cadastro`)
 
 ```
 Foto Principal (obrigatória — centro do card)
 Foto de Capa (opcional — fundo atrás da principal)
 Categoria (dropdown)
 Nome do Serviço (opcional)   ← auto-capitaliza
+Telefone de contato do serviço ← campo próprio, pode ser diferente do
+  telefone da conta (pré-preenchido com ele, mas editável — ver seção
+  "Cadastro por terceiro" em docs/06)
 Descrição (opcional)         ← auto-capitaliza
 Instagram (opcional)
 ☑️ Termos de Prestador
@@ -312,3 +328,13 @@ adiar monetização via ads.
 
 Nenhuma dessas entra no V0 atual — só mencionar se o usuário perguntar
 sobre o roadmap.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

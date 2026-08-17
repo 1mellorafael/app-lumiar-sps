@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { LogIn, LogOut, Briefcase } from 'lucide-react'
+import { LogIn, LogOut, Briefcase, PlusCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 // Nunca recebe/exibe email — CLAUDE.md seção 10: "Dados privados (email)
@@ -30,6 +30,12 @@ export function AccountSection({ loggedIn }: { loggedIn: boolean }) {
       </div>
       {loggedIn ? (
         <>
+          <Button variant="ghost" className="justify-start" size="sm" asChild>
+            <Link href="/cadastro-servico">
+              <PlusCircle className="mr-2 size-4" />
+              Cadastrar serviço
+            </Link>
+          </Button>
           <Button variant="ghost" className="justify-start" size="sm" disabled>
             <Briefcase className="mr-2 size-4" />
             Meus serviços (em breve)
