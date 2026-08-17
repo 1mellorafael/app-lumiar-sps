@@ -1,12 +1,19 @@
-import { createClient } from '@/lib/supabase/server'
+import { unstable_cache } from 'next/cache'
+import { createPublicClient } from '@/lib/supabase/public'
 import { fotoSignedUrl } from '@/lib/supabase/signed-url'
 import { localizacoesAbrev } from '@/lib/mock-data'
 import type { NegocioCard } from '@/lib/negocio-card'
 
+export const NEGOCIOS_ATIVOS_TAG = 'negocios-ativos'
+
 // Só os campos públicos de um negócio ativo — RLS já barra pendente pra
-// quem não é dono/admin, mas o select também limita o que sai daqui
-export async function getNegociosAtivos(): Promise<NegocioCard[]> {
-  const supabase = await createClient()
+// quem não é dono/admin, mas o select também limita o que sai daqui.
+// Cacheado por 30s (client público, sem cookies) — sem isso, toda
+// navegação pra Busca/Categorias refazia a query + gerava signed URL de
+// cada foto na hora, cada uma um round-trip pro Supabase. revalidateTag
+// invalida na hora quando um negócio é aprovado/editado.
+async function buscarNegociosAtivos(): Promise<NegocioCard[]> {
+  const supabase = createPublicClient()
   const { data } = await supabase
     .from('negocios')
     .select(
@@ -31,3 +38,9 @@ export async function getNegociosAtivos(): Promise<NegocioCard[]> {
     }))
   )
 }
+
+export const getNegociosAtivos = unstable_cache(
+  buscarNegociosAtivos,
+  ['negocios-ativos'],
+  { revalidate: 30, tags: [NEGOCIOS_ATIVOS_TAG] }
+)

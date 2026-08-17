@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { negocioSchema } from '@/lib/validations/negocio'
 import { validarFoto, uploadFoto } from '@/lib/negocio-foto-upload'
 import { calcularCamposAlterados, calcularNivelAlerta } from '@/lib/negocio-edicao'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { NEGOCIOS_ATIVOS_TAG } from '@/lib/negocios'
 
 export async function PATCH(
   request: Request,
@@ -136,6 +138,10 @@ export async function PATCH(
       { status: 500 }
     )
   }
+
+  // Se o negócio já era ativo, a edição pode ter mudado algo visível na
+  // Busca (foto, nome, categoria) — invalida o cache pra refletir na hora
+  revalidateTag(NEGOCIOS_ATIVOS_TAG, 'max')
 
   const camposAlterados = calcularCamposAlterados(existente, depois)
   if (camposAlterados.length > 0) {

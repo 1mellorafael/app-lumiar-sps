@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { statusNegocioSchema } from '@/lib/validations/admin'
 import { createClient } from '@/lib/supabase/server'
+import { NEGOCIOS_ATIVOS_TAG } from '@/lib/negocios'
 
 export async function PATCH(
   request: Request,
@@ -48,6 +50,10 @@ export async function PATCH(
       { status: 500 }
     )
   }
+
+  // Aprovar/rejeitar muda quem aparece na Busca — sem isso, a lista
+  // cacheada só atualizaria depois dos 30s de revalidate
+  revalidateTag(NEGOCIOS_ATIVOS_TAG, 'max')
 
   return NextResponse.json({ ok: true })
 }
