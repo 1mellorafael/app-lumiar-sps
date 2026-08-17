@@ -6,9 +6,21 @@ import { cookies } from 'next/headers'
 export async function createClient() {
   const cookieStore = await cookies()
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  // Mensagem própria em vez de deixar o @supabase/ssr estourar a genérica
+  // "URL and Key are required" — mais fácil de diagnosticar se a env var
+  // sumir num cold start (error.tsx captura de qualquer jeito, mas isso
+  // deixa claro no log qual é o problema real)
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error(
+      'Supabase não configurado: NEXT_PUBLIC_SUPABASE_URL/NEXT_PUBLIC_SUPABASE_ANON_KEY ausentes no ambiente.'
+    )
+  }
+
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {

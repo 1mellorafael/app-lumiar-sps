@@ -18,9 +18,15 @@ export async function getCroppedImageFile(
   fileName: string
 ): Promise<File> {
   const image = await loadImage(imageSrc)
+  // react-easy-crop devolve dimensões fracionárias — canvas.width/height
+  // truncam sozinhos ao serem atribuídos, mas o retângulo de origem do
+  // drawImage não, o que desalinhava por uma fração de pixel a foto
+  // salva em relação ao que apareceu no preview do recorte
+  const largura = Math.round(crop.width)
+  const altura = Math.round(crop.height)
   const canvas = document.createElement('canvas')
-  canvas.width = crop.width
-  canvas.height = crop.height
+  canvas.width = largura
+  canvas.height = altura
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Canvas 2D não disponível')
 
@@ -32,8 +38,8 @@ export async function getCroppedImageFile(
     crop.height,
     0,
     0,
-    crop.width,
-    crop.height
+    largura,
+    altura
   )
 
   const blob = await new Promise<Blob | null>((resolve) =>

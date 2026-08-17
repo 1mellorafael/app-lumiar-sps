@@ -61,24 +61,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: erroCapa, field: 'fotoCapa' }, { status: 400 })
   }
 
-  const { caminho: caminhoPrincipal, erro: erroUploadPrincipal } = await uploadFoto(
-    supabase,
-    fotoPrincipal as File,
-    user.id,
-    'principal'
-  )
-  if (erroUploadPrincipal) {
-    return NextResponse.json({ error: erroUploadPrincipal }, { status: 500 })
+  const temCapa = fotoCapa instanceof File && fotoCapa.size > 0
+
+  // Uploads independentes — rodar em paralelo evita dobrar a espera na
+  // etapa mais lenta do cadastro (Storage) quando tem foto de capa também
+  const [uploadPrincipal, uploadCapa] = await Promise.all([
+    uploadFoto(supabase, fotoPrincipal as File, user.id, 'principal'),
+    temCapa
+      ? uploadFoto(supabase, fotoCapa as File, user.id, 'capa')
+      : Promise.resolve({ caminho: null, erro: null }),
+  ])
+
+  if (uploadPrincipal.erro) {
+    return NextResponse.json({ error: uploadPrincipal.erro }, { status: 500 })
+  }
+  if (uploadCapa.erro) {
+    return NextResponse.json({ error: uploadCapa.erro }, { status: 500 })
   }
 
-  let caminhoCapa: string | null = null
-  if (fotoCapa instanceof File && fotoCapa.size > 0) {
-    const { caminho, erro } = await uploadFoto(supabase, fotoCapa, user.id, 'capa')
-    if (erro) {
-      return NextResponse.json({ error: erro }, { status: 500 })
-    }
-    caminhoCapa = caminho
-  }
+  const caminhoPrincipal = uploadPrincipal.caminho
+  const caminhoCapa = uploadCapa.caminho
 
   const {
     nomeNegocio,

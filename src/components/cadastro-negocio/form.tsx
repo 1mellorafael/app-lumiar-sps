@@ -300,8 +300,11 @@ export function NegocioForm({
           <AddressAutocomplete
             value={formData.endereco}
             onChange={(v) => {
+              // Não zera enderecoCoords aqui — digitar (ex: corrigir um
+              // typo) sem reselecionar uma sugestão não pode apagar o
+              // pin do mapa já salvo. Só é substituído quando um lugar
+              // novo é escolhido de verdade (onPlaceSelected abaixo).
               setFormData((prev) => ({ ...prev, endereco: v }))
-              setEnderecoCoords(null)
             }}
             onPlaceSelected={({ endereco, lat, lng }) => {
               setFormData((prev) => ({ ...prev, endereco }))

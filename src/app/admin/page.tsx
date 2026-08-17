@@ -133,7 +133,7 @@ export default async function AdminPage() {
               <Link
                 key={e.id}
                 href={`/negocio/${e.negocio_id}`}
-                className={`hover:bg-accent flex items-center gap-2 px-3 py-2.5 transition-colors ${
+                className={`hover:bg-accent active:bg-accent/70 flex items-center gap-2 px-3 py-2.5 transition-colors duration-150 ease-standard ${
                   i !== edicoes.length - 1 ? 'border-border/70 border-b' : ''
                 }`}
               >

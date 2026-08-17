@@ -47,6 +47,17 @@ export function AddressAutocomplete({
     return () => document.removeEventListener('mousedown', handleClickFora)
   }, [])
 
+  // Sem isso, sair da tela no meio do debounce (ex: digitou e navegou
+  // antes dos 400ms) deixa o setTimeout disparar sozinho depois —
+  // request desnecessária pro Nominatim e setState em componente já
+  // desmontado
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      abortRef.current?.abort()
+    }
+  }, [])
+
   const buscar = (query: string) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
     abortRef.current?.abort()
@@ -108,7 +119,7 @@ export function AddressAutocomplete({
               <button
                 type="button"
                 onClick={() => selecionar(item)}
-                className="hover:bg-muted w-full px-3 py-2 text-left text-xs"
+                className="hover:bg-muted active:bg-muted/70 w-full px-3 py-2 text-left text-xs transition-colors duration-150 ease-standard"
               >
                 {item.display_name}
               </button>

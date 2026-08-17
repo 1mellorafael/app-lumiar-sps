@@ -13,21 +13,29 @@ export async function PATCH(
 ) {
   const { id } = await params
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+
+  // getUser() e a query do negócio não dependem uma da outra — rodar em
+  // paralelo corta um round-trip pro Supabase (~90ms), mesmo ajuste já
+  // aplicado em src/app/negocio/[id]/page.tsx
+  const [
+    {
+      data: { user },
+    },
+    { data: existente },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .from('negocios')
+      .select(
+        'id, profile_id, nome_negocio, categorias, localizacoes, endereco, descricao, instagram, telefone_contato, foto_principal_url, foto_capa_url'
+      )
+      .eq('id', id)
+      .maybeSingle(),
+  ])
 
   if (!user) {
     return NextResponse.json({ error: 'Faça login pra continuar.' }, { status: 401 })
   }
-
-  const { data: existente } = await supabase
-    .from('negocios')
-    .select(
-      'id, profile_id, nome_negocio, categorias, localizacoes, endereco, descricao, instagram, telefone_contato, foto_principal_url, foto_capa_url'
-    )
-    .eq('id', id)
-    .maybeSingle()
 
   if (!existente) {
     return NextResponse.json({ error: 'Negócio não encontrado.' }, { status: 404 })
@@ -85,19 +93,29 @@ export async function PATCH(
     return NextResponse.json({ error: erroCapa, field: 'fotoCapa' }, { status: 400 })
   }
 
-  let caminhoPrincipal = existente.foto_principal_url
-  if (fotoPrincipal instanceof File && fotoPrincipal.size > 0) {
-    const { caminho, erro } = await uploadFoto(supabase, fotoPrincipal, user.id, 'principal')
-    if (erro) return NextResponse.json({ error: erro }, { status: 500 })
-    caminhoPrincipal = caminho
+  const novaPrincipal = fotoPrincipal instanceof File && fotoPrincipal.size > 0
+  const novaCapa = fotoCapa instanceof File && fotoCapa.size > 0
+
+  // Uploads independentes — rodar em paralelo evita dobrar a espera
+  // (Storage é a etapa mais lenta desse handler) quando os dois trocam
+  const [uploadPrincipal, uploadCapa] = await Promise.all([
+    novaPrincipal
+      ? uploadFoto(supabase, fotoPrincipal as File, user.id, 'principal')
+      : Promise.resolve({ caminho: existente.foto_principal_url, erro: null }),
+    novaCapa
+      ? uploadFoto(supabase, fotoCapa as File, user.id, 'capa')
+      : Promise.resolve({ caminho: existente.foto_capa_url, erro: null }),
+  ])
+
+  if (uploadPrincipal.erro) {
+    return NextResponse.json({ error: uploadPrincipal.erro }, { status: 500 })
+  }
+  if (uploadCapa.erro) {
+    return NextResponse.json({ error: uploadCapa.erro }, { status: 500 })
   }
 
-  let caminhoCapa = existente.foto_capa_url
-  if (fotoCapa instanceof File && fotoCapa.size > 0) {
-    const { caminho, erro } = await uploadFoto(supabase, fotoCapa, user.id, 'capa')
-    if (erro) return NextResponse.json({ error: erro }, { status: 500 })
-    caminhoCapa = caminho
-  }
+  const caminhoPrincipal = uploadPrincipal.caminho
+  const caminhoCapa = uploadCapa.caminho
 
   const {
     nomeNegocio,
@@ -123,6 +141,11 @@ export async function PATCH(
     telefone_contato: telefoneContato,
     foto_principal_url: caminhoPrincipal,
     foto_capa_url: caminhoCapa,
+    // Foto nova já chega pré-recortada (PhotoCropField) — reseta a
+    // posição pro default, senão um offset salvo da era do drag antigo
+    // (pré-recorte) fica aplicado por cima da foto nova, deslocando ela
+    ...(novaPrincipal && { foto_principal_pos_x: 50, foto_principal_pos_y: 50 }),
+    ...(novaCapa && { foto_capa_pos_x: 50, foto_capa_pos_y: 50 }),
   }
 
   // Whitelist explícito — "status" nunca entra aqui, então nunca pode vir
