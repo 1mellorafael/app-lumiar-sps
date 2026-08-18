@@ -81,7 +81,9 @@ create policy "profiles_select_admin"
 -- básico — mesma filosofia do cadastro leve já usada aqui.
 create table negocios (
   id uuid primary key default gen_random_uuid(),
-  profile_id uuid not null references profiles(id) on delete cascade,
+  -- null = cadastrado pelo admin, sem dono ainda (aguardando alguém
+  -- reivindicar) — migration 0018
+  profile_id uuid references profiles(id) on delete cascade,
   nome_negocio varchar(255) not null,
   -- array — um negócio pode ser mais de uma coisa (motoboy/mototáxi,
   -- hospedagem pet/adestramento), evita cadastro duplicado só pra isso
@@ -145,6 +147,12 @@ create policy "negocios_insert_own"
   on negocios for insert
   to authenticated
   with check ((select auth.uid()) = profile_id);
+
+-- admin cria negócio sem dono (profile_id null) — migration 0018
+create policy "negocios_insert_admin"
+  on negocios for insert
+  to authenticated
+  with check (public.is_admin());
 
 -- dono edita só os próprios; "status" não entra no whitelist de campos
 -- editáveis pelo cliente — isso é reforçado na API route (Zod schema),

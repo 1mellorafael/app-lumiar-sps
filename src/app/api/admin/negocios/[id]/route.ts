@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { revalidateTag } from 'next/cache'
-import { statusNegocioSchema } from '@/lib/validations/admin'
+import { statusNegocioSchema, transferirDonoSchema } from '@/lib/validations/admin'
 import { createClient } from '@/lib/supabase/server'
 import { NEGOCIOS_ATIVOS_TAG } from '@/lib/negocios'
 
@@ -31,6 +31,47 @@ export async function PATCH(
   }
 
   const body = await request.json().catch(() => null)
+
+  // Transferir posse (negócio sem dono -> dono real, achado pelo
+  // telefone da conta) é uma ação diferente de aprovar/rejeitar — mesma
+  // rota, corpo diferente
+  const parsedTransfer = transferirDonoSchema.safeParse(body)
+  if (parsedTransfer.success) {
+    const { data: novoDono, error: buscaErro } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('telefone', parsedTransfer.data.telefoneNovoDono)
+      .maybeSingle()
+
+    if (buscaErro) {
+      return NextResponse.json(
+        { error: 'Não foi possível buscar esse telefone. Tente novamente.' },
+        { status: 500 }
+      )
+    }
+    if (!novoDono) {
+      return NextResponse.json(
+        { error: 'Nenhuma conta encontrada com esse telefone — a pessoa precisa criar a conta primeiro.' },
+        { status: 404 }
+      )
+    }
+
+    // whitelist explícita: só profile_id muda aqui, nenhum outro campo
+    const { error } = await supabase
+      .from('negocios')
+      .update({ profile_id: novoDono.id })
+      .eq('id', id)
+
+    if (error) {
+      return NextResponse.json(
+        { error: 'Não foi possível transferir. Tente novamente.' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ ok: true })
+  }
+
   const parsed = statusNegocioSchema.safeParse(body)
 
   if (!parsed.success) {

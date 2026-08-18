@@ -106,6 +106,13 @@ export default async function AdminPage() {
           : `${pendentes.length} cadastro${pendentes.length > 1 ? 's' : ''} pendente${pendentes.length > 1 ? 's' : ''}`}
       </p>
 
+      <Link
+        href="/admin/negocios/novo"
+        className="border-border text-neutral-text hover:bg-muted active:scale-[0.98] active:translate-y-px flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-all duration-150 ease-standard"
+      >
+        Cadastrar negócio sem dono
+      </Link>
+
       <div className="flex flex-col gap-3">
         {pendentes.map((n) => (
           <PendenteCard key={n.id} pendente={n} />

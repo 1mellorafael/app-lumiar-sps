@@ -3,8 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { PageHeader } from '@/components/shared/page-header'
 import { PerfilForm } from '@/components/perfil/perfil-form'
 
-// Nunca busca/exibe email aqui — CLAUDE.md seção 10: "Dados privados
-// (email) nunca aparecem nem pro próprio dono na tela de Perfil".
+// Decisão de 17/08 (revisa a anterior): email passa a aparecer aqui,
+// só leitura — trocar email exige fluxo de confirmação do Supabase Auth
+// que ainda não existe, então não é editável por este formulário.
 export default async function PerfilPage() {
   const supabase = await createClient()
   const {
@@ -25,6 +26,7 @@ export default async function PerfilPage() {
       <PerfilForm
         nomeInicial={profile?.nome ?? ''}
         telefoneInicial={profile?.telefone ?? ''}
+        email={user.email ?? ''}
       />
     </main>
   )

@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation'
 import { LogIn, LogOut, Briefcase, PlusCircle, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-// Nunca recebe/exibe email — CLAUDE.md seção 10: "Dados privados (email)
-// nunca aparecem nem pro próprio dono na tela de Perfil".
+// Este componente em si não lida com email — quem mostra nome/telefone/
+// email é a tela /perfil (CLAUDE.md seção 10)
 export function AccountSection({
   loggedIn,
   totalNegocios,

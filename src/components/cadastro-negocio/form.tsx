@@ -30,9 +30,15 @@ export type NegocioExistente = {
 export function NegocioForm({
   telefoneConta,
   negocioExistente,
+  adminMode = false,
 }: {
   telefoneConta: string
   negocioExistente?: NegocioExistente
+  // Cadastro direto pelo admin (ex: base de prospecção já verificada) —
+  // não tem "conta" de dono nesse momento (fica sem dono até alguém
+  // reivindicar depois), então não faz sentido aceitar termos em nome
+  // de ninguém nem pré-preencher telefone de conta nenhuma
+  adminMode?: boolean
 }) {
   const router = useRouter()
   const editando = !!negocioExistente
@@ -60,7 +66,7 @@ export function NegocioForm({
   )
   const [fotoPrincipal, setFotoPrincipal] = useState<File | null>(null)
   const [fotoCapa, setFotoCapa] = useState<File | null>(null)
-  const [termosPresta, setTermosPresta] = useState(editando)
+  const [termosPresta, setTermosPresta] = useState(editando || adminMode)
   const [negocioError, setNegocioError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -130,7 +136,9 @@ export function NegocioForm({
 
       const url = editando
         ? `/api/negocios/${negocioExistente.id}`
-        : '/api/negocios'
+        : adminMode
+          ? '/api/admin/negocios'
+          : '/api/negocios'
       const res = await fetch(url, {
         method: editando ? 'PATCH' : 'POST',
         body,
@@ -159,12 +167,14 @@ export function NegocioForm({
     <main className="mx-auto flex max-w-md flex-col gap-4 p-4">
       <PageHeader
         title={editando ? 'Editar Negócio' : 'Cadastrar Negócio'}
-        backHref={editando ? `/negocio/${negocioExistente.id}` : '/menu'}
+        backHref={editando ? `/negocio/${negocioExistente.id}` : adminMode ? '/admin' : '/menu'}
       />
       <p className="text-muted-foreground text-center text-sm">
         {editando
           ? 'As mudanças ficam visíveis na hora'
-          : 'Fica pendente até um admin aprovar'}
+          : adminMode
+            ? 'Fica ativo direto, sem dono — transfira a posse depois em /admin'
+            : 'Fica pendente até um admin aprovar'}
       </p>
 
       <form onSubmit={handleNegocioSubmit} className="flex flex-col gap-3">
@@ -361,7 +371,7 @@ export function NegocioForm({
           />
         </div>
 
-        {!editando && (
+        {!editando && !adminMode && (
           <div className="flex items-start gap-2">
             <input
               id="termosPresta"

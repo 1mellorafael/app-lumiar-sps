@@ -197,6 +197,28 @@ Instagram (opcional)
   (até 5) é adicionada lá, não durante o cadastro
 ```
 
+### Cadastro direto pelo admin (decisão de 17/08)
+
+Admin pode cadastrar um negócio sem dono (`/admin/negocios/novo`) — caso
+de uso: base de prospecção já verificada manualmente (ex: negócios
+conhecidos dos grupos de WhatsApp, ou de outro app da região). Diferente
+do fluxo normal:
+
+```
+→ profile_id fica null (sem dono)
+→ Status ATIVO direto — admin já verificou a fonte, não passa por
+  aprovação de novo
+→ Sem checkbox de Termos de Uso (ninguém está aceitando em nome do
+  negócio ainda)
+```
+
+Quando o dono real cria conta, o admin transfere a posse pelo telefone
+da conta dele (campo "Transferir" na própria página do negócio, visível
+só pro admin enquanto `naoReivindicado`) — a API confere que já existe
+uma conta com aquele telefone antes de transferir. A partir daí o
+negócio funciona igual a qualquer outro (dono edita, aparece em "Meus
+Negócios" dele etc).
+
 ---
 
 ## 8. Estrutura de dados (schema base)
@@ -288,8 +310,12 @@ Serviços" (se logado), Configurações (tema claro/escuro, idioma com
 bandeiras 🇧🇷/🇺🇸), Adicionar à Tela Inicial, Enviar Sugestão, Sobre o App
 (Termos de Uso + Política de Privacidade).
 
-Dados privados (email) nunca aparecem nem pro próprio dono na tela de
-Perfil — ele já sabe qual é o email dele.
+**Decisão de 17/08 (revisa a versão anterior deste documento):** a tela
+Meu Perfil (`/perfil`) mostra nome, telefone e email — os três dados
+coletados no cadastro. Nome e telefone são editáveis (`PATCH
+/api/perfil`, whitelist só desses dois campos); email aparece só
+leitura, porque trocar email exige um fluxo de confirmação do Supabase
+Auth que ainda não foi construído.
 
 ---
 

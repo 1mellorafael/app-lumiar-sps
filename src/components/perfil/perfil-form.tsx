@@ -9,9 +9,11 @@ import { capitalizeWords, formatarTelefone } from '@/lib/utils'
 export function PerfilForm({
   nomeInicial,
   telefoneInicial,
+  email,
 }: {
   nomeInicial: string
   telefoneInicial: string
+  email: string
 }) {
   const [nome, setNome] = useState(nomeInicial)
   const [telefone, setTelefone] = useState(formatarTelefone(telefoneInicial))
@@ -58,6 +60,16 @@ export function PerfilForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <div>
+        <label htmlFor="email" className="text-neutral-text block text-sm font-medium">
+          Email
+        </label>
+        <Input id="email" value={email} disabled />
+        <p className="text-muted-foreground mt-1 text-xs">
+          Não pode ser alterado por aqui.
+        </p>
+      </div>
+
       <div>
         <label htmlFor="nome" className="text-neutral-text block text-sm font-medium">
           Nome
