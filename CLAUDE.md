@@ -162,6 +162,7 @@ serviço.
 ### `/cadastro` — Criar Conta
 
 ```
+Foto de perfil (opcional) ← recorte redondo, mesmo editor com touch do negócio
 Nome                    ← auto-capitaliza
 Email                   ← valida formato
 Telefone                ← máscara (xx) xxxxx-xxxx

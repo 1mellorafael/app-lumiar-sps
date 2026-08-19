@@ -9,7 +9,7 @@ import { PageHeader } from '@/components/shared/page-header'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [senha, setSenha] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -23,7 +23,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, senha }),
+        body: JSON.stringify({ username, senha }),
       })
       const data = await res.json()
 
@@ -51,20 +51,28 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <div>
           <label
-            htmlFor="email"
+            htmlFor="username"
             className="text-neutral-text block text-sm font-medium"
           >
-            Email
+            Usuário
           </label>
           <Input
-            id="email"
-            name="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="seu@email.com"
+            id="username"
+            name="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="seu_usuario"
+            autoCapitalize="none"
             required
           />
+          <p className="mt-1 text-right text-xs">
+            <Link
+              href="/recuperar-usuario"
+              className="text-primary-500 underline hover:no-underline"
+            >
+              Esqueci meu usuário
+            </Link>
+          </p>
         </div>
 
         <div>
@@ -83,6 +91,14 @@ export default function LoginPage() {
             placeholder="••••••"
             required
           />
+          <p className="mt-1 text-right text-xs">
+            <Link
+              href="/recuperar-senha"
+              className="text-primary-500 underline hover:no-underline"
+            >
+              Esqueci minha senha
+            </Link>
+          </p>
         </div>
 
         {error && <p className="text-destructive text-xs">{error}</p>}
