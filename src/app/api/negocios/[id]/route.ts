@@ -27,7 +27,7 @@ export async function PATCH(
     supabase
       .from('negocios')
       .select(
-        'id, profile_id, nome_negocio, categorias, localizacoes, endereco, descricao, instagram, telefone_contato, foto_principal_url, foto_capa_url'
+        'id, profile_id, nome_negocio, categorias, localizacoes, endereco, descricao, instagram, telefone_contato, visibilidade, foto_principal_url, foto_capa_url'
       )
       .eq('id', id)
       .maybeSingle(),
@@ -61,6 +61,7 @@ export async function PATCH(
     descricao: form.get('descricao'),
     instagram: form.get('instagram'),
     telefoneContato: form.get('telefoneContato'),
+    visibilidade: form.get('visibilidade') || existente.visibilidade,
   })
 
   if (!parsed.success) {
@@ -127,6 +128,7 @@ export async function PATCH(
     descricao,
     instagram,
     telefoneContato,
+    visibilidade,
   } = parsed.data
 
   const depois = {
@@ -139,6 +141,7 @@ export async function PATCH(
     descricao: descricao || null,
     instagram: instagram || null,
     telefone_contato: telefoneContato,
+    visibilidade,
     foto_principal_url: caminhoPrincipal,
     foto_capa_url: caminhoCapa,
     // Foto nova já chega pré-recortada (PhotoCropField) — reseta a

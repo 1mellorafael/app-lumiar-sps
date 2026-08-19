@@ -28,6 +28,7 @@ export async function POST(request: Request) {
     descricao: form.get('descricao'),
     instagram: form.get('instagram'),
     telefoneContato: form.get('telefoneContato'),
+    visibilidade: form.get('visibilidade') || undefined,
   })
 
   if (!parsed.success) {
@@ -92,6 +93,7 @@ export async function POST(request: Request) {
     descricao,
     instagram,
     telefoneContato,
+    visibilidade,
   } = parsed.data
 
   const { data: negocio, error: insertError } = await supabase
@@ -107,6 +109,7 @@ export async function POST(request: Request) {
       descricao: descricao || null,
       instagram: instagram || null,
       telefone_contato: telefoneContato,
+      visibilidade,
       foto_principal_url: caminhoPrincipal,
       foto_capa_url: caminhoCapa,
     })

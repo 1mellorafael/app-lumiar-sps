@@ -23,7 +23,7 @@ export default async function EditarNegocioPage({
     supabase
       .from('negocios')
       .select(
-        'id, profile_id, nome_negocio, categorias, localizacoes, endereco, endereco_lat, endereco_lng, descricao, instagram, telefone_contato, foto_principal_url, foto_capa_url'
+        'id, profile_id, nome_negocio, categorias, localizacoes, endereco, endereco_lat, endereco_lng, descricao, instagram, telefone_contato, visibilidade, foto_principal_url, foto_capa_url'
       )
       .eq('id', id)
       .maybeSingle(),
@@ -53,6 +53,7 @@ export default async function EditarNegocioPage({
         descricao: negocio.descricao ?? '',
         instagram: negocio.instagram ?? '',
         telefoneContato: negocio.telefone_contato,
+        visibilidade: negocio.visibilidade,
         fotoPrincipalUrl,
         fotoCapaUrl,
       }}

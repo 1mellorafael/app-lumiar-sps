@@ -35,10 +35,12 @@ function initials(nome: string) {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 // Quebra o container centralizado (main tem max-w-md) e estica até a
-// borda de verdade da tela — sem isso, o "sangramento" das seções abaixo
-// só acontecia em telas mais estreitas que max-w-md (ou seja, só em
-// celular por acidente, não por design)
-const FULL_BLEED = 'relative ml-[50%] w-screen -translate-x-1/2'
+// borda de verdade da tela — só em telas de celular (< sm). Em desktop
+// (>= sm) volta pro normal, dentro da coluna de max-w-md — o sangramento
+// é coisa de layout mobile, não faz sentido esticar até a janela inteira
+// do navegador num monitor
+const FULL_BLEED =
+  'relative ml-[50%] w-screen -translate-x-1/2 sm:ml-0 sm:w-full sm:translate-x-0'
 
 type DadosNegocio = {
   id: string

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Globe, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CATEGORIAS, LOCALIZACOES } from '@/lib/mock-data'
@@ -11,6 +12,7 @@ import { AddressAutocomplete } from '@/components/cadastro-negocio/address-autoc
 import { MapEmbed } from '@/components/shared/map-embed'
 import { PageHeader } from '@/components/shared/page-header'
 import { formatarTelefone } from '@/lib/utils'
+import type { Visibilidade } from '@/lib/validations/posts'
 
 export type NegocioExistente = {
   id: string
@@ -23,6 +25,7 @@ export type NegocioExistente = {
   descricao: string
   instagram: string
   telefoneContato: string
+  visibilidade: Visibilidade
   fotoPrincipalUrl: string | null
   fotoCapaUrl: string | null
 }
@@ -56,6 +59,9 @@ export function NegocioForm({
   )
   const [localizacoes, setLocalizacoes] = useState<string[]>(
     negocioExistente?.localizacoes ?? []
+  )
+  const [visibilidade, setVisibilidade] = useState<Visibilidade>(
+    negocioExistente?.visibilidade ?? 'publico'
   )
   const [enderecoCoords, setEnderecoCoords] = useState<
     { lat: number; lng: number } | null
@@ -131,6 +137,7 @@ export function NegocioForm({
       body.set('descricao', formData.descricao)
       body.set('instagram', formData.instagram)
       body.set('telefoneContato', formData.telefoneContato)
+      body.set('visibilidade', visibilidade)
       if (fotoPrincipal) body.set('fotoPrincipal', fotoPrincipal)
       if (fotoCapa) body.set('fotoCapa', fotoCapa)
 
@@ -284,6 +291,40 @@ export function NegocioForm({
                 </button>
               )
             })}
+          </div>
+        </div>
+
+        <div>
+          <span className="text-neutral-text block text-sm font-medium">
+            Quem pode ver
+          </span>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              onClick={() => setVisibilidade('publico')}
+              aria-pressed={visibilidade === 'publico'}
+              className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                visibilidade === 'publico'
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-border text-neutral-text hover:bg-muted'
+              }`}
+            >
+              <Globe className="size-3.5" />
+              Qualquer um
+            </button>
+            <button
+              type="button"
+              onClick={() => setVisibilidade('logado')}
+              aria-pressed={visibilidade === 'logado'}
+              className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                visibilidade === 'logado'
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-border text-neutral-text hover:bg-muted'
+              }`}
+            >
+              <Lock className="size-3.5" />
+              Só quem tem login
+            </button>
           </div>
         </div>
 
