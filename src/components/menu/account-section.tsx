@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { LogIn, LogOut, Briefcase, PlusCircle, User } from 'lucide-react'
+import { LogIn, LogOut, Briefcase, User, Megaphone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 // Este componente em si não lida com email — quem mostra nome/telefone/
@@ -48,20 +48,23 @@ export function AccountSection({
               Meus dados
             </Link>
           </Button>
-          {totalNegocios > 0 ? (
+          <Button variant="ghost" className="justify-start" size="sm" asChild>
+            <Link href="/postar">
+              <Megaphone className="mr-2 size-4" />
+              Publicar post
+            </Link>
+          </Button>
+          {totalNegocios > 0 && (
             // "Cadastrar outro negócio" mora dentro dessa tela — não
-            // compete aqui no Menu (decisão de 17/08)
+            // compete aqui no Menu (decisão de 17/08). Quando ainda não
+            // tem nenhum, o convite pra cadastrar mora numa seção
+            // separada mais abaixo (ver menu/page.tsx) — junto de "Meus
+            // dados" parecia forçar o cadastro de negócio (feedback de
+            // 18/08)
             <Button variant="ghost" className="justify-start" size="sm" asChild>
               <Link href="/meus-negocios">
                 <Briefcase className="mr-2 size-4" />
                 Meus negócios ({totalNegocios})
-              </Link>
-            </Button>
-          ) : (
-            <Button variant="ghost" className="justify-start" size="sm" asChild>
-              <Link href="/cadastro-negocio">
-                <PlusCircle className="mr-2 size-4" />
-                Cadastrar negócio
               </Link>
             </Button>
           )}

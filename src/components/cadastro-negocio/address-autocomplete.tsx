@@ -7,18 +7,24 @@ type PlaceSelecionado = {
   endereco: string
   lat: number
   lng: number
+  // bairro/vila detectado no endereço (ex: "Benfica", "Lumiar") — texto
+  // cru do Nominatim, quem usa decide se/como casar com uma localidade
+  // conhecida do app (ver localidadeDetectada em post-form.tsx)
+  localidade?: string
 }
 
 type NominatimResult = {
   display_name: string
   lat: string
   lon: string
+  address?: Record<string, string>
 }
 
 type AddressAutocompleteProps = {
   value: string
   onChange: (value: string) => void
   onPlaceSelected: (place: PlaceSelecionado) => void
+  placeholder?: string
 }
 
 const DEBOUNCE_MS = 400
@@ -31,6 +37,7 @@ export function AddressAutocomplete({
   value,
   onChange,
   onPlaceSelected,
+  placeholder = 'Opcional — comece a digitar o endereço...',
 }: AddressAutocompleteProps) {
   const [sugestoes, setSugestoes] = useState<NominatimResult[]>([])
   const [aberto, setAberto] = useState(false)
@@ -76,6 +83,7 @@ export function AddressAutocomplete({
         url.searchParams.set('q', query)
         url.searchParams.set('format', 'json')
         url.searchParams.set('countrycodes', 'br')
+        url.searchParams.set('addressdetails', '1')
         url.searchParams.set('limit', '5')
         const res = await fetch(url, { signal: controller.signal })
         const data: NominatimResult[] = await res.json()
@@ -96,6 +104,9 @@ export function AddressAutocomplete({
       endereco: item.display_name,
       lat: Number(item.lat),
       lng: Number(item.lon),
+      // bairro é mais específico que vila (ex: "Benfica" dentro de "São
+      // Pedro da Serra") — prioriza o mais fino quando os dois existem
+      localidade: item.address?.suburb || item.address?.village,
     })
     setSugestoes([])
     setAberto(false)
@@ -110,7 +121,7 @@ export function AddressAutocomplete({
           buscar(e.target.value)
         }}
         onFocus={() => sugestoes.length > 0 && setAberto(true)}
-        placeholder="Opcional — comece a digitar o endereço..."
+        placeholder={placeholder}
       />
       {aberto && sugestoes.length > 0 && (
         <ul className="border-border bg-card absolute z-10 mt-1 w-full overflow-hidden rounded-md border shadow-[var(--shadow-card-hover)]">

@@ -42,13 +42,47 @@ export function getCategoria(slug: string): Categoria | undefined {
 
 export type LocalizacaoOption = { slug: string; nome: string }
 
+// Lumiar e São Pedro da Serra são os dois distritos que o app atende
+// (CLAUDE.md seção 1); os demais são localidades/bairros rurais dentro
+// desses distritos —úteis pra marcar onde exatamente um post/negócio
+// fica, mais preciso que só "Lumiar" pra quem já conhece a região
+// (decisão de 18/08). Lista aberta: "etc." — completar conforme
+// aparecer demanda real, sem exagerar antes disso.
 export const LOCALIZACOES: LocalizacaoOption[] = [
   { slug: 'lumiar', nome: 'Lumiar' },
   { slug: 'sao-pedro-da-serra', nome: 'São Pedro da Serra' },
+  { slug: 'bocaina', nome: 'Bocaina' },
+  { slug: 'benfica', nome: 'Benfica' },
+  { slug: 'boa-esperanca', nome: 'Boa Esperança' },
+  { slug: 'santiago', nome: 'Santiago' },
+  { slug: 'serra-mar', nome: 'Serra Mar' },
 ]
 
 export function getLocalizacao(slug: string): LocalizacaoOption | undefined {
   return LOCALIZACOES.find((l) => l.slug === slug)
+}
+
+// Casa o nome de bairro/vila que o Nominatim devolve (ex: "Benfica",
+// "São Pedro da Serra") com uma localidade conhecida — usado pra marcar
+// a tag sozinho quando a pessoa escolhe um endereço real no autocomplete
+// (posts de evento/curso). Nem todo lugar da região tem bairro bem
+// mapeado no OpenStreetMap (Bocaina, Boa Esperança e Serra Mar, por
+// exemplo, não retornam de forma confiável) — quando não casa com nada,
+// devolve undefined e quem chama mantém a seleção manual como está.
+export function matchLocalizacao(nomeDetectado: string | undefined): string | undefined {
+  if (!nomeDetectado) return undefined
+  const normalizado = nomeDetectado
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+  return LOCALIZACOES.find(
+    (l) =>
+      l.nome
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase() === normalizado
+  )?.slug
 }
 
 // Chip curto pra caber no card/lista — "São Pedro da Serra" não cabe
