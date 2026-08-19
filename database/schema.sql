@@ -19,13 +19,34 @@
 -- auth.users nativo do Supabase Auth — nunca reimplementar hash de senha)
 -- ============================================================
 -- Campos batem com o cadastro leve decidido em 15/08 (CLAUDE.md seção 7):
--- só nome, email (fica em auth.users), telefone e senha no Passo 1. Sem
--- sobrenome, foto de perfil, data de nascimento ou endereço — geo-restrição
--- vira só aviso de texto fixo antes do botão, não geocoding automático.
+-- nome, email (fica em auth.users), telefone e senha no Passo 1. Sem
+-- sobrenome. foto_url (migration 0023) é opcional, não quebra o
+-- cadastro leve.
+--
+-- username (migration 0025) substitui email como identificador de
+-- login — email continua pedido e passa a ser verificado pelo Auth
+-- nativo, só não é mais usado pra logar.
+--
+-- endereco/endereco_lat/endereco_lng (migration 0025) confirmam que a
+-- conta é da região (Lumiar/São Pedro da Serra e entorno) — validado
+-- contra uma área no Zod no cadastro, com aviso claro quando fica fora
+-- (nunca falha silenciosa, decisão de 18/08).
+--
+-- data_nascimento (migration 0028) — reverte a exclusão original.
+--
+-- username/endereco/data_nascimento são nullable porque contas já
+-- existentes (dados de teste, pré-lançamento) não têm — toda conta
+-- NOVA é obrigada (Zod).
 create table profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   nome varchar(255) not null,
   telefone varchar(20) not null unique,
+  foto_url varchar(500),
+  username varchar(30) unique,
+  endereco varchar(500),
+  endereco_lat double precision,
+  endereco_lng double precision,
+  data_nascimento date,
   is_admin boolean not null default false, -- nunca setável pelo cliente
   created_at timestamptz not null default now()
 );
@@ -116,6 +137,9 @@ create table negocios (
   endereco_lat double precision,
   endereco_lng double precision,
   status varchar(20) not null default 'pendente', -- pendente | ativo | rejeitado
+  -- publico (qualquer um vê) ou logado (só quem tem conta) — escolhido
+  -- pelo dono no cadastro (migration 0027)
+  visibilidade varchar(10) not null default 'publico',
   created_at timestamptz not null default now()
 );
 
@@ -124,12 +148,13 @@ create index negocios_status_idx on negocios (status);
 
 alter table negocios enable row level security;
 
--- público (deslogado) só vê negócios com status ativo (regra de
--- sensibilidade: pendente é 100% privado, nenhum campo vaza)
+-- público (deslogado) só vê negócios ativo E público (regra de
+-- sensibilidade: pendente é 100% privado, nenhum campo vaza; e agora
+-- visibilidade "logado" também fica de fora do anon)
 create policy "negocios_select_anon"
   on negocios for select
   to anon
-  using (status = 'ativo');
+  using (status = 'ativo' and visibilidade = 'publico');
 
 -- authenticated vê ativos (público) OU os próprios, independente do
 -- status — policy única pra evitar multiple permissive policies
@@ -262,6 +287,129 @@ create policy "galeria_delete_own"
   );
 
 -- ============================================================
+-- posts: eventos, cursos, anúncios e pets perdidos — feed que fica
+-- fixo no app, diferente do grupo de WhatsApp (migration 0019)
+-- ============================================================
+create table posts (
+  id uuid primary key default gen_random_uuid(),
+  profile_id uuid not null references profiles(id) on delete cascade,
+  -- preenchido quando o post é publicado em nome de um negócio próprio
+  -- em vez do perfil pessoal (migration 0020)
+  negocio_id uuid references negocios(id) on delete set null,
+  tipo varchar(20) not null, -- evento | curso | anuncio | pet_perdido
+  -- detectada sozinha pelo bairro/vila do endereço quando dá (evento/
+  -- curso), ou escolhida na mão — lumiar | sao-pedro-da-serra | bocaina |
+  -- benfica | boa-esperanca | santiago | serra-mar | etc (lista aberta,
+  -- ver LOCALIZACOES em src/lib/mock-data.ts)
+  localizacao varchar(20) not null,
+  titulo varchar(255) not null,
+  descricao text,
+  -- obrigatória em pet_perdido, opcional nos outros — validado no Zod
+  foto_url varchar(500),
+  -- sempre obrigatório (todo tipo, inclusive pet_perdido)
+  telefone_contato varchar(20) not null,
+  -- opcional; evento/curso/anuncio (não pet_perdido) — migration 0024
+  email_contato varchar(255),
+  -- opcional; só evento/curso — migration 0024
+  rede_social varchar(255),
+  data_evento timestamptz, -- obrigatório em evento/curso
+  -- obrigatório em evento/curso (endereço real); opcional em pet_perdido
+  -- ("visto por último"); anuncio não usa
+  local_texto varchar(255),
+  -- só preenchidos quando a pessoa escolhe um lugar real no autocomplete
+  -- (migration 0022) — habilita o mapa clicável na tela de detalhe
+  endereco_lat double precision,
+  endereco_lng double precision,
+  preco numeric(10, 2), -- só anuncio; null = "a combinar"
+  status varchar(20) not null default 'ativo', -- ativo | encerrado
+  -- nome de quem postou, capturado no momento (migration 0021) — profiles
+  -- só tem policy de select pro próprio dono, então o feed não consegue
+  -- ler o nome de outra pessoa via join; retrato do momento, não link ao vivo
+  autor_nome varchar(255) not null default '',
+  -- publico (qualquer um vê) ou logado (só quem tem conta) — escolhido
+  -- por quem posta (migration 0027)
+  visibilidade varchar(10) not null default 'publico',
+  created_at timestamptz not null default now()
+);
+
+create index posts_profile_id_idx on posts (profile_id);
+create index posts_negocio_id_idx on posts (negocio_id);
+create index posts_tipo_idx on posts (tipo);
+create index posts_status_idx on posts (status);
+create index posts_data_evento_idx on posts (data_evento);
+
+alter table posts enable row level security;
+
+-- sem aprovação prévia (diferente de negocios) — post fica no ar assim
+-- que criado, admin remove depois se precisar. anon só vê público;
+-- authenticated vê público + logado (policy mais abaixo)
+create policy "posts_select_anon"
+  on posts for select
+  to anon
+  using (status = 'ativo' and visibilidade = 'publico');
+
+create policy "posts_select_authenticated"
+  on posts for select
+  to authenticated
+  using (
+    status = 'ativo'
+    or profile_id = (select auth.uid())
+    or public.is_admin()
+  );
+
+-- negocio_id preenchido = postando em nome de um negócio próprio; checa
+-- que o negócio é do autor e está ativo (senão dá pra postar em nome do
+-- negócio de outra pessoa)
+create policy "posts_insert_own"
+  on posts for insert
+  to authenticated
+  with check (
+    (select auth.uid()) = profile_id
+    and (
+      negocio_id is null
+      or exists (
+        select 1 from negocios
+        where negocios.id = posts.negocio_id
+          and negocios.profile_id = (select auth.uid())
+          and negocios.status = 'ativo'
+      )
+    )
+  );
+
+create policy "posts_update_own"
+  on posts for update
+  to authenticated
+  using ((select auth.uid()) = profile_id)
+  with check (
+    (select auth.uid()) = profile_id
+    and (
+      negocio_id is null
+      or exists (
+        select 1 from negocios
+        where negocios.id = posts.negocio_id
+          and negocios.profile_id = (select auth.uid())
+          and negocios.status = 'ativo'
+      )
+    )
+  );
+
+create policy "posts_delete_own"
+  on posts for delete
+  to authenticated
+  using ((select auth.uid()) = profile_id);
+
+create policy "posts_update_admin"
+  on posts for update
+  to authenticated
+  using (public.is_admin())
+  with check (public.is_admin());
+
+create policy "posts_delete_admin"
+  on posts for delete
+  to authenticated
+  using (public.is_admin());
+
+-- ============================================================
 -- categorias: catálogo público, só admin edita
 -- ============================================================
 create table categorias (
@@ -326,12 +474,17 @@ security definer set search_path = public
 as $$
 begin
   insert into public.profiles (
-    id, nome, telefone
+    id, nome, telefone, username, endereco, endereco_lat, endereco_lng, data_nascimento
   )
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'nome', ''),
-    coalesce(new.raw_user_meta_data->>'telefone', '')
+    coalesce(new.raw_user_meta_data->>'telefone', ''),
+    nullif(new.raw_user_meta_data->>'username', ''),
+    nullif(new.raw_user_meta_data->>'endereco', ''),
+    (new.raw_user_meta_data->>'endereco_lat')::double precision,
+    (new.raw_user_meta_data->>'endereco_lng')::double precision,
+    (new.raw_user_meta_data->>'data_nascimento')::date
   );
   return new;
 end;
@@ -399,3 +552,71 @@ create policy "prestador_fotos_update_own"
 
 grant insert on public.sugestoes to anon, authenticated;
 grant select on public.sugestoes to authenticated;
+
+-- ============================================================
+-- storage: posts-fotos (migration 0020)
+-- ============================================================
+-- Público — post fica visível assim que criado, sem estado "pendente"
+-- pra esconder (diferente de negocios), então não precisa de URL
+-- assinada: foto_url guarda a URL pública direto.
+insert into storage.buckets (id, name, public)
+values ('posts-fotos', 'posts-fotos', true)
+on conflict (id) do nothing;
+
+create policy "posts_fotos_select_publico"
+  on storage.objects for select
+  to public
+  using (bucket_id = 'posts-fotos');
+
+-- cada autor só sobe foto na própria pasta: posts-fotos/{auth.uid()}/...
+create policy "posts_fotos_insert_own"
+  on storage.objects for insert
+  to authenticated
+  with check (
+    bucket_id = 'posts-fotos'
+    and (storage.foldername(name))[1] = (select auth.uid()::text)
+  );
+
+create policy "posts_fotos_update_own"
+  on storage.objects for update
+  to authenticated
+  using (
+    bucket_id = 'posts-fotos'
+    and (storage.foldername(name))[1] = (select auth.uid()::text)
+  );
+
+create policy "posts_fotos_delete_own"
+  on storage.objects for delete
+  to authenticated
+  using (
+    bucket_id = 'posts-fotos'
+    and (storage.foldername(name))[1] = (select auth.uid()::text)
+  );
+
+-- ============================================================
+-- storage: perfil-fotos (migration 0023)
+-- ============================================================
+insert into storage.buckets (id, name, public)
+values ('perfil-fotos', 'perfil-fotos', true)
+on conflict (id) do nothing;
+
+create policy "perfil_fotos_select_publico"
+  on storage.objects for select
+  to public
+  using (bucket_id = 'perfil-fotos');
+
+create policy "perfil_fotos_insert_own"
+  on storage.objects for insert
+  to authenticated
+  with check (
+    bucket_id = 'perfil-fotos'
+    and (storage.foldername(name))[1] = (select auth.uid()::text)
+  );
+
+create policy "perfil_fotos_update_own"
+  on storage.objects for update
+  to authenticated
+  using (
+    bucket_id = 'perfil-fotos'
+    and (storage.foldername(name))[1] = (select auth.uid()::text)
+  );

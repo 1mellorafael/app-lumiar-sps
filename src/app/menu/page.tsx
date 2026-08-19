@@ -5,6 +5,8 @@ import {
   HelpCircle,
   FileText,
   ShieldCheck,
+  Briefcase,
+  ArrowRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AccountSection } from '@/components/menu/account-section'
@@ -46,6 +48,26 @@ export default async function MenuPage() {
       )}
 
       <AppSection />
+
+      {/* Convite pra cadastrar negócio — separado de "Meus dados" de
+          propósito (feedback de 18/08): fica junto ali parecia forçar o
+          cadastro logo depois de entrar na conta. Some sozinho assim que
+          a pessoa cadastra o primeiro (vira "Meus negócios" lá em cima) */}
+      {user && totalNegocios === 0 && (
+        <Link
+          href="/cadastro-negocio"
+          className="border-border/70 bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] flex items-center gap-3 rounded-lg border p-3 transition-all duration-200 ease-decelerate"
+        >
+          <Briefcase className="text-primary-500 size-5 shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="text-card-foreground text-sm font-medium">Tem um negócio?</p>
+            <p className="text-muted-foreground text-xs">
+              Cadastre e apareça pra quem procura por aqui
+            </p>
+          </div>
+          <ArrowRight className="text-primary-500 size-4 shrink-0" />
+        </Link>
+      )}
 
       {/* Seção Configurações */}
       <section className="border-border/70 bg-card shadow-[var(--shadow-card)] flex flex-col gap-2 rounded-lg border p-3">

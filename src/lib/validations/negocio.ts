@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { getCategoria, getLocalizacao } from '@/lib/mock-data'
 import { telefoneSchema } from '@/lib/validations/auth'
+import { VISIBILIDADES } from '@/lib/validations/posts'
 
 // Fotos vêm como File separado (multipart/form-data), validadas na rota —
 // zod aqui cobre só os campos de texto. Já chegam recortadas no formato
@@ -31,6 +32,9 @@ export const negocioSchema = z.object({
     .optional()
     .default(''),
   telefoneContato: telefoneSchema,
+  // dono escolhe se o negócio fica visível pra qualquer um ou só pra
+  // quem tem conta — default público
+  visibilidade: z.enum(VISIBILIDADES).optional().default('publico'),
 })
 
 export type NegocioInput = z.infer<typeof negocioSchema>
